@@ -1,0 +1,3 @@
+- [Setup Express + TS](https://builtin.com/articles/build-express-app-typescript)
+- [Setup Jest](https://jestjs.io/docs/getting-started)
+- [Git Ignore](https://github.com/expressjs/express/blob/master/.gitignore)
