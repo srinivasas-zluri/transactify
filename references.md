@@ -3,3 +3,5 @@
 - [Git Ignore](https://github.com/expressjs/express/blob/master/.gitignore)
 - [Test REST With Jest](https://dev.to/nedsoft/testing-nodejs-express-api-with-jest-and-supertest-1km6)
   - [Official (NOT WORKING!)](http://www.albertgao.xyz/2017/05/24/how-to-test-expressjs-with-jest-and-supertest/)
+- [TS into monorepo](https://earthly.dev/blog/setup-typescript-monorepo/)
+- [Jest in a monorepo](https://stackoverflow.com/questions/70999527/where-to-configure-jest-in-a-monorepo)
