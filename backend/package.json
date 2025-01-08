@@ -16,6 +16,7 @@
     "express": "^4.21.2"
   },
   "devDependencies": {
+    "@mikro-orm/cli": "^6.4.2",
     "@types/express": "^5.0.0"
   }
 }
