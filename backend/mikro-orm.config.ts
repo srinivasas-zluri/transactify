@@ -1,11 +1,12 @@
 import { Options, PostgreSqlDriver } from "@mikro-orm/postgresql";
+import { User } from "./models/user";
 
 const config: Options = {
   driver: PostgreSqlDriver,
   migrations: {
     path: "./migrations",
   },
-  entities: ["./models"],
+  entities: [User],
   dbName: "database",
   user: "user",
   password: "password",

@@ -4,7 +4,7 @@ import { User } from './models/user';
 export interface DBServices {
   orm: MikroORM;
   em: EntityManager;
-  user: EntityRepository<User>;
+  user: EntityRepository<User> 
 }
 
 let cache: DBServices;
@@ -19,7 +19,7 @@ export async function initORM(options?: Options): Promise<DBServices> {
   // save to cache before returning
   return cache = {
     orm,
-    em: orm.em,
+    em: orm.em.fork(),
     user: orm.em.getRepository(User),
   };
 }
