@@ -94,3 +94,6 @@ web_modules/
 
 # vscode 
 .vscode
+
+# Database files 
+.db
