@@ -2,7 +2,8 @@
     "extends": "../tsconfig.json",
     "compilerOptions": {
         "outDir": "../dist/backend",
-        "experimentalDecorators": true
+        "experimentalDecorators": true, // Required for MikroORM
+        "emitDecoratorMetadata": true   // Required for MikroORM
     },
     "include": [
         "src/**/*.ts",
