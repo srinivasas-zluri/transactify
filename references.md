@@ -5,3 +5,4 @@
   - [Official (NOT WORKING!)](http://www.albertgao.xyz/2017/05/24/how-to-test-expressjs-with-jest-and-supertest/)
 - [TS into monorepo](https://earthly.dev/blog/setup-typescript-monorepo/)
 - [Jest in a monorepo](https://stackoverflow.com/questions/70999527/where-to-configure-jest-in-a-monorepo)
+- [Setting up mikro-orm](https://mikro-orm.io/docs/installation)
