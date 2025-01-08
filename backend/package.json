@@ -10,6 +10,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@mikro-orm/core": "^6.4.2",
+    "@mikro-orm/postgresql": "^6.4.2",
+    "backend": "file:",
     "express": "^4.21.2"
   },
   "devDependencies": {
