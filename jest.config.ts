@@ -210,6 +210,11 @@ config.projects = [
     modulePathIgnorePatterns: ["<rootDir>/dist/"],
     collectCoverageFrom: ["<rootDir>/backend/src/*.ts"],
     coverageDirectory: "<rootDir>/backend/coverage",
+    globals: {
+      "ts-jest": {
+        tsconfig: "<rootDir>/backend/tsconfig.json"
+      }
+    }
   }
 ];
 
