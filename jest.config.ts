@@ -212,7 +212,8 @@ config.projects = [
       ],
     },
     moduleNameMapper: {
-      "^~/(.*)": "<rootDir>/backend/src/$1", // Resolves '~' to the backend folder
+      "~/models/(.*)": "<rootDir>/backend/models/$1", // Resolves '~' to the models folder
+      "~/(.*)": "<rootDir>/backend/src/$1", // Resolves '~' to the backend folder
     },
     moduleFileExtensions: ["ts", "js"],
     modulePathIgnorePatterns: ["<rootDir>/dist/"],
