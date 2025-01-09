@@ -8,3 +8,4 @@
 - [Setting up mikro-orm](https://mikro-orm.io/docs/installation)
 - [Uploading files in express](https://stackoverflow.com/questions/23691194/node-express-file-upload)
 - [Parsing csv files](https://www.npmjs.com/package/csv-parser)
+- [Mocking in jest](https://jestjs.io/docs/jest-object#jestspyonobject-methodname)
