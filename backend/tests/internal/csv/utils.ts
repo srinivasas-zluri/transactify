@@ -12,3 +12,11 @@ export const createCSVFile = (filename: string, content: string) => {
   fs.writeFileSync(filePath, content);
   return filePath;
 };
+
+export const createCSVWithBOM = (fileName: string, content: string) => {
+  const bom = Buffer.from([0xef, 0xbb, 0xbf]); // BOM for UTF-8
+  const filePath = path.join(tempDir, fileName);
+  fs.writeFileSync(filePath, bom);
+  fs.appendFileSync(filePath, content);
+  return filePath;
+};
