@@ -114,8 +114,7 @@ export function parseCSV(
             type: "UnknownError",
             message: `An unknown error occurred.`,
           });
-          console.error(err);
-          console.log("Error here");
+          reject(result.errors);
         });
     } catch (error: unknown) {
       result.errors.push({
