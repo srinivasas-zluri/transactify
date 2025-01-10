@@ -1,5 +1,5 @@
 import { Transaction } from "~/models/transaction";
-import { CSVParseError } from "./errors";
+import { CSVParseError, CSVRow } from "./types";
 
 export function handleRow(
   row: CSVRow,
@@ -47,44 +47,46 @@ export function handleRow(
   };
 }
 
-export type CSVRow = {
-  date: string;
-  amount: string;
-  description: string;
-  currency: string;
-};
-
 function parseDate(date: string): Date | null {
+  // remove leading and trailing spaces
   date = date.trim();
+
+  // remove inbetween spaces
+  date = date.replace(/\s/g, "");
+
   if (date === "") {
     return null;
   }
 
   // check if date is the format YYYY-MM-DD
-  const regex = /^\d{4}-\d{2}-\d{2}$/;
+  const regex = /^\d{4}[-\/]\d{2}[-\/]\d{2}$/;
 
   if (!regex.test(date)) {
     return null; // Invalid format
   }
 
-
-  try {
-    const parsedDate = new Date(date);
-    return isNaN(parsedDate.getTime()) ? null : parsedDate;
-  } catch {
-    return null;
-  }
+  const parsedDate = new Date(date);
+  return isNaN(parsedDate.getTime()) ? null : parsedDate;
 }
 
 function parseAmount(amount: string): number | null {
+  // remove leading and trailing spaces
   amount = amount.trim();
+
+  // remove inbetween spaces
+  amount = amount.replace(/\s/g, "");
+
   if (amount === "") {
     return null;
   }
-  try {
-    const parsedAmount = parseFloat(amount);
-    return isNaN(parsedAmount) ? null : parsedAmount;
-  } catch {
+
+
+  // valid number regex
+  const validNumberRegex = /^[+-]?\d+(\.\d+)?$/;
+  if (!validNumberRegex.test(amount)) {
     return null;
   }
+
+  const parsedAmount = parseFloat(amount);
+  return isNaN(parsedAmount) ? null : parsedAmount;
 }
