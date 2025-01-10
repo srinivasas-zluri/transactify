@@ -167,8 +167,8 @@ describe("valid csv parsing", () => {
 
   it("should handle CSV with empty fields", async () => {
     const csvWithEmptyFields = `date,amount,description,currency
-                                2025-01-08,100.00,,CAD
-                                2025-01-09,50.50,,USD`;
+                                2025-01-08,100.00,something,
+                                2025-01-09,50.50,something,`;
     const filePath = createCSVFile(
       "csv-with-empty-fields.csv",
       csvWithEmptyFields
@@ -179,15 +179,15 @@ describe("valid csv parsing", () => {
       {
         transaction_date: new Date("2025-01-08"),
         amount: 100.0,
-        description: "",
-        currency: "CAD",
+        description: "something",
+        currency: "",
         is_deleted: false,
       },
       {
         transaction_date: new Date("2025-01-09"),
         amount: 50.5,
-        description: "",
-        currency: "USD",
+        description: "something",
+        currency: "",
         is_deleted: false,
       },
     ]);
