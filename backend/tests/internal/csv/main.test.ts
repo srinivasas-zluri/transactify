@@ -3,6 +3,7 @@ import path from "path";
 import { CSVParseError } from "~/internal/csv/types";
 import { parseCSV } from "~/internal/csv/main";
 import { createCSVFile, tempDir } from "./utils";
+const parse = require("~/internal/csv/parse");
 
 describe("parseCSV", () => {
   afterEach(() => {
@@ -162,6 +163,21 @@ describe("check other errors", () => {
     });
 
     await expect(parseCSV(invalidFilePath)).rejects.toEqual([
+      {
+        type: "UnknownError",
+        message: `An unknown error occurred.`,
+      },
+    ]);
+  });
+
+  it("Throw error if an exception occurs in the parser", async () => {
+    jest.spyOn(parse, "handleRow").mockImplementation(() => {
+      throw new Error("Parser error");
+    });
+    const data = `date,amount,description,currency
+    2025-01-08,100.00,Payment,CAD,false`;
+    const filePath = createCSVFile("parser-error.csv", data);
+    await expect(parseCSV(filePath)).rejects.toEqual([
       {
         type: "UnknownError",
         message: `An unknown error occurred.`,
