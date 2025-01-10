@@ -1,7 +1,7 @@
 import csvParser from "csv-parser";
 import { existsSync, createReadStream } from "node:fs";
 import { Transaction } from "~/models/transaction";
-import { CSVParseError } from "./errors";
+import { CSVParseError, CSVRow } from "./types";
 import { handleRow } from "./parse";
 
 export function parseCSV(
@@ -38,13 +38,14 @@ export function parseCSV(
         mapHeaders: ({ header }) => header.trim().toLowerCase(), // Trim headers
         mapValues: ({ value }) => (value ? value.trim() : value), // Trim values
       };
+      const parser = csvParser(csvOptions);
       const expectedHeaders = ["date", "amount", "description", "currency"];
 
       // TODO: Check if there is a better package
       let linenumber = 0;
 
       fileStream
-        .pipe(csvParser(csvOptions))
+        .pipe(parser)
         // check if all the headers are present
         .on("headers", (headers) => {
           // Check if all expected headers are present
@@ -65,8 +66,16 @@ export function parseCSV(
           const missingFields = expectedHeaders.filter(
             (header) => !Object.keys(data).includes(header)
           );
-          const isBlankLine = missingFields.length === expectedHeaders.length;
+          // find out if it's a blank line 
+          const isBlankLine = missingFields.length === expectedHeaders.length || missingFields.length === expectedHeaders.length - 1;
           if (isBlankLine) {
+            return;
+          }
+          // find if all the fields are blank
+          const allFieldsBlank = expectedHeaders.every(
+            (header) => data[header] === ""
+          );
+          if (allFieldsBlank) {
             return;
           }
           if (missingFields.length > 0) {
@@ -77,7 +86,13 @@ export function parseCSV(
             });
             return;
           }
-          const { tnx, err } = handleRow(data, linenumber);
+          const row: CSVRow = {
+            date: data.date,
+            amount: data.amount,
+            description: data.description,
+            currency: data.currency,
+          }
+          const { tnx, err } = handleRow(row, linenumber);
           if (err === null) {
             result.rows.push(tnx);
           } else {
