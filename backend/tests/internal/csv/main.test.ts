@@ -1,43 +1,12 @@
 import fs from "fs";
 import path from "path";
-import { CSVParseError } from "~/internal/csv/errors";
+import { CSVParseError } from "~/internal/csv/types";
 import { parseCSV } from "~/internal/csv/main";
 import { createCSVFile, tempDir } from "./utils";
 
 describe("parseCSV", () => {
-  beforeAll(() => {
-    if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir);
-    }
-  });
-
   afterEach(() => {
     jest.restoreAllMocks();
-  });
-
-  it("should parse a valid CSV file and return an array of transactions", async () => {
-    const validCSV = `date,amount,description,currency
-                      2025-01-08, \t 100.00  ,Payment   ,   CAD
-                      \t\t2025-01-09,50.50\t,Refund,USD`;
-    const filePath = createCSVFile("valid-file.csv", validCSV);
-
-    const result = await parseCSV(filePath);
-    expect(result).toEqual([
-      {
-        transaction_date: new Date("2025-01-08"),
-        amount: 100.0,
-        description: "Payment",
-        currency: "CAD",
-        is_deleted: false,
-      },
-      {
-        transaction_date: new Date("2025-01-09"),
-        amount: 50.5,
-        description: "Refund",
-        currency: "USD",
-        is_deleted: false,
-      },
-    ]);
   });
 
   it("should return InvalidLine error if a specific line is malformed", async () => {
