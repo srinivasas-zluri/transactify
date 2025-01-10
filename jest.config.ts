@@ -70,7 +70,7 @@ const config: Config = {
   // globals: {},
 
   // The maximum amount of workers used to run your tests. Can be specified as % or a number. E.g. maxWorkers: 10% will use 10% of your CPU amount + 1 as the maximum worker number. maxWorkers: 2 will use a maximum of 2 workers.
-  // maxWorkers: "50%",
+  maxWorkers: "4",
 
   // An array of directory names to be searched recursively up from the requiring module's location
   // moduleDirectories: [
@@ -200,22 +200,26 @@ config.projects = [
   // backend
   {
     displayName: "backend",
-    testMatch: ["<rootDir>/backend/tests/*.test.ts"],
+    testMatch: ["<rootDir>/backend/tests/**/*.test.ts"],
     testEnvironment: "node",
     testPathIgnorePatterns: ["/node_modules/", "/dist/"],
     transform: {
-      "^.+\\.ts$": "ts-jest",
+      "^.+\\.ts$": [
+        "ts-jest",
+        {
+          tsconfig: "<rootDir>/backend/tsconfig.json",
+        },
+      ],
+    },
+    moduleNameMapper: {
+      "~/models/(.*)": "<rootDir>/backend/models/$1", // Resolves '~' to the models folder
+      "~/(.*)": "<rootDir>/backend/src/$1", // Resolves '~' to the backend folder
     },
     moduleFileExtensions: ["ts", "js"],
     modulePathIgnorePatterns: ["<rootDir>/dist/"],
     collectCoverageFrom: ["<rootDir>/backend/src/*.ts"],
     coverageDirectory: "<rootDir>/backend/coverage",
-    globals: {
-      "ts-jest": {
-        tsconfig: "<rootDir>/backend/tsconfig.json"
-      }
-    }
-  }
+  },
 ];
 
 export default config;
