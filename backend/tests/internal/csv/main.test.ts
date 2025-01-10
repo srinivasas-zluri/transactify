@@ -141,20 +141,6 @@ describe("File Errors", () => {
 });
 
 describe("check other errors", () => {
-  beforeAll(() => {
-    if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir);
-    }
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
-  afterAll(() => {
-    fs.rmSync(tempDir, { recursive: true, force: true });
-  });
-
   it("Throw error if fs.createReadStream is called with an invalid file", async () => {
     const invalidFilePath = createCSVFile("missing-headers.csv", "");
 
