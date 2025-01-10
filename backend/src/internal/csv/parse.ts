@@ -18,7 +18,7 @@ export function handleRow(
   } else {
     errors.push({
       type: "InvalidLine",
-      message: `Invalid date format(YYYY-MM-DD): ${row.date}`,
+      message: `Invalid date format(DD-MM-YYYY): ${row.date}`,
       lineNo: lineno,
     });
   }
@@ -66,8 +66,11 @@ function parseDate(date: string): Date | null {
     return null;
   }
 
-  // check if date is the format YYYY-MM-DD
-  const regex = /^\d{4}[-\/]\d{2}[-\/]\d{2}$/;
+  console.log(date)
+
+  // Check if the date is in the format DD-MM-YYYY or DD/MM/YYYY
+  const regex = /^\d{2}[-\/]\d{2}[-\/]\d{4}$/;
+
 
   if (!regex.test(date)) {
     return null; // Invalid format
