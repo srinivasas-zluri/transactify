@@ -82,7 +82,8 @@ describe("valid csv parsing", () => {
   it("should ignore extra blank lines", async () => {
     const csvWithBlankLines = `date,amount,description,currency
   
-                             2025-01-08,100.00,Payment,CAD
+                             2025-01-08,100.00,"Payment
+                             ",CAD
   
                              2025-01-09,50.50,Refund,USD
                              
