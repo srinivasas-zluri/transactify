@@ -121,7 +121,7 @@ describe("valid csv parsing", () => {
       csvWithSemicolons
     );
 
-    const result = await parseCSV(filePath);
+    const result = await parseCSV(filePath, { seperator: ";" });
     expect(result).toEqual([
       {
         transaction_date: new Date("2025-01-08"),

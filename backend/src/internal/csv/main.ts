@@ -5,7 +5,8 @@ import { CSVParseError, CSVRow } from "./types";
 import { handleRow } from "./parse";
 
 export function parseCSV(
-  filePath: string
+  filePath: string,
+  { seperator = "," } = {}
 ): Promise<Transaction[] | CSVParseError[]> {
   return new Promise((resolve, reject) => {
     // Check if the file exists
@@ -37,6 +38,7 @@ export function parseCSV(
         // strict: true,
         mapHeaders: ({ header }) => header.trim().toLowerCase(), // Trim headers
         mapValues: ({ value }) => (value ? value.trim() : value), // Trim values
+        separator: seperator,
       };
       const parser = csvParser(csvOptions);
       const expectedHeaders = ["date", "amount", "description", "currency"];
@@ -66,8 +68,10 @@ export function parseCSV(
           const missingFields = expectedHeaders.filter(
             (header) => !Object.keys(data).includes(header)
           );
-          // find out if it's a blank line 
-          const isBlankLine = missingFields.length === expectedHeaders.length || missingFields.length === expectedHeaders.length - 1;
+          // find out if it's a blank line
+          const isBlankLine =
+            missingFields.length === expectedHeaders.length ||
+            missingFields.length === expectedHeaders.length - 1;
           if (isBlankLine) {
             return;
           }
@@ -91,7 +95,7 @@ export function parseCSV(
             amount: data.amount,
             description: data.description,
             currency: data.currency,
-          }
+          };
           const { tnx, err } = handleRow(row, linenumber);
           if (err === null) {
             result.rows.push(tnx);
