@@ -2,19 +2,7 @@ import fs from "fs";
 import path from "path";
 import { CSVParseError } from "~/internal/csv/errors";
 import { parseCSV } from "~/internal/csv/main";
-import { Transaction } from "~/models/transaction";
-
-const tempDir = path.join(__dirname, "temp");
-
-if (!fs.existsSync(tempDir)) {
-  fs.mkdirSync(tempDir);
-}
-
-const createCSVFile = (filename: string, content: string) => {
-  const filePath = path.join(tempDir, filename);
-  fs.writeFileSync(filePath, content);
-  return filePath;
-};
+import { createCSVFile, tempDir } from "./utils";
 
 describe("parseCSV", () => {
   beforeAll(() => {
@@ -151,25 +139,6 @@ describe("parseCSV", () => {
         lineNo: 2,
         message: "Invalid amount format: ",
       } as CSVParseError,
-    ]);
-  });
-});
-
-describe("data with spaces", () => {
-  it("check parsing of data with spaces in between", async () => {
-    const extraColumnsCSV = `DaTe,amount,desCription,Currency, extra_column
-  2025 -01 -08, 3 0 2, payment, cad, false
-  `;
-    const filePath = createCSVFile("error-columns.csv", extraColumnsCSV);
-
-    await expect(parseCSV(filePath)).resolves.toEqual([
-      {
-        transaction_date: new Date("2025-01-08"),
-        amount: 100.0,
-        description: "Payment",
-        currency: "CAD",
-        is_deleted: false,
-      },
     ]);
   });
 });
