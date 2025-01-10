@@ -39,7 +39,7 @@ export function parseCSV(
         mapValues: ({ value }) => (value ? value.trim() : value), // Trim values
       };
       const expectedHeaders = ["date", "amount", "description", "currency"];
-      
+
       // TODO: Check if there is a better package
       let linenumber = 0;
 
@@ -62,7 +62,22 @@ export function parseCSV(
         })
         .on("data", (data: any) => {
           linenumber++;
-          const { tnx, err } = handleRow(data, linenumber); // Assuming handleRow is defined
+          const missingFields = expectedHeaders.filter(
+            (header) => !Object.keys(data).includes(header)
+          );
+          const isBlankLine = missingFields.length === expectedHeaders.length;
+          if (isBlankLine) {
+            return;
+          }
+          if (missingFields.length > 0) {
+            result.errors.push({
+              type: "InvalidLine",
+              message: `Missing fields in the row: ${JSON.stringify(data)}`,
+              lineNo: linenumber,
+            });
+            return;
+          }
+          const { tnx, err } = handleRow(data, linenumber);
           if (err === null) {
             result.rows.push(tnx);
           } else {
@@ -75,26 +90,19 @@ export function parseCSV(
           }
           resolve(result.rows);
         })
-        .on("error", (error: Error) => {
-          console.log(error)
+        .on("error", (err) => {
           result.errors.push({
             type: "UnknownError",
-            message: `Error reading file: ${error.message}`,
+            message: `An unknown error occurred.`,
           });
-          reject(result.errors);
+          console.error(err);
+          console.log("Error here");
         });
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        result.errors.push({
-          type: "UnknownError",
-          message: `Error reading file: ${error.message}`,
-        });
-      } else {
-        result.errors.push({
-          type: "UnknownError",
-          message: `An unknown error occurred.`,
-        });
-      }
+      result.errors.push({
+        type: "UnknownError",
+        message: `An unknown error occurred.`,
+      });
       reject(result.errors);
     }
   });
