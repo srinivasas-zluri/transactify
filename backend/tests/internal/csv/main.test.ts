@@ -12,7 +12,7 @@ describe("parseCSV", () => {
 
   it("should return InvalidLine error if a specific line is malformed", async () => {
     const malformedCSV = `daTe,amount,DESCRIPTION,currency
-  2025-01-08,100.00,Payment,cad,false
+  08-01-2025,100.00,Payment,cad,false
   ,Invalid,Amount,true`;
     const filePath = createCSVFile("malformed-line.csv", malformedCSV);
 
@@ -20,7 +20,7 @@ describe("parseCSV", () => {
       {
         type: "InvalidLine",
         lineNo: 2,
-        message: "Invalid date format(YYYY-MM-DD): ",
+        message: "Invalid date format(DD-MM-YYYY): ",
       } as CSVParseError,
     ]);
   });
@@ -35,14 +35,14 @@ describe("parseCSV", () => {
 
   it("should return InvalidLine error when date is in an invalid format", async () => {
     const invalidDateCSV = `date,amount,description,currency
-  2025-01-08,100.00,Payment,CAD,false
-  2025-99-99,50.50,Refund,USD,false`;
+  08-01-2025,100.00,Payment,CAD,false
+  99-99-2025,50.50,Refund,USD,false`;
     const filePath = createCSVFile("invalid-date-format.csv", invalidDateCSV);
 
     await expect(parseCSV(filePath)).rejects.toEqual([
       {
         lineNo: 2,
-        message: "Invalid date format(YYYY-MM-DD): 2025-99-99",
+        message: "Invalid date format(DD-MM-YYYY): 99-99-2025",
         type: "InvalidLine",
       } as CSVParseError,
     ]);
@@ -51,18 +51,18 @@ describe("parseCSV", () => {
   it("should return InvalidLine error when date is in an invalid format", async () => {
     const invalidDateCSV = `date,amount,description,currency
   1,100.00,Payment,CAD,false
-  2,2025-99-99,Refund,USD,false`;
+  2,99-99-2025,Refund,USD,false`;
     const filePath = createCSVFile("invalid-date-format.csv", invalidDateCSV);
 
     await expect(parseCSV(filePath)).rejects.toEqual([
       {
         lineNo: 1,
-        message: "Invalid date format(YYYY-MM-DD): 1",
+        message: "Invalid date format(DD-MM-YYYY): 1",
         type: "InvalidLine",
       },
       {
         lineNo: 2,
-        message: "Invalid date format(YYYY-MM-DD): 2",
+        message: "Invalid date format(DD-MM-YYYY): 2",
         type: "InvalidLine",
       },
     ]);
@@ -70,12 +70,12 @@ describe("parseCSV", () => {
 
   it("ignore extra columns", async () => {
     const extraColumnsCSV = `DaTe,amount,desCription,Currency, extra_column
-  2025-01-08,100.00,Payment,CAD,false`;
+  08-01-2025,100.00,Payment,CAD,false`;
     const filePath = createCSVFile("extra-columns.csv", extraColumnsCSV);
 
     await expect(parseCSV(filePath)).resolves.toEqual([
       {
-        transaction_date: new Date("2025-01-08"),
+        transaction_date: new Date("08-01-2025"),
         amount: 100.0,
         description: "Payment",
         currency: "CAD",
@@ -99,8 +99,8 @@ describe("parseCSV", () => {
   // check empty amount
   it("should return InvalidLine error if a specific line is malformed", async () => {
     const malformedCSV = `daTe,amount,DESCRIPTION,currency
-  2025-01-08,100.00,Payment,cad,false
-  2025-01-08, ,Invalid,Amount,true`;
+  08-01-2025,100.00,Payment,cad,false
+  08-01-2025, ,Invalid,Amount,true`;
     const filePath = createCSVFile("malformed-amount.csv", malformedCSV);
 
     await expect(parseCSV(filePath)).rejects.toEqual([
@@ -141,6 +141,10 @@ describe("File Errors", () => {
 });
 
 describe("check other errors", () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it("Throw error if fs.createReadStream is called with an invalid file", async () => {
     const invalidFilePath = createCSVFile("missing-headers.csv", "");
 
@@ -156,26 +160,11 @@ describe("check other errors", () => {
     ]);
   });
 
-  it("Throw error if an exception occurs in the parser", async () => {
-    jest.spyOn(parse, "handleRow").mockImplementation(() => {
-      throw new Error("Parser error");
-    });
-    const data = `date,amount,description,currency
-    2025-01-08,100.00,Payment,CAD,false`;
-    const filePath = createCSVFile("parser-error.csv", data);
-    await expect(parseCSV(filePath)).rejects.toEqual([
-      {
-        type: "UnknownError",
-        message: `An unknown error occurred.`,
-      },
-    ]);
-  });
-
   // empty description should throw error
   it("should return InvalidLine error if a specific line is malformed", async () => {
     const malformedCSV = `daTe,amount,DESCRIPTION,currency
-  2025-01-08,100.00,,cad,false
-  2025-01-08,50.50, ,USD,false`;
+  08-01-2025,100.00,,cad,false
+  08-01-2025,50.50, ,USD,false`;
     const filePath = createCSVFile("malformed-description.csv", malformedCSV);
 
     await expect(parseCSV(filePath)).rejects.toEqual([
@@ -189,6 +178,21 @@ describe("check other errors", () => {
         lineNo: 2,
         message: "Description cannot be empty",
       } as CSVParseError,
+    ]);
+  });
+
+  it("Throw error if an exception occurs in the parser", async () => {
+    jest.spyOn(parse, "handleRow").mockImplementation(() => {
+      throw new Error("Parser error");
+    });
+    const data = `date,amount,description,currency
+    08-01-2025,100.00,Payment,CAD,false`;
+    const filePath = createCSVFile("parser-error.csv", data);
+    await expect(parseCSV(filePath)).rejects.toEqual([
+      {
+        type: "UnknownError",
+        message: `An unknown error occurred.`,
+      },
     ]);
   });
 });

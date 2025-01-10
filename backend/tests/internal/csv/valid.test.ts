@@ -4,21 +4,21 @@ import { createCSVFile } from "./utils";
 describe("parseCSV", () => {
   it("should parse a valid CSV file and return an array of transactions", async () => {
     const validCSV = `date,amount,description,currency
-                      2025-01-08, \t 100.00  ,Payment   ,   CAD
-                      \t\t2025-01-09,50.50\t,Refund,USD`;
+                      08-01-2025, \t 100.00  ,Payment   ,   CAD
+                      \t\t09-01-2025,50.50\t,Refund,USD`;
     const filePath = createCSVFile("valid-file.csv", validCSV);
 
     const result = await parseCSV(filePath);
     expect(result).toEqual([
       {
-        transaction_date: new Date("2025-01-08"),
+        transaction_date: new Date("08-01-2025"),
         amount: 100.0,
         description: "Payment",
         currency: "CAD",
         is_deleted: false,
       },
       {
-        transaction_date: new Date("2025-01-09"),
+        transaction_date: new Date("09-01-2025"),
         amount: 50.5,
         description: "Refund",
         currency: "USD",
@@ -31,21 +31,21 @@ describe("parseCSV", () => {
 describe("valid csv parsing", () => {
   it("should parse a valid CSV file and return an array of transactions", async () => {
     const validCSV = `date,amount,description,currency
-                      2025-01-08, \t 100.00  ,Payment   ,   CAD
-                      \t\t2025-01-09,50.50\t,Refund,USD`;
+                      08-01-2025, \t 100.00  ,Payment   ,   CAD
+                      \t\t09-01-2025,50.50\t,Refund,USD`;
     const filePath = createCSVFile("valid-file.csv", validCSV);
 
     const result = await parseCSV(filePath);
     expect(result).toEqual([
       {
-        transaction_date: new Date("2025-01-08"),
+        transaction_date: new Date("08-01-2025"),
         amount: 100.0,
         description: "Payment",
         currency: "CAD",
         is_deleted: false,
       },
       {
-        transaction_date: new Date("2025-01-09"),
+        transaction_date: new Date("09-01-2025"),
         amount: 50.5,
         description: "Refund",
         currency: "USD",
@@ -56,21 +56,21 @@ describe("valid csv parsing", () => {
 
   it("should handle CSV with extra spaces or tabs between fields", async () => {
     const csvWithSpaces = `date,amount,description,currency
-                           2025-01-08, \t 100.00  ,Payment   ,   CAD
-                           \t\t2025-01-09,50.50\t,Refund,USD`;
+                           08-01-2025, \t 100.00  ,Payment   ,   CAD
+                           \t\t09-01-2025,50.50\t,Refund,USD`;
     const filePath = createCSVFile("csv-with-spaces.csv", csvWithSpaces);
 
     const result = await parseCSV(filePath);
     expect(result).toEqual([
       {
-        transaction_date: new Date("2025-01-08"),
+        transaction_date: new Date("08-01-2025"),
         amount: 100.0,
         description: "Payment",
         currency: "CAD",
         is_deleted: false,
       },
       {
-        transaction_date: new Date("2025-01-09"),
+        transaction_date: new Date("09-01-2025"),
         amount: 50.5,
         description: "Refund",
         currency: "USD",
@@ -82,10 +82,10 @@ describe("valid csv parsing", () => {
   it("should ignore extra blank lines", async () => {
     const csvWithBlankLines = `date,amount,description,currency
   
-                             2025-01-08,100.00,"Payment
+                             08-01-2025,100.00,"Payment
                              ",CAD
   
-                             2025-01-09,50.50,Refund,USD
+                             09-01-2025,50.50,Refund,USD
                              
                              `;
     const filePath = createCSVFile(
@@ -96,14 +96,14 @@ describe("valid csv parsing", () => {
     const result = await parseCSV(filePath);
     expect(result).toEqual([
       {
-        transaction_date: new Date("2025-01-08"),
+        transaction_date: new Date("08-01-2025"),
         amount: 100.0,
         description: "Payment",
         currency: "CAD",
         is_deleted: false,
       },
       {
-        transaction_date: new Date("2025-01-09"),
+        transaction_date: new Date("09-01-2025"),
         amount: 50.5,
         description: "Refund",
         currency: "USD",
@@ -114,8 +114,8 @@ describe("valid csv parsing", () => {
 
   it("should parse a CSV with different delimiters like semicolons", async () => {
     const csvWithSemicolons = `date;amount;description;currency
-                               2025-01-08;100.00;Payment;CAD
-                               2025-01-09;50.50;Refund;USD`;
+                               08-01-2025;100.00;Payment;CAD
+                               09-01-2025;50.50;Refund;USD`;
     const filePath = createCSVFile(
       "csv-with-semicolons.csv",
       csvWithSemicolons
@@ -124,14 +124,14 @@ describe("valid csv parsing", () => {
     const result = await parseCSV(filePath, { seperator: ";" });
     expect(result).toEqual([
       {
-        transaction_date: new Date("2025-01-08"),
+        transaction_date: new Date("08-01-2025"),
         amount: 100.0,
         description: "Payment",
         currency: "CAD",
         is_deleted: false,
       },
       {
-        transaction_date: new Date("2025-01-09"),
+        transaction_date: new Date("09-01-2025"),
         amount: 50.5,
         description: "Refund",
         currency: "USD",
@@ -142,21 +142,21 @@ describe("valid csv parsing", () => {
 
   it("should handle CSV with quoted strings containing commas", async () => {
     const csvWithQuotes = `date,amount,description,currency
-                           2025-01-08,100.00,"Payment, Discount",CAD
-                           2025-01-09,50.50,"Refund, extra",USD`;
+                           08-01-2025,100.00,"Payment, Discount",CAD
+                           09-01-2025,50.50,"Refund, extra",USD`;
     const filePath = createCSVFile("csv-with-quotes.csv", csvWithQuotes);
 
     const result = await parseCSV(filePath);
     expect(result).toEqual([
       {
-        transaction_date: new Date("2025-01-08"),
+        transaction_date: new Date("08-01-2025"),
         amount: 100.0,
         description: "Payment, Discount",
         currency: "CAD",
         is_deleted: false,
       },
       {
-        transaction_date: new Date("2025-01-09"),
+        transaction_date: new Date("09-01-2025"),
         amount: 50.5,
         description: "Refund, extra",
         currency: "USD",
@@ -167,8 +167,8 @@ describe("valid csv parsing", () => {
 
   it("should handle CSV with empty fields", async () => {
     const csvWithEmptyFields = `date,amount,description,currency
-                                2025-01-08,100.00,something,
-                                2025-01-09,50.50,something,`;
+                                08-01-2025,100.00,something,
+                                09-01-2025,50.50,something,`;
     const filePath = createCSVFile(
       "csv-with-empty-fields.csv",
       csvWithEmptyFields
@@ -177,14 +177,14 @@ describe("valid csv parsing", () => {
     const result = await parseCSV(filePath);
     expect(result).toEqual([
       {
-        transaction_date: new Date("2025-01-08"),
+        transaction_date: new Date("08-01-2025"),
         amount: 100.0,
         description: "something",
         currency: "",
         is_deleted: false,
       },
       {
-        transaction_date: new Date("2025-01-09"),
+        transaction_date: new Date("09-01-2025"),
         amount: 50.5,
         description: "something",
         currency: "",
@@ -195,8 +195,8 @@ describe("valid csv parsing", () => {
 
   it("should handle CSV with varied date formats", async () => {
     const csvWithDifferentDateFormats = `date,amount,description,currency
-                                        2025/01/08,100.00,Payment,CAD
-                                        2025-01-09,50.50,Refund,USD`;
+                                        08/01/2025,100.00,Payment,CAD
+                                        09-01-2025,50.50,Refund,USD`;
     const filePath = createCSVFile(
       "csv-with-different-date-formats.csv",
       csvWithDifferentDateFormats
@@ -205,14 +205,14 @@ describe("valid csv parsing", () => {
     const result = await parseCSV(filePath);
     expect(result).toEqual([
       {
-        transaction_date: new Date("2025/01/08"),
+        transaction_date: new Date("08/01/2025"),
         amount: 100.0,
         description: "Payment",
         currency: "CAD",
         is_deleted: false,
       },
       {
-        transaction_date: new Date("2025-01-09"),
+        transaction_date: new Date("09-01-2025"),
         amount: 50.5,
         description: "Refund",
         currency: "USD",
@@ -224,22 +224,22 @@ describe("valid csv parsing", () => {
   it("should handle empty rows with correct behavior", async () => {
     const emptyRowsCSV = `DaTe,amount,desCription,Currency
 ,,,,,
-2025-01-08,100,payment,cad
+08-01-2025,100,payment,cad
 ,,,,,
-2025-01-09,200,purchase,usd
+09-01-2025,200,purchase,usd
 ,,,,,`;
     const filePath = createCSVFile("empty-rows.csv", emptyRowsCSV);
 
     await expect(parseCSV(filePath)).resolves.toEqual([
       {
-        transaction_date: new Date("2025-01-08"),
+        transaction_date: new Date("08-01-2025"),
         amount: 100.0,
         description: "payment",
         currency: "CAD",
         is_deleted: false,
       },
       {
-        transaction_date: new Date("2025-01-09"),
+        transaction_date: new Date("09-01-2025"),
         amount: 200.0,
         description: "purchase",
         currency: "USD",
