@@ -168,4 +168,25 @@ describe("check other errors", () => {
       },
     ]);
   });
+
+  // empty description should throw error
+  it("should return InvalidLine error if a specific line is malformed", async () => {
+    const malformedCSV = `daTe,amount,DESCRIPTION,currency
+  2025-01-08,100.00,,cad,false
+  2025-01-08,50.50, ,USD,false`;
+    const filePath = createCSVFile("malformed-description.csv", malformedCSV);
+
+    await expect(parseCSV(filePath)).rejects.toEqual([
+      {
+        type: "InvalidLine",
+        lineNo: 1,
+        message: "Description cannot be empty",
+      } as CSVParseError,
+      {
+        type: "InvalidLine",
+        lineNo: 2,
+        message: "Description cannot be empty",
+      } as CSVParseError,
+    ]);
+  });
 });

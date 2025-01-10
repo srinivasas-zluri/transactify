@@ -35,6 +35,14 @@ export function handleRow(
     });
   }
 
+  if (row.description === "") {
+    errors.push({
+      type: "InvalidLine",
+      message: "Description cannot be empty",
+      lineNo: lineno,
+    });
+  }
+
   // Parse the description
   tnx.description = row.description.trim();
 
