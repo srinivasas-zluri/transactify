@@ -4,3 +4,10 @@ export type CSVParseError =
   | { type: "InvalidLine"; lineNo: number; message: string }
   | { type: "ParsingError"; message: string }
   | { type: "UnknownError"; message: string };
+
+export type CSVRow = {
+  date: string;
+  amount: string;
+  description: string;
+  currency: string;
+};
