@@ -6,7 +6,8 @@ describe("BOM in CSV parse", () => {
     const bomCSV = `DaTe,amount,description,Currency\n08-01-2025,100,payment,cad\n09-01-2025,200,purchase,usd\n`;
     const filePath = createCSVWithBOM("bom-test.csv", bomCSV);
 
-    await expect(parseCSV(filePath)).resolves.toEqual([
+    const res = await parseCSV(filePath);
+    expect(res.rows).toEqual([
       {
         transaction_date: new Date("08-01-2025"),
         amount: 100.0,
@@ -22,13 +23,16 @@ describe("BOM in CSV parse", () => {
         is_deleted: false,
       },
     ]);
+
+    expect(res.parsingErrors).toEqual([]);
   });
 
   it("should handle BOM correctly when there are leading whitespaces in the first column", async () => {
     const bomCSV = ` DaTe , amount , description , Currency \n 08-01-2025 , 100 , payment , cad \n 09-01-2025 , 200 , purchase , usd \n`;
     const filePath = createCSVWithBOM("bom-leading-whitespace.csv", bomCSV);
 
-    await expect(parseCSV(filePath)).resolves.toEqual([
+    const res = await parseCSV(filePath);
+    expect(res.rows).toEqual([
       {
         transaction_date: new Date("08-01-2025"),
         amount: 100.0,
@@ -44,13 +48,15 @@ describe("BOM in CSV parse", () => {
         is_deleted: false,
       },
     ]);
+    expect(res.parsingErrors).toEqual([]);
   });
 
   it("should parse a CSV with BOM and special characters correctly", async () => {
     const bomCSV = `DaTe,amount,description,Currency\n08-01-2025,100,paŸment,cad\n09-01-2025,200,pürchase,usd\n`;
     const filePath = createCSVWithBOM("bom-special-chars.csv", bomCSV);
 
-    await expect(parseCSV(filePath)).resolves.toEqual([
+    const res = await parseCSV(filePath);
+    expect(res.rows).toEqual([
       {
         transaction_date: new Date("08-01-2025"),
         amount: 100.0,
@@ -66,6 +72,7 @@ describe("BOM in CSV parse", () => {
         is_deleted: false,
       },
     ]);
+    expect(res.parsingErrors).toEqual([]);
   });
 
   it("should handle BOM in empty CSV file", async () => {
@@ -82,7 +89,8 @@ describe("BOM in CSV parse", () => {
     const bomCSV = `DaTe ,   amount   , description , Currency\n 08-01-2025 , 100 , payment , cad \n 09-01-2025 , 200 , purchase , usd\n`;
     const filePath = createCSVWithBOM("bom-extra-whitespace.csv", bomCSV);
 
-    await expect(parseCSV(filePath)).resolves.toEqual([
+    const res = await parseCSV(filePath);
+    expect(res.rows).toEqual([
       {
         transaction_date: new Date("08-01-2025"),
         amount: 100.0,
@@ -98,13 +106,15 @@ describe("BOM in CSV parse", () => {
         is_deleted: false,
       },
     ]);
+    expect(res.parsingErrors).toEqual([]);
   });
 
   it("should handle BOM and various encoding issues gracefully", async () => {
     const bomCSV = `DaTe,amount,description,Currency\n08-01-2025,100,paŸment,cad\n09-01-2025,200,pürchase,usd\n`;
     const filePath = createCSVWithBOM("bom-encoding-issues.csv", bomCSV);
 
-    await expect(parseCSV(filePath)).resolves.toEqual([
+    const res = await parseCSV(filePath);
+    expect(res.rows).toEqual([
       {
         transaction_date: new Date("08-01-2025"),
         amount: 100.0,
@@ -120,13 +130,16 @@ describe("BOM in CSV parse", () => {
         is_deleted: false,
       },
     ]);
+
+    expect(res.parsingErrors).toEqual([]);
   });
 
   it("should handle BOM without modifying the first row", async () => {
     const bomCSV = `DaTe,amount,description,Currency\n08-01-2025,100,payment,cad\n09-01-2025,200,purchase,usd\n`;
     const filePath = createCSVWithBOM("bom-no-modify-first-row.csv", bomCSV);
 
-    await expect(parseCSV(filePath)).resolves.toEqual([
+    const res = await parseCSV(filePath);
+    expect(res.rows).toEqual([
       {
         transaction_date: new Date("08-01-2025"),
         amount: 100.0,
@@ -142,5 +155,7 @@ describe("BOM in CSV parse", () => {
         is_deleted: false,
       },
     ]);
+
+    expect(res.parsingErrors).toEqual([]);
   });
 });

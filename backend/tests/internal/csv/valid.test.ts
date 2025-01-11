@@ -1,7 +1,7 @@
 import { parseCSV } from "~/internal/csv/main";
 import { createCSVFile } from "./utils";
 
-describe("parseCSV", () => {
+describe("parse valid csv", () => {
   it("should parse a valid CSV file and return an array of transactions", async () => {
     const validCSV = `date,amount,description,currency
                       08-01-2025, \t 100.00  ,Payment   ,   CAD
@@ -9,7 +9,7 @@ describe("parseCSV", () => {
     const filePath = createCSVFile("valid-file.csv", validCSV);
 
     const result = await parseCSV(filePath);
-    expect(result).toEqual([
+    expect(result.rows).toEqual([
       {
         transaction_date: new Date("08-01-2025"),
         amount: 100.0,
@@ -25,6 +25,7 @@ describe("parseCSV", () => {
         is_deleted: false,
       },
     ]);
+    expect(result.parsingErrors).toEqual([]);
   });
 });
 
@@ -36,7 +37,7 @@ describe("valid csv parsing", () => {
     const filePath = createCSVFile("valid-file.csv", validCSV);
 
     const result = await parseCSV(filePath);
-    expect(result).toEqual([
+    expect(result.rows).toEqual([
       {
         transaction_date: new Date("08-01-2025"),
         amount: 100.0,
@@ -52,6 +53,7 @@ describe("valid csv parsing", () => {
         is_deleted: false,
       },
     ]);
+    expect(result.parsingErrors).toEqual([]);
   });
 
   it("should handle CSV with extra spaces or tabs between fields", async () => {
@@ -61,7 +63,7 @@ describe("valid csv parsing", () => {
     const filePath = createCSVFile("csv-with-spaces.csv", csvWithSpaces);
 
     const result = await parseCSV(filePath);
-    expect(result).toEqual([
+    expect(result.rows).toEqual([
       {
         transaction_date: new Date("08-01-2025"),
         amount: 100.0,
@@ -77,6 +79,7 @@ describe("valid csv parsing", () => {
         is_deleted: false,
       },
     ]);
+    expect(result.parsingErrors).toEqual([]);
   });
 
   it("should ignore extra blank lines", async () => {
@@ -94,7 +97,7 @@ describe("valid csv parsing", () => {
     );
 
     const result = await parseCSV(filePath);
-    expect(result).toEqual([
+    expect(result.rows).toEqual([
       {
         transaction_date: new Date("08-01-2025"),
         amount: 100.0,
@@ -110,6 +113,7 @@ describe("valid csv parsing", () => {
         is_deleted: false,
       },
     ]);
+    expect(result.parsingErrors).toEqual([]);
   });
 
   it("should parse a CSV with different delimiters like semicolons", async () => {
@@ -122,7 +126,7 @@ describe("valid csv parsing", () => {
     );
 
     const result = await parseCSV(filePath, { seperator: ";" });
-    expect(result).toEqual([
+    expect(result.rows).toEqual([
       {
         transaction_date: new Date("08-01-2025"),
         amount: 100.0,
@@ -138,6 +142,7 @@ describe("valid csv parsing", () => {
         is_deleted: false,
       },
     ]);
+    expect(result.parsingErrors).toEqual([]);
   });
 
   it("should handle CSV with quoted strings containing commas", async () => {
@@ -147,7 +152,7 @@ describe("valid csv parsing", () => {
     const filePath = createCSVFile("csv-with-quotes.csv", csvWithQuotes);
 
     const result = await parseCSV(filePath);
-    expect(result).toEqual([
+    expect(result.rows).toEqual([
       {
         transaction_date: new Date("08-01-2025"),
         amount: 100.0,
@@ -163,6 +168,7 @@ describe("valid csv parsing", () => {
         is_deleted: false,
       },
     ]);
+    expect(result.parsingErrors).toEqual([]);
   });
 
   it("should handle CSV with empty fields", async () => {
@@ -175,7 +181,7 @@ describe("valid csv parsing", () => {
     );
 
     const result = await parseCSV(filePath);
-    expect(result).toEqual([
+    expect(result.rows).toEqual([
       {
         transaction_date: new Date("08-01-2025"),
         amount: 100.0,
@@ -191,6 +197,7 @@ describe("valid csv parsing", () => {
         is_deleted: false,
       },
     ]);
+    expect(result.parsingErrors).toEqual([]);
   });
 
   it("should handle CSV with varied date formats", async () => {
@@ -203,7 +210,7 @@ describe("valid csv parsing", () => {
     );
 
     const result = await parseCSV(filePath);
-    expect(result).toEqual([
+    expect(result.rows).toEqual([
       {
         transaction_date: new Date("08/01/2025"),
         amount: 100.0,
@@ -219,6 +226,7 @@ describe("valid csv parsing", () => {
         is_deleted: false,
       },
     ]);
+    expect(result.parsingErrors).toEqual([]);
   });
 
   it("should handle empty rows with correct behavior", async () => {
@@ -229,8 +237,10 @@ describe("valid csv parsing", () => {
 09-01-2025,200,purchase,usd
 ,,,,,`;
     const filePath = createCSVFile("empty-rows.csv", emptyRowsCSV);
+    const res = await parseCSV(filePath);
 
-    await expect(parseCSV(filePath)).resolves.toEqual([
+    expect(res.parsingErrors).toEqual([]);
+    expect(res.rows).toEqual([
       {
         transaction_date: new Date("08-01-2025"),
         amount: 100.0,
