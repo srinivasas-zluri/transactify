@@ -8,6 +8,9 @@ export class Transaction {
   @Property({ type: "date" })
   transaction_date!: Date;
 
+  @Property({ type: "date" })
+  transaction_date_string!: string;
+
   @Property({ type: "numeric(10, 2)" })
   amount!: number;
 

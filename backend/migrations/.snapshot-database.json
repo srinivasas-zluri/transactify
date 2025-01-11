@@ -25,6 +25,16 @@
           "length": 0,
           "mappedType": "date"
         },
+        "transaction_date_string": {
+          "name": "transaction_date_string",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 0,
+          "mappedType": "date"
+        },
         "amount": {
           "name": "amount",
           "type": "numeric(10,0)",
