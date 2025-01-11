@@ -12,7 +12,8 @@ export function handleRow(
   const errors: CSVParseError[] = [];
 
   // Parse the date
-  const date = parseDate(row.date);
+  const cleanDate = cleanSpaces(row.date);
+  const date = parseDate(cleanDate);
   if (date !== null) {
     tnx.transaction_date = date;
   } else {
@@ -24,7 +25,7 @@ export function handleRow(
   }
 
   // Parse the amount
-  const amount = parseAmount(row.amount);
+  const amount = parseAmount(cleanSpaces(row.amount));
   if (amount !== null) {
     tnx.amount = amount;
   } else {
@@ -49,6 +50,9 @@ export function handleRow(
   // Parse the currency
   tnx.currency = row.currency.trim().toUpperCase();
 
+  // Set the transaction date string
+  tnx.transaction_date_string = cleanDate;
+
   return {
     tnx,
     err: errors.length > 0 ? errors[0] : null,
@@ -56,11 +60,6 @@ export function handleRow(
 }
 
 function parseDate(date: string): Date | null {
-  // remove leading and trailing spaces
-  date = date.trim();
-
-  // remove inbetween spaces
-  date = date.replace(/\s/g, "");
 
   if (date === "") {
     return null;
@@ -79,16 +78,9 @@ function parseDate(date: string): Date | null {
 }
 
 function parseAmount(amount: string): number | null {
-  // remove leading and trailing spaces
-  amount = amount.trim();
-
-  // remove inbetween spaces
-  amount = amount.replace(/\s/g, "");
-
   if (amount === "") {
     return null;
   }
-
 
   // valid number regex
   const validNumberRegex = /^[+-]?\d+(\.\d+)?$/;
@@ -98,4 +90,8 @@ function parseAmount(amount: string): number | null {
 
   const parsedAmount = parseFloat(amount);
   return parsedAmount;
+}
+
+function cleanSpaces(x: string): string {
+  return x.trim().replace(/\s/g, "");
 }
