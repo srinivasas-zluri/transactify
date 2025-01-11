@@ -1,6 +1,5 @@
 import { parseCSV } from "~/internal/csv/main";
 import { createCSVFile } from "./utils";
-
 describe("data with spaces", () => {
   it("check parsing of data with spaces in between", async () => {
     const extraColumnsCSV = `DaTe,amount,desCription,Currency, extra_column
@@ -9,15 +8,15 @@ describe("data with spaces", () => {
 
     const result = await parseCSV(filePath);
 
-    expect(result.rows).toEqual([
-      {
+    expect(result.rows).toEqual({
+      1: {
         transaction_date: new Date("08-01-2025"),
         amount: 302,
         description: "payment",
         currency: "CAD",
         is_deleted: false,
       },
-    ]);
+    });
     expect(result.parsingErrors).toEqual([]);
   });
 
@@ -36,6 +35,6 @@ describe("data with spaces", () => {
       },
     ]);
 
-    expect(result.rows).toEqual([]);
+    expect(result.rows).toEqual({});
   });
 });

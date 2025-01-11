@@ -1,28 +1,15 @@
 import { parseCSV } from "~/internal/csv/main";
 import { createCSVWithBOM } from "./utils";
-
 describe("BOM in CSV parse", () => {
   it("should correctly parse a CSV with BOM", async () => {
     const bomCSV = `DaTe,amount,description,Currency\n08-01-2025,100,payment,cad\n09-01-2025,200,purchase,usd\n`;
     const filePath = createCSVWithBOM("bom-test.csv", bomCSV);
 
     const res = await parseCSV(filePath);
-    expect(res.rows).toEqual([
-      {
-        transaction_date: new Date("08-01-2025"),
-        amount: 100.0,
-        description: "payment",
-        currency: "CAD",
-        is_deleted: false,
-      },
-      {
-        transaction_date: new Date("09-01-2025"),
-        amount: 200.0,
-        description: "purchase",
-        currency: "USD",
-        is_deleted: false,
-      },
-    ]);
+    expect(res.rows).toEqual({
+      1: { transaction_date: new Date("08-01-2025"), amount: 100.0, description: "payment", currency: "CAD", is_deleted: false },
+      2: { transaction_date: new Date("09-01-2025"), amount: 200.0, description: "purchase", currency: "USD", is_deleted: false },
+    });
 
     expect(res.parsingErrors).toEqual([]);
   });
@@ -32,22 +19,10 @@ describe("BOM in CSV parse", () => {
     const filePath = createCSVWithBOM("bom-leading-whitespace.csv", bomCSV);
 
     const res = await parseCSV(filePath);
-    expect(res.rows).toEqual([
-      {
-        transaction_date: new Date("08-01-2025"),
-        amount: 100.0,
-        description: "payment",
-        currency: "CAD",
-        is_deleted: false,
-      },
-      {
-        transaction_date: new Date("09-01-2025"),
-        amount: 200.0,
-        description: "purchase",
-        currency: "USD",
-        is_deleted: false,
-      },
-    ]);
+    expect(res.rows).toEqual({
+      1: { transaction_date: new Date("08-01-2025"), amount: 100.0, description: "payment", currency: "CAD", is_deleted: false },
+      2: { transaction_date: new Date("09-01-2025"), amount: 200.0, description: "purchase", currency: "USD", is_deleted: false },
+    });
     expect(res.parsingErrors).toEqual([]);
   });
 
@@ -56,22 +31,11 @@ describe("BOM in CSV parse", () => {
     const filePath = createCSVWithBOM("bom-special-chars.csv", bomCSV);
 
     const res = await parseCSV(filePath);
-    expect(res.rows).toEqual([
-      {
-        transaction_date: new Date("08-01-2025"),
-        amount: 100.0,
-        description: "paŸment",
-        currency: "CAD",
-        is_deleted: false,
-      },
-      {
-        transaction_date: new Date("09-01-2025"),
-        amount: 200.0,
-        description: "pürchase",
-        currency: "USD",
-        is_deleted: false,
-      },
-    ]);
+    expect(res.rows).toEqual({
+      1: { transaction_date: new Date("08-01-2025"), amount: 100.0, description: "paŸment", currency: "CAD", is_deleted: false },
+      2: { transaction_date: new Date("09-01-2025"), amount: 200.0, description: "pürchase", currency: "USD", is_deleted: false },
+    });
+
     expect(res.parsingErrors).toEqual([]);
   });
 
@@ -90,22 +54,10 @@ describe("BOM in CSV parse", () => {
     const filePath = createCSVWithBOM("bom-extra-whitespace.csv", bomCSV);
 
     const res = await parseCSV(filePath);
-    expect(res.rows).toEqual([
-      {
-        transaction_date: new Date("08-01-2025"),
-        amount: 100.0,
-        description: "payment",
-        currency: "CAD",
-        is_deleted: false,
-      },
-      {
-        transaction_date: new Date("09-01-2025"),
-        amount: 200.0,
-        description: "purchase",
-        currency: "USD",
-        is_deleted: false,
-      },
-    ]);
+    expect(res.rows).toEqual({
+      1: { transaction_date: new Date("08-01-2025"), amount: 100.0, description: "payment", currency: "CAD", is_deleted: false },
+      2: { transaction_date: new Date("09-01-2025"), amount: 200.0, description: "purchase", currency: "USD", is_deleted: false },
+    });
     expect(res.parsingErrors).toEqual([]);
   });
 
@@ -114,22 +66,10 @@ describe("BOM in CSV parse", () => {
     const filePath = createCSVWithBOM("bom-encoding-issues.csv", bomCSV);
 
     const res = await parseCSV(filePath);
-    expect(res.rows).toEqual([
-      {
-        transaction_date: new Date("08-01-2025"),
-        amount: 100.0,
-        description: "paŸment",
-        currency: "CAD",
-        is_deleted: false,
-      },
-      {
-        transaction_date: new Date("09-01-2025"),
-        amount: 200.0,
-        description: "pürchase",
-        currency: "USD",
-        is_deleted: false,
-      },
-    ]);
+    expect(res.rows).toEqual({
+      1: { transaction_date: new Date("08-01-2025"), amount: 100.0, description: "paŸment", currency: "CAD", is_deleted: false },
+      2: { transaction_date: new Date("09-01-2025"), amount: 200.0, description: "pürchase", currency: "USD", is_deleted: false },
+    });
 
     expect(res.parsingErrors).toEqual([]);
   });
@@ -139,22 +79,10 @@ describe("BOM in CSV parse", () => {
     const filePath = createCSVWithBOM("bom-no-modify-first-row.csv", bomCSV);
 
     const res = await parseCSV(filePath);
-    expect(res.rows).toEqual([
-      {
-        transaction_date: new Date("08-01-2025"),
-        amount: 100.0,
-        description: "payment",
-        currency: "CAD",
-        is_deleted: false,
-      },
-      {
-        transaction_date: new Date("09-01-2025"),
-        amount: 200.0,
-        description: "purchase",
-        currency: "USD",
-        is_deleted: false,
-      },
-    ]);
+    expect(res.rows).toEqual({
+      1: { transaction_date: new Date("08-01-2025"), amount: 100.0, description: "payment", currency: "CAD", is_deleted: false },
+      2: { transaction_date: new Date("09-01-2025"), amount: 200.0, description: "purchase", currency: "USD", is_deleted: false },
+    });
 
     expect(res.parsingErrors).toEqual([]);
   });

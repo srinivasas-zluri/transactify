@@ -31,7 +31,7 @@ describe("check invalid parsing cases", () => {
     const filePath = createCSVFile("empty-file.csv", emptyCSV);
 
     const result = await parseCSV(filePath);
-    expect(result.rows).toEqual([]);
+    expect(result.rows).toEqual({});
     expect(result.parsingErrors).toEqual([]);
   });
 
@@ -80,16 +80,17 @@ describe("check invalid parsing cases", () => {
     const filePath = createCSVFile("extra-columns.csv", extraColumnsCSV);
 
     const result = await parseCSV(filePath);
+    console.log(result)
 
-    expect(result.rows).toEqual([
-      {
+    expect(result.rows).toEqual({
+      1: {
         transaction_date: new Date("08-01-2025"),
         amount: 100.0,
         description: "Payment",
         currency: "CAD",
         is_deleted: false,
       },
-    ]);
+    });
   });
 
   // missing headers test
