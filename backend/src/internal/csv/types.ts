@@ -9,7 +9,9 @@ export type CSVParseError =
   | { type: "UnknownError"; message: string };
 
 export type CSVParsedInfo = {
-  rows: Transaction[];
+  rows: {
+    [linenumber: number]:Transaction
+  };
   parsingErrors: CSVParseError[];
 };
 

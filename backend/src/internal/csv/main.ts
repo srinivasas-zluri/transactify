@@ -87,6 +87,7 @@ export function parseCSV(
             });
             return;
           }
+          // handle parsing of the row
           const row: CSVRow = {
             date: data.date,
             amount: data.amount,
@@ -95,7 +96,7 @@ export function parseCSV(
           };
           const { tnx, err } = handleRow(row, linenumber);
           if (err === null) {
-            result.rows.push(tnx);
+            result.rows[linenumber] = tnx
           } else {
             result.parsingErrors.push(err);
           }

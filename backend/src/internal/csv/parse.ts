@@ -66,8 +66,6 @@ function parseDate(date: string): Date | null {
     return null;
   }
 
-  console.log(date)
-
   // Check if the date is in the format DD-MM-YYYY or DD/MM/YYYY
   const regex = /^\d{2}[-\/]\d{2}[-\/]\d{4}$/;
 
