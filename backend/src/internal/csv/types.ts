@@ -8,10 +8,17 @@ export type CSVParseError =
   | { type: "InvalidLine"; lineNo: number; message: string }
   | { type: "UnknownError"; message: string };
 
+export type ValidationError =
+  | { type: "RepeatedElementsFound"; message: string; duplicationKey: string }
+  | { type: "DateInFuture"; message: string };
+
 export type CSVParsedInfo = {
   rows: {
-    [linenumber: number]:Transaction
+    [linenumber: number]: Transaction;
   };
+  validationErrors: {
+    [linenumber: number]: ValidationError;
+  }
   parsingErrors: CSVParseError[];
 };
 

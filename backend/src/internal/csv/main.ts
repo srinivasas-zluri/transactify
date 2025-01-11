@@ -1,7 +1,24 @@
 import csvParser from "csv-parser";
 import { existsSync, createReadStream } from "node:fs";
-import { CSVRow, CSVParsedInfo, IOError } from "./types";
+import { CSVRow, CSVParsedInfo, ValidationError, CSVParseError } from "./types";
 import { handleRow } from "./parse";
+
+type DuplicationResult = { seen: true; lineNo: number } | { seen: false };
+
+function checkDuplicationBuilder(): (
+  value: string,
+  index: number
+) => DuplicationResult {
+  const seen: { [dateAndDescription: string]: number /* linenumber */ } = {};
+  return (value: string, index: number) => {
+    const key = value;
+    if (seen[key] !== undefined) {
+      return { seen: true, lineNo: seen[key] };
+    }
+    seen[key] = index;
+    return { seen: false };
+  };
+}
 
 export function parseCSV(
   filePath: string,
@@ -24,12 +41,43 @@ export function parseCSV(
     }
 
     const result: CSVParsedInfo = {
-      rows: [],
+      rows: {},
       parsingErrors: [],
+      validationErrors: {},
+    };
+
+    const errorRows: {
+      [linenumber: number]: {
+        error: ValidationError | CSVParseError;
+        row: CSVRow;
+      };
+    } = {};
+
+    const duplicationRows: {
+      [key: string]: number[];
+    } = {};
+
+    const pushParseError = (
+      error: CSVParseError,
+      row: CSVRow,
+      lineNo: number
+    ) => {
+      result.parsingErrors.push(error);
+      errorRows[lineNo] = { error, row };
+    };
+
+    const pushValidationError = (
+      error: ValidationError,
+      row: CSVRow,
+      lineNo: number
+    ) => {
+      result.validationErrors[lineNo] = error;
+      errorRows[lineNo] = { error, row };
     };
 
     try {
       const fileStream = createReadStream(filePath);
+      const checkDuplication = checkDuplicationBuilder();
 
       const csvOptions: csvParser.Options = {
         // strict: true,
@@ -80,11 +128,15 @@ export function parseCSV(
             return;
           }
           if (missingFields.length > 0) {
-            result.parsingErrors.push({
-              type: "InvalidLine",
-              message: `Missing fields in the row: ${JSON.stringify(data)}`,
-              lineNo: linenumber,
-            });
+            pushParseError(
+              {
+                type: "InvalidLine",
+                message: `Missing fields in the row: ${JSON.stringify(data)}`,
+                lineNo: linenumber,
+              },
+              data,
+              linenumber
+            );
             return;
           }
           // handle parsing of the row
@@ -94,12 +146,36 @@ export function parseCSV(
             description: data.description,
             currency: data.currency,
           };
-          const { tnx, err } = handleRow(row, linenumber);
-          if (err === null) {
-            result.rows[linenumber] = tnx
-          } else {
-            result.parsingErrors.push(err);
+          const { tnx, err: parseErr } = handleRow(row, linenumber);
+          // return if parse error
+          if (parseErr !== null) {
+            pushParseError(parseErr, row, linenumber);
+            return;
           }
+          // check for duplication row
+          const key = `${tnx.transaction_date_string} ${tnx.description}`;
+          const isDuplicate = checkDuplication(key, linenumber);
+
+          // if not duplicate, add to the result and return
+          if (!isDuplicate.seen) {
+            result.rows[linenumber] = tnx;
+            return;
+          }
+
+          // if duplicate, add to the validation errors
+          if (duplicationRows[key] === undefined) {
+            duplicationRows[key] = [isDuplicate.lineNo];
+          }
+          duplicationRows[key].push(linenumber);
+          pushValidationError(
+            {
+              type: "RepeatedElementsFound",
+              message: `Duplicate entries found for ${key}`,
+              duplicationKey: key,
+            },
+            row,
+            linenumber
+          );
         })
         .on("end", () => {
           resolve(result);
