@@ -16,6 +16,7 @@ describe("parse valid csv", () => {
         description: "Payment",
         currency: "CAD",
         is_deleted: false,
+        transaction_date_string: "08-01-2025",
       },
       2: {
         transaction_date: new Date("09-01-2025"),
@@ -23,6 +24,7 @@ describe("parse valid csv", () => {
         description: "Refund",
         currency: "USD",
         is_deleted: false,
+        transaction_date_string: "09-01-2025",
       },
     });
     expect(result.parsingErrors).toEqual([]);
@@ -44,6 +46,7 @@ describe("valid csv parsing", () => {
         description: "Payment",
         currency: "CAD",
         is_deleted: false,
+        transaction_date_string: "08-01-2025",
       },
       2: {
         transaction_date: new Date("09-01-2025"),
@@ -51,6 +54,7 @@ describe("valid csv parsing", () => {
         description: "Refund",
         currency: "USD",
         is_deleted: false,
+        transaction_date_string: "09-01-2025",
       },
     });
     expect(result.parsingErrors).toEqual([]);
@@ -70,6 +74,7 @@ describe("valid csv parsing", () => {
         description: "Payment",
         currency: "CAD",
         is_deleted: false,
+        transaction_date_string: "08-01-2025",
       },
       2: {
         transaction_date: new Date("09-01-2025"),
@@ -77,6 +82,7 @@ describe("valid csv parsing", () => {
         description: "Refund",
         currency: "USD",
         is_deleted: false,
+        transaction_date_string: "09-01-2025",
       },
     });
     expect(result.parsingErrors).toEqual([]);
@@ -103,6 +109,7 @@ describe("valid csv parsing", () => {
         description: "Payment",
         currency: "CAD",
         is_deleted: false,
+        transaction_date_string: "08-01-2025",
       },
       6: {
         transaction_date: new Date("09-01-2025"),
@@ -110,6 +117,7 @@ describe("valid csv parsing", () => {
         description: "Refund",
         currency: "USD",
         is_deleted: false,
+        transaction_date_string: "09-01-2025",
       },
     });
     expect(result.parsingErrors).toEqual([]);
@@ -132,6 +140,7 @@ describe("valid csv parsing", () => {
         description: "Payment",
         currency: "CAD",
         is_deleted: false,
+        transaction_date_string: "08-01-2025",
       },
       2: {
         transaction_date: new Date("09-01-2025"),
@@ -139,6 +148,7 @@ describe("valid csv parsing", () => {
         description: "Refund",
         currency: "USD",
         is_deleted: false,
+        transaction_date_string: "09-01-2025",
       },
     });
     expect(result.parsingErrors).toEqual([]);
@@ -158,6 +168,7 @@ describe("valid csv parsing", () => {
         description: "Payment, Discount",
         currency: "CAD",
         is_deleted: false,
+        transaction_date_string: "08-01-2025",
       },
       2: {
         transaction_date: new Date("09-01-2025"),
@@ -165,6 +176,7 @@ describe("valid csv parsing", () => {
         description: "Refund, extra",
         currency: "USD",
         is_deleted: false,
+        transaction_date_string: "09-01-2025",
       },
     });
     expect(result.parsingErrors).toEqual([]);
@@ -187,6 +199,7 @@ describe("valid csv parsing", () => {
         description: "something",
         currency: "",
         is_deleted: false,
+        transaction_date_string: "08-01-2025",
       },
       2: {
         transaction_date: new Date("09-01-2025"),
@@ -194,6 +207,7 @@ describe("valid csv parsing", () => {
         description: "something",
         currency: "",
         is_deleted: false,
+        transaction_date_string: "09-01-2025",
       },
     });
     expect(result.parsingErrors).toEqual([]);
@@ -216,6 +230,7 @@ describe("valid csv parsing", () => {
         description: "Payment",
         currency: "CAD",
         is_deleted: false,
+        transaction_date_string: "08/01/2025",
       },
       2: {
         transaction_date: new Date("09-01-2025"),
@@ -223,6 +238,7 @@ describe("valid csv parsing", () => {
         description: "Refund",
         currency: "USD",
         is_deleted: false,
+        transaction_date_string: "09-01-2025",
       },
     });
     expect(result.parsingErrors).toEqual([]);
@@ -246,6 +262,7 @@ describe("valid csv parsing", () => {
         description: "payment",
         currency: "CAD",
         is_deleted: false,
+        transaction_date_string: "08-01-2025",
       },
       4: {
         transaction_date: new Date("09-01-2025"),
@@ -253,6 +270,7 @@ describe("valid csv parsing", () => {
         description: "purchase",
         currency: "USD",
         is_deleted: false,
+        transaction_date_string: "09-01-2025",
       },
     });
   });

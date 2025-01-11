@@ -15,6 +15,7 @@ describe("data with spaces", () => {
         description: "payment",
         currency: "CAD",
         is_deleted: false,
+        transaction_date_string: "08-01-2025"
       },
     });
     expect(result.parsingErrors).toEqual([]);

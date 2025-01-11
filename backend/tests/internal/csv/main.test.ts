@@ -80,7 +80,6 @@ describe("check invalid parsing cases", () => {
     const filePath = createCSVFile("extra-columns.csv", extraColumnsCSV);
 
     const result = await parseCSV(filePath);
-    console.log(result)
 
     expect(result.rows).toEqual({
       1: {
@@ -89,6 +88,7 @@ describe("check invalid parsing cases", () => {
         description: "Payment",
         currency: "CAD",
         is_deleted: false,
+        transaction_date_string: "08-01-2025",
       },
     });
   });
