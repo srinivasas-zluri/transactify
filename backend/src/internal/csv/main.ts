@@ -1,34 +1,31 @@
 import csvParser from "csv-parser";
 import { existsSync, createReadStream } from "node:fs";
-import { Transaction } from "~/models/transaction";
-import { CSVParseError, CSVRow } from "./types";
+import { CSVRow, CSVParsedInfo, IOError } from "./types";
 import { handleRow } from "./parse";
 
 export function parseCSV(
   filePath: string,
   { seperator = "," } = {}
-): Promise<Transaction[] | CSVParseError[]> {
+): Promise<CSVParsedInfo> {
   return new Promise((resolve, reject) => {
     // Check if the file exists
     if (!existsSync(filePath)) {
-      reject([{ type: "FileNotFound", filePath }]);
+      reject({ type: "FileNotFound", filePath });
       return;
     }
 
     // Check if allowed file extensions
     if (!filePath.toLowerCase().endsWith(".csv")) {
-      reject([
-        {
-          type: "InvalidFormat",
-          message: "Only CSV files are allowed.",
-        },
-      ]);
+      reject({
+        type: "InvalidFormat",
+        message: "Only CSV files are allowed.",
+      });
       return;
     }
 
-    const result: { rows: Transaction[]; errors: CSVParseError[] } = {
+    const result: CSVParsedInfo = {
       rows: [],
-      errors: [],
+      parsingErrors: [],
     };
 
     try {
@@ -83,7 +80,7 @@ export function parseCSV(
             return;
           }
           if (missingFields.length > 0) {
-            result.errors.push({
+            result.parsingErrors.push({
               type: "InvalidLine",
               message: `Missing fields in the row: ${JSON.stringify(data)}`,
               lineNo: linenumber,
@@ -100,28 +97,24 @@ export function parseCSV(
           if (err === null) {
             result.rows.push(tnx);
           } else {
-            result.errors.push(err);
+            result.parsingErrors.push(err);
           }
         })
         .on("end", () => {
-          if (result.errors.length > 0) {
-            reject(result.errors);
-          }
-          resolve(result.rows);
+          resolve(result);
         })
         .on("error", (err) => {
-          result.errors.push({
+          result.parsingErrors.push({
             type: "UnknownError",
             message: `An unknown error occurred.`,
           });
-          reject(result.errors);
+          resolve(result);
         });
     } catch (error: unknown) {
-      result.errors.push({
+      reject({
         type: "UnknownError",
         message: `An unknown error occurred.`,
       });
-      reject(result.errors);
     }
   });
 }
