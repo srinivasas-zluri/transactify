@@ -5,7 +5,7 @@ import { parseCSV } from "~/internal/csv/main";
 import { createCSVFile, tempDir } from "./utils";
 const parse = require("~/internal/csv/parse");
 
-describe("parseCSV", () => {
+describe("check invalid parsing cases", () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -15,8 +15,9 @@ describe("parseCSV", () => {
   08-01-2025,100.00,Payment,cad,false
   ,Invalid,Amount,true`;
     const filePath = createCSVFile("malformed-line.csv", malformedCSV);
+    const result = await parseCSV(filePath);
 
-    await expect(parseCSV(filePath)).rejects.toEqual([
+    expect(result.parsingErrors).toEqual([
       {
         type: "InvalidLine",
         lineNo: 2,
@@ -30,7 +31,8 @@ describe("parseCSV", () => {
     const filePath = createCSVFile("empty-file.csv", emptyCSV);
 
     const result = await parseCSV(filePath);
-    expect(result).toEqual([]);
+    expect(result.rows).toEqual([]);
+    expect(result.parsingErrors).toEqual([]);
   });
 
   it("should return InvalidLine error when date is in an invalid format", async () => {
@@ -39,7 +41,9 @@ describe("parseCSV", () => {
   99-99-2025,50.50,Refund,USD,false`;
     const filePath = createCSVFile("invalid-date-format.csv", invalidDateCSV);
 
-    await expect(parseCSV(filePath)).rejects.toEqual([
+    const result = await parseCSV(filePath);
+
+    expect(result.parsingErrors).toEqual([
       {
         lineNo: 2,
         message: "Invalid date format(DD-MM-YYYY): 99-99-2025",
@@ -54,7 +58,9 @@ describe("parseCSV", () => {
   2,99-99-2025,Refund,USD,false`;
     const filePath = createCSVFile("invalid-date-format.csv", invalidDateCSV);
 
-    await expect(parseCSV(filePath)).rejects.toEqual([
+    const result = await parseCSV(filePath);
+
+    expect(result.parsingErrors).toEqual([
       {
         lineNo: 1,
         message: "Invalid date format(DD-MM-YYYY): 1",
@@ -73,7 +79,9 @@ describe("parseCSV", () => {
   08-01-2025,100.00,Payment,CAD,false`;
     const filePath = createCSVFile("extra-columns.csv", extraColumnsCSV);
 
-    await expect(parseCSV(filePath)).resolves.toEqual([
+    const result = await parseCSV(filePath);
+
+    expect(result.rows).toEqual([
       {
         transaction_date: new Date("08-01-2025"),
         amount: 100.0,
@@ -103,7 +111,9 @@ describe("parseCSV", () => {
   08-01-2025, ,Invalid,Amount,true`;
     const filePath = createCSVFile("malformed-amount.csv", malformedCSV);
 
-    await expect(parseCSV(filePath)).rejects.toEqual([
+    const result = await parseCSV(filePath);
+
+    expect(result.parsingErrors).toEqual([
       {
         type: "InvalidLine",
         lineNo: 2,
@@ -120,23 +130,19 @@ describe("File Errors", () => {
       "This is not a CSV file"
     );
 
-    await expect(parseCSV(filePath)).rejects.toEqual([
-      {
-        type: "InvalidFormat",
-        message: "Only CSV files are allowed.",
-      } as CSVParseError,
-    ]);
+    await expect(parseCSV(filePath)).rejects.toEqual({
+      type: "InvalidFormat",
+      message: "Only CSV files are allowed.",
+    });
   });
 
   it("should return FileNotFound error when the file does not exist", async () => {
     const filePath = path.join(tempDir, "nonexistent-file.csv");
 
-    await expect(parseCSV(filePath)).rejects.toEqual([
-      {
-        type: "FileNotFound",
-        filePath,
-      } as CSVParseError,
-    ]);
+    await expect(parseCSV(filePath)).rejects.toEqual({
+      type: "FileNotFound",
+      filePath,
+    });
   });
 });
 
@@ -152,12 +158,10 @@ describe("check other errors", () => {
       throw new Error("File not found");
     });
 
-    await expect(parseCSV(invalidFilePath)).rejects.toEqual([
-      {
-        type: "UnknownError",
-        message: `An unknown error occurred.`,
-      },
-    ]);
+    await expect(parseCSV(invalidFilePath)).rejects.toEqual({
+      type: "UnknownError",
+      message: `An unknown error occurred.`,
+    });
   });
 
   // empty description should throw error
@@ -167,7 +171,9 @@ describe("check other errors", () => {
   08-01-2025,50.50, ,USD,false`;
     const filePath = createCSVFile("malformed-description.csv", malformedCSV);
 
-    await expect(parseCSV(filePath)).rejects.toEqual([
+    const result = await parseCSV(filePath);
+
+    expect(result.parsingErrors).toEqual([
       {
         type: "InvalidLine",
         lineNo: 1,
@@ -188,7 +194,8 @@ describe("check other errors", () => {
     const data = `date,amount,description,currency
     08-01-2025,100.00,Payment,CAD,false`;
     const filePath = createCSVFile("parser-error.csv", data);
-    await expect(parseCSV(filePath)).rejects.toEqual([
+    const result = await parseCSV(filePath);
+    await expect(result.parsingErrors).toEqual([
       {
         type: "UnknownError",
         message: `An unknown error occurred.`,
