@@ -1,6 +1,12 @@
 import csvParser from "csv-parser";
 import { existsSync, createReadStream } from "node:fs";
-import { CSVRow, CSVParsedInfo, ValidationError, CSVParseError, CSVWriter } from "./types";
+import {
+  CSVRow,
+  CSVParsedInfo,
+  ValidationError,
+  CSVParseError,
+  CSVWriter,
+} from "./types";
 import { handleRow } from "./parse";
 
 type DuplicationResult = { seen: true; lineNo: number } | { seen: false };
@@ -20,85 +26,85 @@ function checkDuplicationBuilder(): (
   };
 }
 
-export function parseCSV(
+const defaultWriter: CSVWriter = {
+  writeRows: async () => {
+    return null;
+  },
+};
+
+export async function parseCSV(
   filePath: string,
-  {
-    seperator = ",",
-    errorFileWriter = { writeRows: () => {} } as CSVWriter,
-  } = {}
+  { seperator = ",", errorFileWriter = defaultWriter } = {}
 ): Promise<CSVParsedInfo> {
-  return new Promise((resolve, reject) => {
-    // Check if the file exists
-    if (!existsSync(filePath)) {
-      reject({ type: "FileNotFound", filePath });
-      return;
-    }
+  // Check if the file exists
+  if (!existsSync(filePath)) {
+    throw { type: "FileNotFound", filePath };
+  }
 
-    // Check if allowed file extensions
-    if (!filePath.toLowerCase().endsWith(".csv")) {
-      reject({
-        type: "InvalidFormat",
-        message: "Only CSV files are allowed.",
-      });
-      return;
-    }
+  // Check if allowed file extensions
+  if (!filePath.toLowerCase().endsWith(".csv")) {
+    throw {
+      type: "InvalidFormat",
+      message: "Only CSV files are allowed.",
+    };
+  }
 
-    const result: CSVParsedInfo = {
-      rows: {},
-      parsingErrors: [],
-      validationErrors: {},
+  const result: CSVParsedInfo = {
+    rows: {},
+    parsingErrors: [],
+    validationErrors: {},
+  };
+
+  const errorRows: {
+    [linenumber: number]: {
+      error: ValidationError | CSVParseError;
+      row: CSVRow;
+    };
+  } = {};
+
+  const duplicationRows: {
+    [key: string]: number[];
+  } = {};
+
+  const pushParseError = (
+    error: CSVParseError,
+    row: CSVRow,
+    lineNo: number
+  ) => {
+    result.parsingErrors.push(error);
+    errorRows[lineNo] = { error, row };
+  };
+
+  const pushValidationError = (
+    error: ValidationError,
+    row: CSVRow,
+    lineNo: number
+  ) => {
+    result.validationErrors[lineNo] = error;
+    errorRows[lineNo] = { error, row };
+  };
+
+  try {
+    const fileStream = createReadStream(filePath);
+    const checkDuplication = checkDuplicationBuilder();
+
+    const csvOptions: csvParser.Options = {
+      mapHeaders: ({ header }) => header.trim().toLowerCase(), // Trim headers
+      mapValues: ({ value }) => (value ? value.trim() : value), // Trim values
+      separator: seperator,
     };
 
-    const errorRows: {
-      [linenumber: number]: {
-        error: ValidationError | CSVParseError;
-        row: CSVRow;
-      };
-    } = {};
+    const parser = csvParser(csvOptions);
+    const expectedHeaders = ["date", "amount", "description", "currency"];
 
-    const duplicationRows: {
-      [key: string]: number[];
-    } = {};
+    // TODO: Check if there is a better package
+    let linenumber = 0;
 
-    const pushParseError = (
-      error: CSVParseError,
-      row: CSVRow,
-      lineNo: number
-    ) => {
-      result.parsingErrors.push(error);
-      errorRows[lineNo] = { error, row };
-    };
-
-    const pushValidationError = (
-      error: ValidationError,
-      row: CSVRow,
-      lineNo: number
-    ) => {
-      result.validationErrors[lineNo] = error;
-      errorRows[lineNo] = { error, row };
-    };
-
-    try {
-      const fileStream = createReadStream(filePath);
-      const checkDuplication = checkDuplicationBuilder();
-
-      const csvOptions: csvParser.Options = {
-        // strict: true,
-        mapHeaders: ({ header }) => header.trim().toLowerCase(), // Trim headers
-        mapValues: ({ value }) => (value ? value.trim() : value), // Trim values
-        separator: seperator,
-      };
-      const parser = csvParser(csvOptions);
-      const expectedHeaders = ["date", "amount", "description", "currency"];
-
-      // TODO: Check if there is a better package
-      let linenumber = 0;
-
+    return new Promise<CSVParsedInfo>((resolve, reject) => {
       fileStream
         .pipe(parser)
-        // check if all the headers are present
+        // Check if all the headers are present
         .on("headers", (headers) => {
-          // Check if all expected headers are present
           const missingHeaders = expectedHeaders.filter(
             (header) => !headers.includes(header)
           );
@@ -116,20 +122,20 @@ export function parseCSV(
           const missingFields = expectedHeaders.filter(
             (header) => !Object.keys(data).includes(header)
           );
-          // find out if it's a blank line
           const isBlankLine =
             missingFields.length === expectedHeaders.length ||
             missingFields.length === expectedHeaders.length - 1;
           if (isBlankLine) {
             return;
           }
-          // find if all the fields are blank
+
           const allFieldsBlank = expectedHeaders.every(
             (header) => data[header] === ""
           );
           if (allFieldsBlank) {
             return;
           }
+
           if (missingFields.length > 0) {
             pushParseError(
               {
@@ -142,30 +148,28 @@ export function parseCSV(
             );
             return;
           }
-          // handle parsing of the row
+
           const row: CSVRow = {
             date: data.date,
             amount: data.amount,
             description: data.description,
             currency: data.currency,
           };
+
           const { tnx, err: parseErr } = handleRow(row, linenumber);
-          // return if parse error
           if (parseErr !== null) {
             pushParseError(parseErr, row, linenumber);
             return;
           }
-          // check for duplication row
+
           const key = `${tnx.transaction_date_string} ${tnx.description}`;
           const isDuplicate = checkDuplication(key, linenumber);
 
-          // if not duplicate, add to the result and return
           if (!isDuplicate.seen) {
             result.rows[linenumber] = tnx;
             return;
           }
 
-          // if duplicate, add to the validation errors
           if (duplicationRows[key] === undefined) {
             duplicationRows[key] = [isDuplicate.lineNo];
           }
@@ -180,23 +184,49 @@ export function parseCSV(
             linenumber
           );
         })
-        .on("end", () => {
-          const errorRowsArray = Object.entries(errorRows).map(
-            ([lineNo, { error, row }]) => ({
-              lineNo,
-              errorType: error.type,
-              message:
-                error.type === "RepeatedElementsFound"
-                  ? `Duplicate elements found in the following line numbers ${duplicationRows[
-                      error.duplicationKey
-                    ].join(", ")}`
-                  : error.message,
-              ...row,
-            })
+        .on("end", async () => {
+          const handledDuplicateKeys: { [key: string]: boolean } = {};
+          const errorRowsArray = Object.entries(errorRows).reduce(
+            (prev, curr) => {
+              const [lineNoString, { error, row }] = curr;
+              const lineNo = parseInt(lineNoString);
+              delete result.rows[lineNo];
+              if (error.type !== "RepeatedElementsFound") {
+                return [...prev, { lineNo, errorType: error.type, message: error.message , ...row}];
+              }
+              if (handledDuplicateKeys[error.duplicationKey]) {
+                return prev;
+              }
+              handledDuplicateKeys[error.duplicationKey] = true;
+              const dupErrRows = [];
+              for (const lineNumber of duplicationRows[error.duplicationKey]) {
+                delete result.rows[lineNumber];
+                dupErrRows.push({
+                  lineNo: lineNumber,
+                  errorType: error.type,
+                  message: `Duplicate elements found in the following line numbers ${duplicationRows[
+                    error.duplicationKey
+                  ].join(", ")}`,
+                  ...row,
+                });
+              }
+              return [...prev, ...dupErrRows];
+            },
+            [] as any[]
           );
-          // write the error rows to a file if it's not empty
+          // Write the error rows to a file if it's not empty
           if (errorRowsArray.length > 0) {
-            errorFileWriter.writeRows(errorRowsArray);
+            try {
+              const error = await errorFileWriter.writeRows(errorRowsArray);
+              if (error !== null) {
+                reject(error);
+              }
+            } catch (err) {
+              reject({
+                type: "UnknownError",
+                message: "An error occurred while writing error rows.",
+              });
+            }
           }
 
           resolve(result);
@@ -208,13 +238,13 @@ export function parseCSV(
           });
           resolve(result);
         });
-    } catch (error: unknown) {
-      reject({
-        type: "UnknownError",
-        message: `An unknown error occurred.`,
-      });
-    }
-  });
+    });
+  } catch (error: unknown) {
+    throw {
+      type: "UnknownError",
+      message: `An unknown error occurred.`,
+    };
+  }
 }
 
 // async function main() {
