@@ -8,7 +8,7 @@ export class Transaction {
   @Property({ type: "date" })
   transaction_date!: Date;
 
-  @Property({ type: "date" })
+  @Property({ type: "varchar(11)" })
   transaction_date_string!: string;
 
   @Property({ type: "numeric(10, 2)" })

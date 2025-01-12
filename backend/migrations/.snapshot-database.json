@@ -27,13 +27,13 @@
         },
         "transaction_date_string": {
           "name": "transaction_date_string",
-          "type": "date",
+          "type": "varchar(255)",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "length": 0,
-          "mappedType": "date"
+          "length": 255,
+          "mappedType": "string"
         },
         "amount": {
           "name": "amount",

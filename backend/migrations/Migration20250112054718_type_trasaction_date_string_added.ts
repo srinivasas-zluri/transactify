@@ -1,9 +1,9 @@
 import { Migration } from '@mikro-orm/migrations';
 
-export class Migration20250111172701_added_transaction_date_string_field extends Migration {
+export class Migration20250112054718_type_trasaction_date_string_added extends Migration {
 
   override async up(): Promise<void> {
-    this.addSql(`alter table "transaction" add column "transaction_date_string" date not null;`);
+    this.addSql(`alter table "transaction" add column "transaction_date_string" varchar(255) not null;`);
   }
 
   override async down(): Promise<void> {
