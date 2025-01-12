@@ -30,3 +30,8 @@ export type CSVRow = {
   description: string;
   currency: string;
 };
+
+
+export type CSVWriter = {
+  writeRows: (rows: any[]) => void;
+};

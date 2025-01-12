@@ -1,6 +1,6 @@
 import csvParser from "csv-parser";
 import { existsSync, createReadStream } from "node:fs";
-import { CSVRow, CSVParsedInfo, ValidationError, CSVParseError } from "./types";
+import { CSVRow, CSVParsedInfo, ValidationError, CSVParseError, CSVWriter } from "./types";
 import { handleRow } from "./parse";
 
 type DuplicationResult = { seen: true; lineNo: number } | { seen: false };
@@ -22,7 +22,10 @@ function checkDuplicationBuilder(): (
 
 export function parseCSV(
   filePath: string,
-  { seperator = "," } = {}
+  {
+    seperator = ",",
+    errorFileWriter = { writeRows: () => {} } as CSVWriter,
+  } = {}
 ): Promise<CSVParsedInfo> {
   return new Promise((resolve, reject) => {
     // Check if the file exists
@@ -178,6 +181,24 @@ export function parseCSV(
           );
         })
         .on("end", () => {
+          const errorRowsArray = Object.entries(errorRows).map(
+            ([lineNo, { error, row }]) => ({
+              lineNo,
+              errorType: error.type,
+              message:
+                error.type === "RepeatedElementsFound"
+                  ? `Duplicate elements found in the following line numbers ${duplicationRows[
+                      error.duplicationKey
+                    ].join(", ")}`
+                  : error.message,
+              ...row,
+            })
+          );
+          // write the error rows to a file if it's not empty
+          if (errorRowsArray.length > 0) {
+            errorFileWriter.writeRows(errorRowsArray);
+          }
+
           resolve(result);
         })
         .on("error", (err) => {
