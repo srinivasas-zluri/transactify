@@ -1,10 +1,15 @@
-import { EntityManager, EntityRepository, MikroORM, Options } from '@mikro-orm/postgresql';
-import { User } from './models/user';
+import {
+  EntityManager,
+  EntityRepository,
+  MikroORM,
+  Options,
+} from "@mikro-orm/postgresql";
+import { Transaction } from "~/models/transaction";
 
 export interface DBServices {
   orm: MikroORM;
   em: EntityManager;
-  user: EntityRepository<User> 
+  transaction: EntityRepository<Transaction>;
 }
 
 let cache: DBServices;
@@ -17,9 +22,9 @@ export async function initORM(options?: Options): Promise<DBServices> {
   const orm = await MikroORM.init(options);
 
   // save to cache before returning
-  return cache = {
+  return (cache = {
     orm,
     em: orm.em.fork(),
-    user: orm.em.getRepository(User),
-  };
+    transaction: orm.em.getRepository(Transaction),
+  });
 }
