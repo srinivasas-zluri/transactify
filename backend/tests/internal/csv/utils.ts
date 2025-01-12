@@ -20,3 +20,16 @@ export const createCSVWithBOM = (fileName: string, content: string) => {
   fs.appendFileSync(filePath, content);
   return filePath;
 };
+
+export const testFilePath = path.join(tempDir, "test-output.csv");
+
+// Helper function to read file content
+export const readFileContent = (filePath: string) =>
+  fs.readFileSync(filePath, "utf-8");
+
+// Helper fn to clean up test files
+export const cleanupTestFile = (filePath: string) => {
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+};

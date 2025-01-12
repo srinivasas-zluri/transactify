@@ -2,7 +2,8 @@ import { Transaction } from "~/models/transaction";
 
 export type IOError =
   | { type: "FileNotFound"; filePath: string }
-  | { type: "InvalidFormat"; message: string };
+  | { type: "InvalidFormat"; message: string }
+  | { type: "WriteError"; message: string };
 
 export type CSVParseError =
   | { type: "InvalidLine"; lineNo: number; message: string }
@@ -33,5 +34,5 @@ export type CSVRow = {
 
 
 export type CSVWriter = {
-  writeRows: (rows: any[]) => void;
+  writeRows: (rows: any[]) => Promise<IOError | null>;
 };
