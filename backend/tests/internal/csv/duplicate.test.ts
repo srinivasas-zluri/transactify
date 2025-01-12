@@ -71,6 +71,33 @@ describe("Duplication Check Tests", () => {
     });
   });
 
+  it("should detect three duplicates ", async () => {
+    const threeDuplicatesCSV = `DaTe,amount,desCription,Currency
+    08/01/2025, 300, payment, CAD
+    08/01/2025, 300, payment, CAD
+    08/01/2025, 300, payment, CAD
+    08/01/2025, 300, payment, CAD`;
+    const filePath = createCSVFile("three-duplicates.csv", threeDuplicatesCSV);
+    const result = await parseCSV(filePath);
+    expect(result.validationErrors).toEqual({
+      "2": {
+        message: "Duplicate entries found for 08/01/2025 payment",
+        type: "RepeatedElementsFound",
+        duplicationKey: "08/01/2025 payment",
+      },
+      "3": {
+        message: "Duplicate entries found for 08/01/2025 payment",
+        type: "RepeatedElementsFound",
+        duplicationKey: "08/01/2025 payment",
+      },
+      "4": {
+        message: "Duplicate entries found for 08/01/2025 payment",
+        type: "RepeatedElementsFound",
+        duplicationKey: "08/01/2025 payment",
+      },
+    });
+  });
+
   it("should detect no duplication with missing or different columns", async () => {
     const missingDataCSV = `DaTe,amount,desCription,Currency
     08/01/2025, 300, payment, CAD`;

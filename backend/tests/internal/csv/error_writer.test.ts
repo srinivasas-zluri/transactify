@@ -87,4 +87,49 @@ describe("parseCSV function tests", () => {
     expect(result.parsingErrors).toEqual([]);
     expect(mockErrorFileWriter.writeRows).not.toHaveBeenCalled(); // No errors
   });
+
+  it("should throw reject if the writer fails", async () => {
+    const extraColumnsCSV = `DaTe,amount,desCription,Currency, extra_column
+    08/01/2025, 3 -0 2, payment, cad, false`;
+
+    const filePath = createCSVFile(
+      "invalid-amount-with-spaces.csv",
+      extraColumnsCSV
+    );
+    const writer = {
+      writeRows: jest
+        .fn()
+        .mockRejectedValue(new Error("Error writing to CSV file")),
+    };
+
+    await expect(
+      parseCSV(filePath, { errorFileWriter: writer })
+    ).rejects.toEqual({
+      message: "An error occurred while writing error rows.",
+      type: "UnknownError",
+    });
+  });
+
+  it("should throw reject if the writer returns error", async () => {
+    const extraColumnsCSV = `DaTe,amount,desCription,Currency, extra_column
+    08/01/2025, 3 -0 2, payment, cad, false`;
+
+    const filePath = createCSVFile(
+      "invalid-amount-with-spaces.csv",
+      extraColumnsCSV
+    );
+    const writer = {
+      writeRows: jest.fn().mockResolvedValue({
+        type: "WriteError",
+        message: "Error writing to CSV file",
+      }),
+    };
+
+    await expect(
+      parseCSV(filePath, { errorFileWriter: writer })
+    ).rejects.toEqual({
+      message: "Error writing to CSV file",
+      type: "WriteError",
+    });
+  });
 });
