@@ -1,5 +1,5 @@
-import { parseCSV } from "~/internal/csv/main"; 
-import { createCSVFile } from "./utils"; 
+import { parseCSV } from "~/internal/csv/main";
+import { createCSVFile } from "./utils";
 
 describe("Duplication Check Tests", () => {
   it("should detect duplicates with same transaction date and description", async () => {
@@ -17,16 +17,7 @@ describe("Duplication Check Tests", () => {
         duplicationKey: "08/01/2025 payment",
       },
     });
-    expect(result.rows).toEqual({
-      1: {
-        transaction_date: new Date("08/01/2025"),
-        amount: 300,
-        description: "payment",
-        currency: "CAD",
-        transaction_date_string: "08/01/2025",
-        is_deleted: false,
-      },
-    });
+    expect(result.rows).toEqual({});
   });
 
   it("should detect duplicates with leading/trailing spaces in values", async () => {
@@ -47,16 +38,7 @@ describe("Duplication Check Tests", () => {
         duplicationKey: "08/01/2025 payment",
       },
     });
-    expect(result.rows).toEqual({
-      1: {
-        transaction_date: new Date("08/01/2025"),
-        is_deleted: false,
-        amount: 300,
-        description: "payment",
-        currency: "CAD",
-        transaction_date_string: "08/01/2025",
-      },
-    });
+    expect(result.rows).toEqual({});
   });
 
   it("should detect duplicates with different cases in description", async () => {

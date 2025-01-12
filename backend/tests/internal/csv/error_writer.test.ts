@@ -4,7 +4,7 @@ import { before } from "node:test";
 
 describe("parseCSV function tests", () => {
   const mockErrorFileWriter = {
-    writeRows: jest.fn(),
+    writeRows: jest.fn().mockResolvedValue(null),
   };
 
   afterEach(() => {
@@ -38,11 +38,11 @@ describe("parseCSV function tests", () => {
     expect(mockErrorFileWriter.writeRows).toHaveBeenCalledTimes(1); // Errors should be written once
     expect(mockErrorFileWriter.writeRows).toHaveBeenCalledWith([
       {
-        lineNo: "1",
+        lineNo: 1,
         errorType: "InvalidLine",
         message: "Invalid amount format: 3 -0 2",
-        amount: "3 -0 2", // Ensure the row data is logged correctly
         date: "08/01/2025",
+        amount: "3 -0 2",
         description: "payment",
         currency: "cad",
       },
