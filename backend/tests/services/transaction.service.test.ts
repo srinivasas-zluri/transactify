@@ -133,6 +133,40 @@ describe("TransactionService (with DB)", () => {
     });
   });
 
+  describe("create multiple transactions with duplicate transactions", () => {
+    it("should create multiple transactions and return the duplicates", async () => {
+      const tnxs = [];
+      for (let i = 0; i < 10; i++) {
+        const transaction = new Transaction();
+        transaction.amount = 100;
+        transaction.description = "Initial Transaction" + i;
+        transaction.transaction_date = new Date();
+        transaction.transaction_date_string = "13-09-2021";
+        transaction.currency = "USD";
+        tnxs.push(transaction);
+      }
+      await transactionService.createTransactions(tnxs);
+
+      // push some new transactions with same data
+      const tnxs2 = [];
+      for (let i = 0; i < 10; i++) {
+        const transaction = new Transaction();
+        transaction.amount = 100;
+        transaction.description = "Initial Transaction" + i * 3;
+        transaction.transaction_date = new Date();
+        transaction.transaction_date_string = "13-09-2021";
+        transaction.currency = "USD";
+        tnxs2.push(transaction);
+      }
+
+      const { duplicates } = await transactionService.createTransactions(tnxs2);
+      console.log({ duplicates });
+      expect(duplicates.length).toBe(4);
+      const transactions = await transactionService.getAllTransactions();
+      expect(transactions.length).toBe(16);
+    });
+  });
+
   describe("updateTransaction", () => {
     it("should update a transaction and save the changes", async () => {
       const transaction = new Transaction();
@@ -319,4 +353,6 @@ describe("TransactionService (with DB)", () => {
       })
     );
   });
+
+  // check createTransactions
 });
