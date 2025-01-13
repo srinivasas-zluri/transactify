@@ -60,7 +60,6 @@ export function handleRow(
 }
 
 function parseDate(date: string): Date | null {
-
   if (date === "") {
     return null;
   }
@@ -68,13 +67,16 @@ function parseDate(date: string): Date | null {
   // Check if the date is in the format DD-MM-YYYY or DD/MM/YYYY
   const regex = /^\d{2}[-\/]\d{2}[-\/]\d{4}$/;
 
-
   if (!regex.test(date)) {
     return null; // Invalid format
   }
 
-  const parsedDate = new Date(date);
-  return isNaN(parsedDate.getTime()) ? null : parsedDate;
+  // Split the date by either '-' or '/'
+  const separator = date.includes("-") ? "-" : "/";
+  const [day, month, year] = date.split(separator);
+
+  // Return the date in the format YYYY-MM-DD
+  return new Date(`${year}-${month}-${day}`);
 }
 
 function parseAmount(amount: string): number | null {
