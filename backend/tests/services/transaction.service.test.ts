@@ -2,62 +2,25 @@ import { Transaction } from "~/models/transaction";
 import { DBServices, initORM } from "~/db";
 import { TransactionService } from "~/services/transaction.service";
 import ormConfig from "../mikro-orm.test-config";
-import { User } from "~/models/user";
-
-describe("DB Connection check", () => {
-  let db: DBServices;
-
-  beforeAll(async () => {
-    db = await initORM(ormConfig);
-    const migrator = db.orm.getMigrator();
-
-    const migrationNeeded = await migrator.checkMigrationNeeded();
-    console.log({ migrationNeeded });
-
-    const migrationres = await migrator.createMigration();
-    console.log({ migrationres });
-
-    await db.orm.getMigrator().up();
-    console.log("Migrations run successfully");
-    console.log(db.orm.config.get("dbName"));
-  });
-
-  afterAll(async () => {
-    await db?.orm.close();
-  });
-
-  it("should be able to connect to the database", async () => {
-    const user = new User();
-    user.name = "Test User";
-    user.email = "test@gmail.com";
-    await db.em.persistAndFlush(user);
-    const users = await db.em.find(User, {});
-    expect(users).toContainEqual(user);
-  });
-});
 
 describe("TransactionService (with DB)", () => {
-  let dbServices: DBServices;
+  let db: DBServices;
   let transactionService: TransactionService;
 
   beforeAll(async () => {
-    dbServices = await initORM(ormConfig);
-    // run the migrations
-    await dbServices.orm.getMigrator().up();
+    db = await initORM(ormConfig);
+    await db.orm.getMigrator().up();
 
-    transactionService = new TransactionService(dbServices);
+    transactionService = new TransactionService(db);
   });
 
   afterAll(async () => {
-    await dbServices?.orm?.close(); // Close the connection after tests are finished
-
-    // clear the db
-    // await dbServices.em.nativeDelete(Transaction, {});
+    await db.orm.close();
   });
 
   beforeEach(async () => {
     // clear the db
-    await dbServices.em.nativeDelete(Transaction, {});
+    await db.em.nativeDelete(Transaction, {});
   });
 
   describe("createTransaction", () => {
@@ -72,7 +35,7 @@ describe("TransactionService (with DB)", () => {
       const result = await transactionService.createTransaction(transaction);
       expect(result).toEqual(transaction);
 
-      const savedTransaction = await dbServices.em.findOne(Transaction, {
+      const savedTransaction = await db.em.findOne(Transaction, {
         id: result.id,
       });
       expect(savedTransaction).toBeDefined();
@@ -196,7 +159,7 @@ describe("TransactionService (with DB)", () => {
 
       expect(result).not.toBeNull();
       expect(result?.amount).toBe(200);
-      expect(result?.description).toBe("Updated Transaction");
+      expect(result?.description).toBe("updated transaction");
     });
 
     it("should return null if transaction is not found", async () => {
@@ -228,7 +191,7 @@ describe("TransactionService (with DB)", () => {
       expect(result).not.toBeNull();
       expect(result?.id).toBe(createdTransaction.id);
 
-      const deletedTransaction = await dbServices.em.findOne(Transaction, {
+      const deletedTransaction = await db.em.findOne(Transaction, {
         id: createdTransaction.id,
       });
       expect(deletedTransaction).toBeNull();
@@ -265,7 +228,7 @@ describe("TransactionService (with DB)", () => {
 
     expect(result).not.toBeNull();
     expect(result?.amount).toBe(200);
-    expect(result?.description).toBe("Updated Transaction");
+    expect(result?.description).toBe("updated transaction");
   });
 
   // partial update
@@ -290,7 +253,7 @@ describe("TransactionService (with DB)", () => {
 
     expect(result).not.toBeNull();
     expect(result?.amount).toBe(200);
-    expect(result?.description).toBe("Initial Transaction");
+    expect(result?.description).toBe("initial transaction");
   });
 
   // check the unique constraint

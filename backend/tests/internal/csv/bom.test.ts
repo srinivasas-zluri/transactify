@@ -63,7 +63,7 @@ describe("BOM in CSV parse", () => {
       1: {
         transaction_date: new Date("2025-01-08"),
         amount: 100.0,
-        description: "paŸment",
+        description: "paÿment",
         currency: "CAD",
         is_deleted: false,
         transaction_date_string: "08-01-2025",
@@ -126,7 +126,7 @@ describe("BOM in CSV parse", () => {
       1: {
         transaction_date: new Date("2025-01-08"),
         amount: 100.0,
-        description: "paŸment",
+        description: "paÿment",
         currency: "CAD",
         is_deleted: false,
         transaction_date_string: "08-01-2025",

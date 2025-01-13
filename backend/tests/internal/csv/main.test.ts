@@ -85,7 +85,7 @@ describe("check invalid parsing cases", () => {
       1: {
         transaction_date: new Date("2021-09-13"),
         amount: 100.0,
-        description: "Payment",
+        description: "payment",
         currency: "CAD",
         is_deleted: false,
         transaction_date_string: "13-09-2021",

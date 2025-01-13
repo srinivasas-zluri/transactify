@@ -13,7 +13,7 @@ describe("parse valid csv", () => {
       1: {
         transaction_date: new Date("2025-01-08"),
         amount: 100.0,
-        description: "Payment",
+        description: "payment",
         currency: "CAD",
         is_deleted: false,
         transaction_date_string: "08-01-2025",
@@ -21,7 +21,7 @@ describe("parse valid csv", () => {
       2: {
         transaction_date: new Date("2025-01-09"),
         amount: 50.5,
-        description: "Refund",
+        description: "refund",
         currency: "USD",
         is_deleted: false,
         transaction_date_string: "09-01-2025",
@@ -43,7 +43,7 @@ describe("valid csv parsing", () => {
       1: {
         transaction_date: new Date("2025-01-08"),
         amount: 100.0,
-        description: "Payment",
+        description: "payment",
         currency: "CAD",
         is_deleted: false,
         transaction_date_string: "08-01-2025",
@@ -51,7 +51,7 @@ describe("valid csv parsing", () => {
       2: {
         transaction_date: new Date("2025-01-09"),
         amount: 50.5,
-        description: "Refund",
+        description: "refund",
         currency: "USD",
         is_deleted: false,
         transaction_date_string: "09-01-2025",
@@ -71,7 +71,7 @@ describe("valid csv parsing", () => {
       1: {
         transaction_date: new Date("2025-01-08"),
         amount: 100.0,
-        description: "Payment",
+        description: "payment",
         currency: "CAD",
         is_deleted: false,
         transaction_date_string: "08-01-2025",
@@ -79,7 +79,7 @@ describe("valid csv parsing", () => {
       2: {
         transaction_date: new Date("2025-01-09"),
         amount: 50.5,
-        description: "Refund",
+        description: "refund",
         currency: "USD",
         is_deleted: false,
         transaction_date_string: "09-01-2025",
@@ -106,7 +106,7 @@ describe("valid csv parsing", () => {
       3: {
         transaction_date: new Date("2025-01-08"),
         amount: 100.0,
-        description: "Payment",
+        description: "payment",
         currency: "CAD",
         is_deleted: false,
         transaction_date_string: "08-01-2025",
@@ -114,7 +114,7 @@ describe("valid csv parsing", () => {
       6: {
         transaction_date: new Date("2025-01-09"),
         amount: 50.5,
-        description: "Refund",
+        description: "refund",
         currency: "USD",
         is_deleted: false,
         transaction_date_string: "09-01-2025",
@@ -137,7 +137,7 @@ describe("valid csv parsing", () => {
       1: {
         transaction_date: new Date("2025-01-08"),
         amount: 100.0,
-        description: "Payment",
+        description: "payment",
         currency: "CAD",
         is_deleted: false,
         transaction_date_string: "08-01-2025",
@@ -145,7 +145,7 @@ describe("valid csv parsing", () => {
       2: {
         transaction_date: new Date("2025-01-09"),
         amount: 50.5,
-        description: "Refund",
+        description: "refund",
         currency: "USD",
         is_deleted: false,
         transaction_date_string: "09-01-2025",
@@ -165,7 +165,7 @@ describe("valid csv parsing", () => {
       1: {
         transaction_date: new Date("2025-01-08"),
         amount: 100.0,
-        description: "Payment, Discount",
+        description: "payment, discount",
         currency: "CAD",
         is_deleted: false,
         transaction_date_string: "08-01-2025",
@@ -173,7 +173,7 @@ describe("valid csv parsing", () => {
       2: {
         transaction_date: new Date("2025-01-09"),
         amount: 50.5,
-        description: "Refund, extra",
+        description: "refund, extra",
         currency: "USD",
         is_deleted: false,
         transaction_date_string: "09-01-2025",
@@ -227,7 +227,7 @@ describe("valid csv parsing", () => {
       1: {
         transaction_date: new Date("2025-01-08"),
         amount: 100.0,
-        description: "Payment",
+        description: "payment",
         currency: "CAD",
         is_deleted: false,
         transaction_date_string: "08/01/2025",
@@ -235,7 +235,7 @@ describe("valid csv parsing", () => {
       2: {
         transaction_date: new Date("2025-01-09"),
         amount: 50.5,
-        description: "Refund",
+        description: "refund",
         currency: "USD",
         is_deleted: false,
         transaction_date_string: "09-01-2025",

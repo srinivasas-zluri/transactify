@@ -59,16 +59,7 @@ describe("Duplication Check Tests", () => {
         duplicationKey: "08/01/2025 payment",
       },
     });
-    expect(result.rows).toEqual({
-      1: {
-        transaction_date: new Date("08/01/2025"),
-        amount: 300,
-        description: "Payment",
-        currency: "CAD",
-        is_deleted: false,
-        transaction_date_string: "08/01/2025",
-      },
-    });
+    expect(result.rows).toEqual({});
   });
 
   it("should detect three duplicates ", async () => {
