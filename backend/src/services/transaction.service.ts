@@ -6,8 +6,8 @@ import { Transaction } from "~/models/transaction";
 export class TransactionService {
   private db: DBServices;
 
-  constructor(orm: DBServices) {
-    this.db = orm;
+  constructor(db: DBServices) {
+    this.db = db;
   }
 
   async createTransaction(transaction: Transaction) {
