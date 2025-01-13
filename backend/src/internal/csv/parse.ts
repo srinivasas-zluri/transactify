@@ -45,7 +45,7 @@ export function handleRow(
   }
 
   // Parse the description
-  tnx.description = row.description.trim();
+  tnx.description = row.description.trim().toLowerCase();
 
   // Parse the currency
   tnx.currency = row.currency.trim().toUpperCase();
