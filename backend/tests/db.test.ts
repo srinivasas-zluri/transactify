@@ -1,6 +1,6 @@
-import dbConfig from "../mikro-orm.config";
+import dbConfig from "~/mikro-orm.config";
 
-import { initORM, DBServices } from "../db";
+import { initORM, DBServices } from "~/db";
 import { User } from "../models/user";
 
 describe("Database", () => {
