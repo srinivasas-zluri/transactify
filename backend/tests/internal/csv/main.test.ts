@@ -76,19 +76,19 @@ describe("check invalid parsing cases", () => {
 
   it("ignore extra columns", async () => {
     const extraColumnsCSV = `DaTe,amount,desCription,Currency, extra_column
-  08-01-2025,100.00,Payment,CAD,false`;
+  13-09-2021,100.00,Payment,CAD,false`;
     const filePath = createCSVFile("extra-columns.csv", extraColumnsCSV);
 
     const result = await parseCSV(filePath);
 
     expect(result.rows).toEqual({
       1: {
-        transaction_date: new Date("08-01-2025"),
+        transaction_date: new Date("2021-09-13"),
         amount: 100.0,
         description: "Payment",
         currency: "CAD",
         is_deleted: false,
-        transaction_date_string: "08-01-2025",
+        transaction_date_string: "13-09-2021",
       },
     });
   });
