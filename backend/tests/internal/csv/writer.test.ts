@@ -128,7 +128,7 @@ describe("check the impl of csvwriter with parsecsv", () => {
         currency: "CAD",
         description: "payment",
         is_deleted: false,
-        transaction_date: new Date("09-01-2025"),
+        transaction_date: new Date("2025-01-09"),
         transaction_date_string: "09-01-2025",
       },
     });

@@ -63,7 +63,7 @@ describe("parseCSV function tests", () => {
 
     expect(result.rows).toEqual({
       1: {
-        transaction_date: new Date("08-01-2025"),
+        transaction_date: new Date("2025-01-08"),
         amount: 1000,
         description: "payment",
         currency: "CAD",

@@ -10,7 +10,7 @@ describe("data with spaces", () => {
 
     expect(result.rows).toEqual({
       1: {
-        transaction_date: new Date("08-01-2025"),
+        transaction_date: new Date("2025-01-08"),
         amount: 302,
         description: "payment",
         currency: "CAD",
