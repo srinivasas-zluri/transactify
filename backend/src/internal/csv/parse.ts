@@ -75,8 +75,8 @@ function parseDate(date: string): Date | null {
   const separator = date.includes("-") ? "-" : "/";
   const [day, month, year] = date.split(separator);
 
-  // Return the date in the format YYYY-MM-DD
-  return new Date(`${year}-${month}-${day}`);
+  const parsedDate = new Date(`${year}-${month}-${day}`);
+  return isNaN(parsedDate.getTime()) ? null : parsedDate;
 }
 
 function parseAmount(amount: string): number | null {
