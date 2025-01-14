@@ -37,7 +37,9 @@ export function handleRow(
   }
 
   // Parse the description
-  tnx.description = cleanSpaces(row.description.trim().toLowerCase());
+  row.description = row.description.trim().toLowerCase();
+  // remove any extra spaces
+  row.description = row.description.replace(/\s+/g, " ");
   if (row.description === "") {
     errors.push({
       type: "InvalidLine",
@@ -45,6 +47,10 @@ export function handleRow(
       lineNo: lineno,
     });
   }
+
+
+  // blit the description
+  tnx.description = row.description.trim().toLowerCase();
 
   // Parse the currency
   tnx.currency = row.currency.trim().toUpperCase();
