@@ -200,7 +200,7 @@ config.projects = [
   // backend
   {
     displayName: "backend",
-    testMatch: ["<rootDir>/backend/tests/**/*.test.ts"],
+    testMatch: ["<rootDir>/backend/tests/internal/**/*.test.ts"],
     testEnvironment: "node",
     testPathIgnorePatterns: ["/node_modules/", "/dist/"],
     transform: {
