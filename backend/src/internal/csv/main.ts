@@ -192,7 +192,15 @@ export async function parseCSV(
               const lineNo = parseInt(lineNoString);
               delete result.rows[lineNo];
               if (error.type !== "RepeatedElementsFound") {
-                return [...prev, { lineNo, errorType: error.type, message: error.message , ...row}];
+                return [
+                  ...prev,
+                  {
+                    lineNo,
+                    errorType: error.type,
+                    message: error.message,
+                    ...row,
+                  },
+                ];
               }
               if (handledDuplicateKeys[error.duplicationKey]) {
                 return prev;
