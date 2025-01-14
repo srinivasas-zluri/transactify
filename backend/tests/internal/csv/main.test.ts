@@ -19,10 +19,23 @@ describe("check invalid parsing cases", () => {
 
     expect(result.parsingErrors).toEqual([
       {
-        type: "InvalidLine",
+        type: "MultipleErrors",
         lineNo: 2,
-        message: "Invalid date format(DD-MM-YYYY): ",
-      } as CSVParseError,
+        message:
+          "Invalid date format(DD-MM-YYYY): , Invalid amount format: Invalid",
+        errors: [
+          {
+            lineNo: 2,
+            message: "Invalid date format(DD-MM-YYYY): ",
+            type: "InvalidLine",
+          },
+          {
+            lineNo: 2,
+            message: "Invalid amount format: Invalid",
+            type: "InvalidLine",
+          },
+        ],
+      },
     ]);
   });
 
@@ -43,16 +56,17 @@ describe("check invalid parsing cases", () => {
 
     const result = await parseCSV(filePath);
 
+    // Adjusting to expect both invalid date and amount errors on the same line
     expect(result.parsingErrors).toEqual([
       {
-        lineNo: 2,
         message: "Invalid date format(DD-MM-YYYY): 99-99-2025",
         type: "InvalidLine",
-      } as CSVParseError,
+        lineNo: 2,
+      },
     ]);
   });
 
-  it("should return InvalidLine error when date is in an invalid format", async () => {
+  it("should return InvalidLine error when date, amount is in an invalid format", async () => {
     const invalidDateCSV = `date,amount,description,currency
   1,100.00,Payment,CAD,false
   2,99-99-2025,Refund,USD,false`;
@@ -67,28 +81,41 @@ describe("check invalid parsing cases", () => {
         type: "InvalidLine",
       },
       {
+        type: "MultipleErrors",
         lineNo: 2,
-        message: "Invalid date format(DD-MM-YYYY): 2",
-        type: "InvalidLine",
+        message:
+          "Invalid date format(DD-MM-YYYY): 2, Invalid amount format: 99-99-2025",
+        errors: [
+          {
+            lineNo: 2,
+            message: "Invalid date format(DD-MM-YYYY): 2",
+            type: "InvalidLine",
+          },
+          {
+            lineNo: 2,
+            message: "Invalid amount format: 99-99-2025",
+            type: "InvalidLine",
+          },
+        ],
       },
     ]);
   });
 
   it("ignore extra columns", async () => {
     const extraColumnsCSV = `DaTe,amount,desCription,Currency, extra_column
-  08-01-2025,100.00,Payment,CAD,false`;
+  13-09-2021,100.00,Payment,CAD,false`;
     const filePath = createCSVFile("extra-columns.csv", extraColumnsCSV);
 
     const result = await parseCSV(filePath);
 
     expect(result.rows).toEqual({
       1: {
-        transaction_date: new Date("08-01-2025"),
+        transaction_date: new Date("2021-09-13"),
         amount: 100.0,
-        description: "Payment",
+        description: "payment",
         currency: "CAD",
         is_deleted: false,
-        transaction_date_string: "08-01-2025",
+        transaction_date_string: "13-09-2021",
       },
     });
   });

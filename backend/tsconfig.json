@@ -1,9 +1,18 @@
 {
     "extends": "../tsconfig.json",
     "compilerOptions": {
+        // "rootDir": ".",
         "outDir": "../dist/backend",
         "experimentalDecorators": true, // Required for MikroORM
-        "emitDecoratorMetadata": true   // Required for MikroORM
+        "emitDecoratorMetadata": true, // Required for MikroORM
+        "paths": {
+            "~/*": [
+                "./src/*"
+            ],
+            "~/models/*": [
+                "./models/*"
+            ],
+        }, /* Specify a set of entries that re-map imports to additional lookup locations. */
     },
     "include": [
         "src/**/*.ts",

@@ -36,6 +36,10 @@ export function handleRow(
     });
   }
 
+  // Parse the description
+  row.description = row.description.trim().toLowerCase();
+  // remove any extra spaces
+  row.description = row.description.replace(/\s+/g, " ");
   if (row.description === "") {
     errors.push({
       type: "InvalidLine",
@@ -44,8 +48,9 @@ export function handleRow(
     });
   }
 
-  // Parse the description
-  tnx.description = row.description.trim();
+
+  // blit the description
+  tnx.description = row.description.trim().toLowerCase();
 
   // Parse the currency
   tnx.currency = row.currency.trim().toUpperCase();
@@ -53,14 +58,25 @@ export function handleRow(
   // Set the transaction date string
   tnx.transaction_date_string = cleanDate;
 
+  let err: CSVParseError | null = null;
+  if (errors.length == 1) {
+    err = errors[0];
+  } else if (errors.length > 1) {
+    err = {
+      type: "MultipleErrors",
+      message: errors.map((e) => e.message).join(", "),
+      lineNo: lineno,
+      errors,
+    };
+  }
+
   return {
     tnx,
-    err: errors.length > 0 ? errors[0] : null,
+    err,
   };
 }
 
 function parseDate(date: string): Date | null {
-
   if (date === "") {
     return null;
   }
@@ -68,12 +84,15 @@ function parseDate(date: string): Date | null {
   // Check if the date is in the format DD-MM-YYYY or DD/MM/YYYY
   const regex = /^\d{2}[-\/]\d{2}[-\/]\d{4}$/;
 
-
   if (!regex.test(date)) {
     return null; // Invalid format
   }
 
-  const parsedDate = new Date(date);
+  // Split the date by either '-' or '/'
+  const separator = date.includes("-") ? "-" : "/";
+  const [day, month, year] = date.split(separator);
+
+  const parsedDate = new Date(`${year}-${month}-${day}`);
   return isNaN(parsedDate.getTime()) ? null : parsedDate;
 }
 

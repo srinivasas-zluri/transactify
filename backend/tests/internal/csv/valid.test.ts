@@ -11,17 +11,17 @@ describe("parse valid csv", () => {
     const result = await parseCSV(filePath);
     expect(result.rows).toEqual({
       1: {
-        transaction_date: new Date("08-01-2025"),
+        transaction_date: new Date("2025-01-08"),
         amount: 100.0,
-        description: "Payment",
+        description: "payment",
         currency: "CAD",
         is_deleted: false,
         transaction_date_string: "08-01-2025",
       },
       2: {
-        transaction_date: new Date("09-01-2025"),
+        transaction_date: new Date("2025-01-09"),
         amount: 50.5,
-        description: "Refund",
+        description: "refund",
         currency: "USD",
         is_deleted: false,
         transaction_date_string: "09-01-2025",
@@ -41,17 +41,17 @@ describe("valid csv parsing", () => {
     const result = await parseCSV(filePath);
     expect(result.rows).toEqual({
       1: {
-        transaction_date: new Date("08-01-2025"),
+        transaction_date: new Date("2025-01-08"),
         amount: 100.0,
-        description: "Payment",
+        description: "payment",
         currency: "CAD",
         is_deleted: false,
         transaction_date_string: "08-01-2025",
       },
       2: {
-        transaction_date: new Date("09-01-2025"),
+        transaction_date: new Date("2025-01-09"),
         amount: 50.5,
-        description: "Refund",
+        description: "refund",
         currency: "USD",
         is_deleted: false,
         transaction_date_string: "09-01-2025",
@@ -69,17 +69,17 @@ describe("valid csv parsing", () => {
     const result = await parseCSV(filePath);
     expect(result.rows).toEqual({
       1: {
-        transaction_date: new Date("08-01-2025"),
+        transaction_date: new Date("2025-01-08"),
         amount: 100.0,
-        description: "Payment",
+        description: "payment",
         currency: "CAD",
         is_deleted: false,
         transaction_date_string: "08-01-2025",
       },
       2: {
-        transaction_date: new Date("09-01-2025"),
+        transaction_date: new Date("2025-01-09"),
         amount: 50.5,
-        description: "Refund",
+        description: "refund",
         currency: "USD",
         is_deleted: false,
         transaction_date_string: "09-01-2025",
@@ -104,17 +104,17 @@ describe("valid csv parsing", () => {
     const result = await parseCSV(filePath);
     expect(result.rows).toEqual({
       3: {
-        transaction_date: new Date("08-01-2025"),
+        transaction_date: new Date("2025-01-08"),
         amount: 100.0,
-        description: "Payment",
+        description: "payment",
         currency: "CAD",
         is_deleted: false,
         transaction_date_string: "08-01-2025",
       },
       6: {
-        transaction_date: new Date("09-01-2025"),
+        transaction_date: new Date("2025-01-09"),
         amount: 50.5,
-        description: "Refund",
+        description: "refund",
         currency: "USD",
         is_deleted: false,
         transaction_date_string: "09-01-2025",
@@ -135,17 +135,17 @@ describe("valid csv parsing", () => {
     const result = await parseCSV(filePath, { seperator: ";" });
     expect(result.rows).toEqual({
       1: {
-        transaction_date: new Date("08-01-2025"),
+        transaction_date: new Date("2025-01-08"),
         amount: 100.0,
-        description: "Payment",
+        description: "payment",
         currency: "CAD",
         is_deleted: false,
         transaction_date_string: "08-01-2025",
       },
       2: {
-        transaction_date: new Date("09-01-2025"),
+        transaction_date: new Date("2025-01-09"),
         amount: 50.5,
-        description: "Refund",
+        description: "refund",
         currency: "USD",
         is_deleted: false,
         transaction_date_string: "09-01-2025",
@@ -163,17 +163,17 @@ describe("valid csv parsing", () => {
     const result = await parseCSV(filePath);
     expect(result.rows).toEqual({
       1: {
-        transaction_date: new Date("08-01-2025"),
+        transaction_date: new Date("2025-01-08"),
         amount: 100.0,
-        description: "Payment, Discount",
+        description: "payment, discount",
         currency: "CAD",
         is_deleted: false,
         transaction_date_string: "08-01-2025",
       },
       2: {
-        transaction_date: new Date("09-01-2025"),
+        transaction_date: new Date("2025-01-09"),
         amount: 50.5,
-        description: "Refund, extra",
+        description: "refund, extra",
         currency: "USD",
         is_deleted: false,
         transaction_date_string: "09-01-2025",
@@ -194,7 +194,7 @@ describe("valid csv parsing", () => {
     const result = await parseCSV(filePath);
     expect(result.rows).toEqual({
       1: {
-        transaction_date: new Date("08-01-2025"),
+        transaction_date: new Date("2025-01-08"),
         amount: 100.0,
         description: "something",
         currency: "",
@@ -202,7 +202,7 @@ describe("valid csv parsing", () => {
         transaction_date_string: "08-01-2025",
       },
       2: {
-        transaction_date: new Date("09-01-2025"),
+        transaction_date: new Date("2025-01-09"),
         amount: 50.5,
         description: "something",
         currency: "",
@@ -225,17 +225,17 @@ describe("valid csv parsing", () => {
     const result = await parseCSV(filePath);
     expect(result.rows).toEqual({
       1: {
-        transaction_date: new Date("08/01/2025"),
+        transaction_date: new Date("2025-01-08"),
         amount: 100.0,
-        description: "Payment",
+        description: "payment",
         currency: "CAD",
         is_deleted: false,
         transaction_date_string: "08/01/2025",
       },
       2: {
-        transaction_date: new Date("09-01-2025"),
+        transaction_date: new Date("2025-01-09"),
         amount: 50.5,
-        description: "Refund",
+        description: "refund",
         currency: "USD",
         is_deleted: false,
         transaction_date_string: "09-01-2025",
@@ -257,7 +257,7 @@ describe("valid csv parsing", () => {
     expect(res.parsingErrors).toEqual([]);
     expect(res.rows).toEqual({
       2: {
-        transaction_date: new Date("08-01-2025"),
+        transaction_date: new Date("2025-01-08"),
         amount: 100.0,
         description: "payment",
         currency: "CAD",
@@ -265,7 +265,7 @@ describe("valid csv parsing", () => {
         transaction_date_string: "08-01-2025",
       },
       4: {
-        transaction_date: new Date("09-01-2025"),
+        transaction_date: new Date("2025-01-09"),
         amount: 200.0,
         description: "purchase",
         currency: "USD",

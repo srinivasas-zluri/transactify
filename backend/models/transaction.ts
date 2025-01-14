@@ -1,6 +1,7 @@
-import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
+import { Entity, PrimaryKey, Property, Unique } from "@mikro-orm/core";
 
 @Entity()
+@Unique({ properties: ["transaction_date_string", "description"] })
 export class Transaction {
   @PrimaryKey()
   id!: number;

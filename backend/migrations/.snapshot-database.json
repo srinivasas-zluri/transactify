@@ -80,6 +80,17 @@
       "schema": "public",
       "indexes": [
         {
+          "keyName": "transaction_transaction_date_string_description_unique",
+          "columnNames": [
+            "transaction_date_string",
+            "description"
+          ],
+          "composite": true,
+          "constraint": true,
+          "primary": false,
+          "unique": true
+        },
+        {
           "keyName": "transaction_pkey",
           "columnNames": [
             "id"
