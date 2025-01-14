@@ -97,3 +97,7 @@ web_modules/
 
 # Database files 
 .db
+
+# Some personal notes 
+notes.md 
+todo.md
