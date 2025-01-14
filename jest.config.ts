@@ -200,22 +200,26 @@ config.projects = [
   // backend
   {
     displayName: "backend",
-    testMatch: ["<rootDir>/backend/tests/*.test.ts"],
+    testMatch: ["<rootDir>/backend/tests/**/*.test.ts"],
     testEnvironment: "node",
     testPathIgnorePatterns: ["/node_modules/", "/dist/"],
     transform: {
-      "^.+\\.ts$": "ts-jest",
+      "^.+\\.ts$": [
+        "ts-jest",
+        {
+          tsconfig: "<rootDir>/backend/tsconfig.json",
+        },
+      ],
+    },
+    moduleNameMapper: {
+      "~/models/(.*)": "<rootDir>/backend/models/$1", // Resolves '~' to the models folder
+      "~/(.*)": "<rootDir>/backend/src/$1", // Resolves '~' to the backend folder
     },
     moduleFileExtensions: ["ts", "js"],
     modulePathIgnorePatterns: ["<rootDir>/dist/"],
     collectCoverageFrom: ["<rootDir>/backend/src/*.ts"],
     coverageDirectory: "<rootDir>/backend/coverage",
-    globals: {
-      "ts-jest": {
-        tsconfig: "<rootDir>/backend/tsconfig.json"
-      }
-    }
-  }
+  },
 ];
 
 export default config;

@@ -6,3 +6,6 @@
 - [TS into monorepo](https://earthly.dev/blog/setup-typescript-monorepo/)
 - [Jest in a monorepo](https://stackoverflow.com/questions/70999527/where-to-configure-jest-in-a-monorepo)
 - [Setting up mikro-orm](https://mikro-orm.io/docs/installation)
+- [Uploading files in express](https://stackoverflow.com/questions/23691194/node-express-file-upload)
+- [Parsing csv files](https://www.npmjs.com/package/csv-parser)
+- [Mocking in jest](https://jestjs.io/docs/jest-object#jestspyonobject-methodname)
