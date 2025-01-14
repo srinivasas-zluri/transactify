@@ -36,6 +36,8 @@ export function handleRow(
     });
   }
 
+  // Parse the description
+  tnx.description = cleanSpaces(row.description.trim().toLowerCase());
   if (row.description === "") {
     errors.push({
       type: "InvalidLine",
@@ -44,18 +46,27 @@ export function handleRow(
     });
   }
 
-  // Parse the description
-  tnx.description = row.description.trim().toLowerCase();
-
   // Parse the currency
   tnx.currency = row.currency.trim().toUpperCase();
 
   // Set the transaction date string
   tnx.transaction_date_string = cleanDate;
 
+  let err: CSVParseError | null = null;
+  if (errors.length == 1) {
+    err = errors[0];
+  } else if (errors.length > 1) {
+    err = {
+      type: "MultipleErrors",
+      message: errors.map((e) => e.message).join(", "),
+      lineNo: lineno,
+      errors,
+    };
+  }
+
   return {
     tnx,
-    err: errors.length > 0 ? errors[0] : null,
+    err,
   };
 }
 
