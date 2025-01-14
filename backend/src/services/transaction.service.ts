@@ -1,6 +1,6 @@
 import { DBServices } from "~/db";
 import { handleRow } from "~/internal/csv/parse";
-import { CSVParseError } from "~/internal/csv/types";
+import { CSVParseError, CSVRow } from "~/internal/csv/types";
 import { Transaction } from "~/models/transaction";
 
 export class TransactionService {
@@ -10,8 +10,24 @@ export class TransactionService {
     this.db = db;
   }
 
-  async createTransaction(transaction: Transaction) {
+  async createTransaction(
+    transaction: Transaction,
+    validateRowFn: (row: CSVRow) => {
+      tnx: Transaction;
+      err: CSVParseError | null;
+    } = (x) => handleRow(x, 0)
+  ) {
     const em = this.db.em;
+    // validate the transaction
+    const { tnx, err } = validateRowFn({
+      date: transaction.transaction_date_string,
+      amount: transaction.amount.toString(),
+      description: transaction.description,
+      currency: transaction.currency,
+    });
+    if (err !== null) {
+      throw new TransactionParseError(err);
+    }
     await em.persistAndFlush(transaction);
     return transaction;
   }
@@ -76,7 +92,11 @@ export class TransactionService {
 
   async updateTransaction(
     id: number,
-    transaction: Transaction
+    transaction: Transaction,
+    validateRowFn: (row: CSVRow) => {
+      tnx: Transaction;
+      err: CSVParseError | null;
+    } = (x) => handleRow(x, 0)
   ): Promise<Transaction | null> {
     const em = this.db.em;
     const originalTransaction = await em.findOne(Transaction, {
@@ -114,7 +134,7 @@ export class TransactionService {
       : originalTransaction.currency;
 
     // validate the transaction
-    const { tnx, err } = handleRow(transactionBuilder, 0);
+    const { tnx, err } = validateRowFn(transactionBuilder);
     if (err !== null) {
       throw new TransactionParseError(err);
     }
