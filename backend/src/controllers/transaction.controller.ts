@@ -3,6 +3,7 @@ import { TransactionService } from "~/services/transaction.service";
 import { Transaction } from "~/models/transaction";
 import { parseCSV } from "~/internal/csv/main";
 import { FileCSVWriter } from "~/internal/csv/writer";
+import path from "node:path";
 
 export class TransactionController {
   private transactionService: TransactionService;
@@ -43,6 +44,8 @@ export class TransactionController {
     try {
       // take the file path add -errors to it
       const fileName = req.file.path.split(".csv")[0] + "-errors.csv";
+      // get the abs path of the file 
+      
       const CSVWriter = new FileCSVWriter(fileName);
       const { rows, parsingErrors, validationErrors } = await parseCSV(
         req.file.path,
@@ -99,7 +102,7 @@ export class TransactionController {
       }
 
       // return the error file
-      res.sendFile(fileName);
+      res.sendFile(path.resolve(fileName));
     } catch (error) {
       console.error("Error creating transactions:", error);
       res.status(500).json({ message: "Failed to create transactions" });
