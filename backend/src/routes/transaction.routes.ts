@@ -17,10 +17,23 @@ export default function createTransactionRouter(db: DBServices) {
     upload.single("file"),
     transactionController.createTransactions.bind(transactionController)
   );
-  transactionRouter.get("/", transactionController.getTransactions.bind(transactionController));
-  transactionRouter.get("/:id", transactionController.getTransactionById.bind(transactionController));
-  transactionRouter.put("/:id", transactionController.updateTransaction.bind(transactionController));
-  transactionRouter.delete("/:id", transactionController.deleteTransaction.bind(transactionController));
+  transactionRouter.get(
+    "/",
+    transactionController.getTransactions.bind(transactionController)
+  );
+  transactionRouter.get(
+    "/:id",
+    transactionController.getTransactionById.bind(transactionController)
+  );
+  transactionRouter.put(
+    "/:id",
+    upload.single("file"),
+    transactionController.updateTransaction.bind(transactionController)
+  );
+  transactionRouter.delete(
+    "/:id",
+    transactionController.deleteTransaction.bind(transactionController)
+  );
 
   return transactionRouter;
 }
