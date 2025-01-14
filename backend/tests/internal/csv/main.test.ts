@@ -19,10 +19,23 @@ describe("check invalid parsing cases", () => {
 
     expect(result.parsingErrors).toEqual([
       {
-        type: "InvalidLine",
+        type: "MultipleErrors",
         lineNo: 2,
-        message: "Invalid date format(DD-MM-YYYY): ",
-      } as CSVParseError,
+        message:
+          "Invalid date format(DD-MM-YYYY): , Invalid amount format: Invalid",
+        errors: [
+          {
+            lineNo: 2,
+            message: "Invalid date format(DD-MM-YYYY): ",
+            type: "InvalidLine",
+          },
+          {
+            lineNo: 2,
+            message: "Invalid amount format: Invalid",
+            type: "InvalidLine",
+          },
+        ],
+      },
     ]);
   });
 
@@ -43,16 +56,17 @@ describe("check invalid parsing cases", () => {
 
     const result = await parseCSV(filePath);
 
+    // Adjusting to expect both invalid date and amount errors on the same line
     expect(result.parsingErrors).toEqual([
       {
-        lineNo: 2,
         message: "Invalid date format(DD-MM-YYYY): 99-99-2025",
         type: "InvalidLine",
-      } as CSVParseError,
+        lineNo: 2,
+      },
     ]);
   });
 
-  it("should return InvalidLine error when date is in an invalid format", async () => {
+  it("should return InvalidLine error when date, amount is in an invalid format", async () => {
     const invalidDateCSV = `date,amount,description,currency
   1,100.00,Payment,CAD,false
   2,99-99-2025,Refund,USD,false`;
@@ -67,9 +81,22 @@ describe("check invalid parsing cases", () => {
         type: "InvalidLine",
       },
       {
+        type: "MultipleErrors",
         lineNo: 2,
-        message: "Invalid date format(DD-MM-YYYY): 2",
-        type: "InvalidLine",
+        message:
+          "Invalid date format(DD-MM-YYYY): 2, Invalid amount format: 99-99-2025",
+        errors: [
+          {
+            lineNo: 2,
+            message: "Invalid date format(DD-MM-YYYY): 2",
+            type: "InvalidLine",
+          },
+          {
+            lineNo: 2,
+            message: "Invalid amount format: 99-99-2025",
+            type: "InvalidLine",
+          },
+        ],
       },
     ]);
   });
