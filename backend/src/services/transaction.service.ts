@@ -27,6 +27,7 @@ export class TransactionService {
       transactions.map((t) => ({
         transaction_date_string: t.transaction_date_string,
         description: t.description,
+        is_deleted: false,
       }))
     );
     // create a set of duplicates
@@ -42,7 +43,7 @@ export class TransactionService {
   }
 
   async getAllTransactions() {
-    return this.db.em.find(Transaction, {});
+    return this.db.em.find(Transaction, { is_deleted: false });
   }
 
   async getTransactionById(id: number) {
@@ -50,7 +51,14 @@ export class TransactionService {
   }
 
   async getTransactions(page: number, limit: number) {
-    return this.db.em.find(
+    // return with if next and prev page are available
+    const totalTransactions = await this.db.em.count(Transaction, {
+      is_deleted: false,
+    });
+    const totalPages = Math.ceil(totalTransactions / limit);
+    const hasNextPage = page < totalPages;
+    const hasPrevPage = page > 1;
+    const transactions = await this.db.em.find(
       Transaction,
       { is_deleted: false },
       {
@@ -59,6 +67,7 @@ export class TransactionService {
         orderBy: { transaction_date: "asc" },
       }
     );
+    return { transactions, hasNextPage, hasPrevPage };
   }
 
   // async getTransactionById(id: number) {
@@ -117,8 +126,6 @@ export class TransactionService {
     originalTransaction.description = tnx.description;
     originalTransaction.currency = tnx.currency;
 
-    console.log("Updating transaction", originalTransaction);
-
     await em.persistAndFlush(originalTransaction);
     return originalTransaction;
   }
@@ -126,11 +133,15 @@ export class TransactionService {
   // delete transaction
   async deleteTransaction(id: number) {
     const em = this.db.em;
-    const transaction = await em.findOne(Transaction, { id });
+    const transaction = await em.findOne(Transaction, {
+      id,
+      is_deleted: false,
+    });
     if (!transaction) {
       return null;
     }
-    await em.removeAndFlush(transaction);
+    transaction.is_deleted = true;
+    await em.persistAndFlush(transaction);
     return transaction;
   }
 
