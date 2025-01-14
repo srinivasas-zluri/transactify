@@ -15,9 +15,9 @@ export interface DBServices {
 let cache: DBServices;
 
 export async function initORM(options?: Options): Promise<DBServices> {
-  if (cache) {
-    return cache;
-  }
+  // if (cache) {
+  //   return cache;
+  // }
 
   const orm = await MikroORM.init(options);
 
