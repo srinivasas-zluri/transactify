@@ -1,9 +1,12 @@
 import { Request, Response } from "express";
-import { TransactionService } from "~/services/transaction.service";
+import {
+  TransactionParseError,
+  TransactionService,
+} from "~/services/transaction.service";
 import { Transaction } from "~/models/transaction";
+import path from "node:path";
 import { parseCSV } from "~/internal/csv/main";
 import { FileCSVWriter } from "~/internal/csv/writer";
-import path from "node:path";
 
 export class TransactionController {
   private transactionService: TransactionService;
@@ -11,17 +14,29 @@ export class TransactionController {
   constructor(transactionService: TransactionService) {
     this.transactionService = transactionService;
   }
-
   // Create a single transaction
   async createTransaction(req: Request, res: Response): Promise<void> {
     try {
-      const transactionData = req.body as Transaction;
+      const transactionData = req.body as TransactionData;
+      if (!checkValidTransactionData(transactionData)) {
+        res.status(400).json({ message: "Invalid transaction data" });
+        return;
+      }
+      const newTnx = new Transaction();
+      newTnx.transaction_date_string = transactionData.date;
+      newTnx.amount = parseFloat(transactionData.amount);
+      newTnx.description = transactionData.description;
+      newTnx.currency = transactionData.currency;
       const transaction = await this.transactionService.createTransaction(
-        transactionData
+        newTnx
       );
       res.status(201).json(transaction);
       return;
     } catch (error) {
+      if (error instanceof TransactionParseError) {
+        res.status(400).json({ message: error.message });
+        return;
+      }
       console.error("Error creating transaction:", error);
       res.status(500).json({ message: "Failed to create transaction" });
       return;
@@ -37,15 +52,18 @@ export class TransactionController {
     }
 
     // check if csv file
-    if (req.file.mimetype !== "text/csv") {
+    if (
+      req.file.mimetype !== "text/csv" ||
+      req.file.path.split(".")[1].toLowerCase() !== "csv"
+    ) {
       res.status(400).json({ message: "Invalid file type" });
       return;
     }
     try {
       // take the file path add -errors to it
       const fileName = req.file.path.split(".csv")[0] + "-errors.csv";
-      // get the abs path of the file 
-      
+      // get the abs path of the file
+
       const CSVWriter = new FileCSVWriter(fileName);
       const { rows, parsingErrors, validationErrors } = await parseCSV(
         req.file.path,
@@ -58,7 +76,7 @@ export class TransactionController {
 
       const numErrors =
         parsingErrors.length + Object.keys(validationErrors).length;
-      if (numErrors == 0) {
+      if (numErrors == 0 && duplicates.length == 0) {
         res.status(201).json({
           message: "All transactions created successfully",
         });
@@ -145,10 +163,7 @@ export class TransactionController {
         return;
       }
       const { transactions, hasNextPage, hasPrevPage } =
-        await this.transactionService.getTransactions(
-          Number(page) || 1,
-          Number(limit) || 10
-        );
+        await this.transactionService.getTransactions(pageInt, limitInt);
       res.status(200).json({
         transactions,
         nextPage: { page: hasNextPage ? pageInt + 1 : null, limit: limitInt },
@@ -189,13 +204,8 @@ export class TransactionController {
   async deleteTransaction(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      console.log({ id });
-      console.log({
-        allTrans: await this.transactionService.getAllTransactions(),
-      });
       const deletedTransaction =
         await this.transactionService.deleteTransaction(Number(id));
-      console.log({ deletedTransaction });
       if (!deletedTransaction) {
         res.status(404).json({ message: "Transaction not found" });
         return;
@@ -221,4 +231,21 @@ export class TransactionController {
   //     return res.status(500).json({ message: "Failed to delete transactions" });
   //   }
   // }
+}
+
+interface TransactionData {
+  date: string;
+  amount: string;
+  description: string;
+  currency: string;
+}
+
+function checkValidTransactionData(data: any): boolean {
+  const requiredFields = ["date", "amount", "description", "currency"];
+  for (const field of requiredFields) {
+    if (!data[field]) {
+      return false;
+    }
+  }
+  return true;
 }

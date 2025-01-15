@@ -1,4 +1,4 @@
-import { parseCSV } from "~/internal/csv/main";
+import { parseCSV } from "~/csv/main";
 import { createCSVWithBOM } from "./utils";
 describe("BOM in CSV parse", () => {
   it("should correctly parse a CSV with BOM", async () => {

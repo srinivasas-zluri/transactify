@@ -21,6 +21,11 @@ export default function createTransactionRouter(db: DBServices) {
     "/",
     transactionController.getTransactions.bind(transactionController)
   );
+  transactionRouter.post(
+    "/",
+    upload.single("file"),
+    transactionController.createTransaction.bind(transactionController)
+  );
   transactionRouter.get(
     "/:id",
     transactionController.getTransactionById.bind(transactionController)

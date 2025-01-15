@@ -1,9 +1,8 @@
 import fs from "fs";
 import path from "path";
-import { CSVParseError } from "~/internal/csv/types";
-import { parseCSV } from "~/internal/csv/main";
 import { createCSVFile, tempDir } from "./utils";
-const parse = require("~/internal/csv/parse");
+import { parseCSV } from "~/csv/main";
+import { CSVParseError } from "~/csv/types";
 
 describe("check invalid parsing cases", () => {
   afterEach(() => {
@@ -216,9 +215,11 @@ describe("check other errors", () => {
   });
 
   it("Throw error if an exception occurs in the parser", async () => {
-    jest.spyOn(parse, "handleRow").mockImplementation(() => {
-      throw new Error("Parser error");
+    // mock the handle row fn to throw err
+    jest.spyOn(require("~/csv/parse"), "handleRow").mockImplementation(() => {
+      throw new Error("An unknown error occurred.");
     });
+
     const data = `date,amount,description,currency
     08-01-2025,100.00,Payment,CAD,false`;
     const filePath = createCSVFile("parser-error.csv", data);

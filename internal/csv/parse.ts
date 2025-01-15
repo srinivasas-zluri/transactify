@@ -48,7 +48,6 @@ export function handleRow(
     });
   }
 
-
   // blit the description
   tnx.description = row.description.trim().toLowerCase();
 

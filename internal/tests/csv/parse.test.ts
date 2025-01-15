@@ -1,4 +1,4 @@
-import { parseCSV } from "~/internal/csv/main";
+import { parseCSV } from "~/csv/main";
 import { createCSVFile } from "./utils";
 describe("data with spaces", () => {
   it("check parsing of data with spaces in between", async () => {
