@@ -113,7 +113,7 @@
     "backend/**/*",
     "frontend/**/*",
     "jest.config.ts"
-  ],
+, "internal"  ],
   "exclude": [
     "node_modules"
   ]

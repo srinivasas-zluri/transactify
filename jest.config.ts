@@ -214,11 +214,36 @@ config.projects = [
     moduleNameMapper: {
       "~/models/(.*)": "<rootDir>/backend/models/$1", // Resolves '~' to the models folder
       "~/(.*)": "<rootDir>/backend/src/$1", // Resolves '~' to the backend folder
+      "~/internal/(.*)": "<rootDir>/internal/src/$1", // Resolves '~' to the internal folder
     },
     moduleFileExtensions: ["ts", "js"],
     modulePathIgnorePatterns: ["<rootDir>/dist/"],
     collectCoverageFrom: ["<rootDir>/backend/src/*.ts"],
     coverageDirectory: "<rootDir>/backend/coverage",
+  },
+
+  // internal
+  {
+    displayName: "internal",
+    testMatch: ["<rootDir>/internal/tests/**/*.test.ts"],
+    testEnvironment: "node",
+    testPathIgnorePatterns: ["/node_modules/", "/dist/"],
+    transform: {
+      "^.+\\.ts$": [
+        "ts-jest",
+        {
+          tsconfig: "<rootDir>/internal/tsconfig.json",
+        },
+      ],
+    },
+    moduleNameMapper: {
+      "~/models/(.*)": "<rootDir>/backend/models/$1", // Resolves '~' to the models folder
+      "~/(.*)": "<rootDir>/internal/$1", // Resolves '~' to the internal folder
+    },
+    moduleFileExtensions: ["ts", "js"],
+    modulePathIgnorePatterns: ["<rootDir>/dist/"],
+    collectCoverageFrom: ["<rootDir>/internal/csv/main.ts"],
+    coverageDirectory: "<rootDir>/internal/coverage/",
   },
 ];
 

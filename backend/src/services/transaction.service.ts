@@ -1,6 +1,6 @@
 import { DBServices } from "~/db";
-import { handleRow } from "~/internal/csv/parse";
-import { CSVParseError, CSVRow } from "~/internal/csv/types";
+import { handleRow } from "~/internal/csv/main";
+import { CSVParseError, CSVRow } from "../../../internal/csv/types";
 import { Transaction } from "~/models/transaction";
 
 export class TransactionService {

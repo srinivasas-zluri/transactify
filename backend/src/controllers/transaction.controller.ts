@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { TransactionService } from "~/services/transaction.service";
 import { Transaction } from "~/models/transaction";
-import { parseCSV } from "~/internal/csv/main";
-import { FileCSVWriter } from "~/internal/csv/writer";
+import { parseCSV } from "../../../internal/csv/main";
+import { FileCSVWriter } from "../../../internal/csv/writer";
 import path from "node:path";
 
 export class TransactionController {
