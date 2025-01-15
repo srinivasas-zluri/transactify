@@ -200,7 +200,7 @@ config.projects = [
   // backend
   {
     displayName: "backend",
-    testMatch: ["<rootDir>/backend/tests/internal/**/*.test.ts"],
+    testMatch: ["<rootDir>/backend/tests/**/*.test.ts"],
     testEnvironment: "node",
     testPathIgnorePatterns: ["/node_modules/", "/dist/"],
     transform: {
@@ -213,11 +213,12 @@ config.projects = [
     },
     moduleNameMapper: {
       "~/models/(.*)": "<rootDir>/backend/models/$1", // Resolves '~' to the models folder
+      "~/internal/(.*)": "<rootDir>/internal/$1", // Resolves '~' to the internal folder
       "~/(.*)": "<rootDir>/backend/src/$1", // Resolves '~' to the backend folder
-      "~/internal/(.*)": "<rootDir>/internal/src/$1", // Resolves '~' to the internal folder
     },
     moduleFileExtensions: ["ts", "js"],
     modulePathIgnorePatterns: ["<rootDir>/dist/"],
+    coveragePathIgnorePatterns: ["/node_modules/", "/dist/", "<rootDir>/internal/"],
     collectCoverageFrom: ["<rootDir>/backend/src/*.ts"],
     coverageDirectory: "<rootDir>/backend/coverage",
   },
