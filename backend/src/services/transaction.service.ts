@@ -28,8 +28,8 @@ export class TransactionService {
     if (err !== null) {
       throw new TransactionParseError(err);
     }
-    await em.persistAndFlush(transaction);
-    return transaction;
+    await em.persistAndFlush(tnx);
+    return tnx;
   }
 
   async createTransactions(
@@ -103,6 +103,7 @@ export class TransactionService {
       id,
       is_deleted: false,
     });
+    console.log("originalTransaction", originalTransaction);
     if (!originalTransaction) {
       return null;
     }
@@ -193,7 +194,7 @@ function checkString(value: string) {
   return value && value !== "";
 }
 
-class TransactionParseError extends Error {
+export class TransactionParseError extends Error {
   constructor(err: CSVParseError) {
     super(err.message);
     this.name = err.type;
