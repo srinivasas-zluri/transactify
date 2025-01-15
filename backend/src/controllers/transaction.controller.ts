@@ -52,7 +52,10 @@ export class TransactionController {
     }
 
     // check if csv file
-    if (req.file.mimetype !== "text/csv") {
+    if (
+      req.file.mimetype !== "text/csv" ||
+      req.file.path.split(".")[1].toLowerCase() !== "csv"
+    ) {
       res.status(400).json({ message: "Invalid file type" });
       return;
     }
@@ -160,10 +163,7 @@ export class TransactionController {
         return;
       }
       const { transactions, hasNextPage, hasPrevPage } =
-        await this.transactionService.getTransactions(
-          Number(page) || 1,
-          Number(limit) || 10
-        );
+        await this.transactionService.getTransactions(pageInt, limitInt);
       res.status(200).json({
         transactions,
         nextPage: { page: hasNextPage ? pageInt + 1 : null, limit: limitInt },
