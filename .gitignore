@@ -6,6 +6,9 @@ jspm_packages/
 package-lock.json
 npm-shrinkwrap.json
 
+# distributable dirs 
+dist/
+
 
 # Logs
 logs

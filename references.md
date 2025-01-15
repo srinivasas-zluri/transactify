@@ -10,3 +10,4 @@
 - [Parsing csv files](https://www.npmjs.com/package/csv-parser)
 - [Mocking in jest](https://jestjs.io/docs/jest-object#jestspyonobject-methodname)
 - [Class functions lose context when they are passed into an express router](https://www.reddit.com/r/node/comments/o737qt/express_losing_context_of_this/)
+-[tsconfig path issues](https://stackoverflow.com/questions/50679031/why-are-these-tsconfig-paths-not-working)
