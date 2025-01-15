@@ -9,28 +9,7 @@ import {
 } from "./types";
 import { handleRow } from "./parse";
 
-type DuplicationResult = { seen: true; lineNo: number } | { seen: false };
-
-function checkDuplicationBuilder(): (
-  value: string,
-  index: number
-) => DuplicationResult {
-  const seen: { [dateAndDescription: string]: number /* linenumber */ } = {};
-  return (value: string, index: number) => {
-    const key = value;
-    if (seen[key] !== undefined) {
-      return { seen: true, lineNo: seen[key] };
-    }
-    seen[key] = index;
-    return { seen: false };
-  };
-}
-
-const defaultWriter: CSVWriter = {
-  writeRows: async () => {
-    return null;
-  },
-};
+export { handleRow };
 
 export async function parseCSV(
   filePath: string,
@@ -255,8 +234,29 @@ export async function parseCSV(
   }
 }
 
+type DuplicationResult = { seen: true; lineNo: number } | { seen: false };
 
-export { handleRow };
+function checkDuplicationBuilder(): (
+  value: string,
+  index: number
+) => DuplicationResult {
+  const seen: { [dateAndDescription: string]: number /* linenumber */ } = {};
+  return (value: string, index: number) => {
+    const key = value;
+    if (seen[key] !== undefined) {
+      return { seen: true, lineNo: seen[key] };
+    }
+    seen[key] = index;
+    return { seen: false };
+  };
+}
+
+const defaultWriter: CSVWriter = {
+  writeRows: async () => {
+    return null;
+  },
+};
+
 // async function main() {
 //   // read the csv file and process the data
 //   console.log(await parseCSV("C:/projects/zluri/transactify/test.csv"));
