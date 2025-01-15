@@ -1,5 +1,8 @@
 import { Request, Response } from "express";
-import { TransactionService } from "~/services/transaction.service";
+import {
+  TransactionParseError,
+  TransactionService,
+} from "~/services/transaction.service";
 import { Transaction } from "~/models/transaction";
 import path from "node:path";
 import { parseCSV } from "~/internal/csv/main";
@@ -11,17 +14,29 @@ export class TransactionController {
   constructor(transactionService: TransactionService) {
     this.transactionService = transactionService;
   }
-
   // Create a single transaction
   async createTransaction(req: Request, res: Response): Promise<void> {
     try {
-      const transactionData = req.body as Transaction;
+      const transactionData = req.body as TransactionData;
+      if (!checkValidTransactionData(transactionData)) {
+        res.status(400).json({ message: "Invalid transaction data" });
+        return;
+      }
+      const newTnx = new Transaction();
+      newTnx.transaction_date_string = transactionData.date;
+      newTnx.amount = parseFloat(transactionData.amount);
+      newTnx.description = transactionData.description;
+      newTnx.currency = transactionData.currency;
       const transaction = await this.transactionService.createTransaction(
-        transactionData
+        newTnx
       );
       res.status(201).json(transaction);
       return;
     } catch (error) {
+      if (error instanceof TransactionParseError) {
+        res.status(400).json({ message: error.message });
+        return;
+      }
       console.error("Error creating transaction:", error);
       res.status(500).json({ message: "Failed to create transaction" });
       return;
@@ -216,4 +231,21 @@ export class TransactionController {
   //     return res.status(500).json({ message: "Failed to delete transactions" });
   //   }
   // }
+}
+
+interface TransactionData {
+  date: string;
+  amount: string;
+  description: string;
+  currency: string;
+}
+
+function checkValidTransactionData(data: any): boolean {
+  const requiredFields = ["date", "amount", "description", "currency"];
+  for (const field of requiredFields) {
+    if (!data[field]) {
+      return false;
+    }
+  }
+  return true;
 }
