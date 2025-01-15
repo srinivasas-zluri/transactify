@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import { TransactionService } from "~/services/transaction.service";
 import { Transaction } from "~/models/transaction";
-import { parseCSV } from "../../../internal/csv/main";
-import { FileCSVWriter } from "../../../internal/csv/writer";
 import path from "node:path";
+import { parseCSV } from "~/internal/csv/main";
+import { FileCSVWriter } from "~/internal/csv/writer";
 
 export class TransactionController {
   private transactionService: TransactionService;
@@ -44,8 +44,8 @@ export class TransactionController {
     try {
       // take the file path add -errors to it
       const fileName = req.file.path.split(".csv")[0] + "-errors.csv";
-      // get the abs path of the file 
-      
+      // get the abs path of the file
+
       const CSVWriter = new FileCSVWriter(fileName);
       const { rows, parsingErrors, validationErrors } = await parseCSV(
         req.file.path,
@@ -189,13 +189,8 @@ export class TransactionController {
   async deleteTransaction(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      console.log({ id });
-      console.log({
-        allTrans: await this.transactionService.getAllTransactions(),
-      });
       const deletedTransaction =
         await this.transactionService.deleteTransaction(Number(id));
-      console.log({ deletedTransaction });
       if (!deletedTransaction) {
         res.status(404).json({ message: "Transaction not found" });
         return;
