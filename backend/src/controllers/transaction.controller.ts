@@ -73,7 +73,7 @@ export class TransactionController {
 
       const numErrors =
         parsingErrors.length + Object.keys(validationErrors).length;
-      if (numErrors == 0) {
+      if (numErrors == 0 && duplicates.length == 0) {
         res.status(201).json({
           message: "All transactions created successfully",
         });
