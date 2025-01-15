@@ -149,7 +149,8 @@ export async function parseCSV(
             return;
           }
 
-          if (duplicationRows[key] === undefined) {
+          const isDuplicateRowAlreadySeen = duplicationRows[key] !== undefined;
+          if (!isDuplicateRowAlreadySeen) {
             duplicationRows[key] = [isDuplicate.lineNo];
           }
           duplicationRows[key].push(linenumber);
@@ -164,43 +165,13 @@ export async function parseCSV(
           );
         })
         .on("end", async () => {
-          const handledDuplicateKeys: { [key: string]: boolean } = {};
-          const errorRowsArray = Object.entries(errorRows).reduce(
-            (prev, curr) => {
-              const [lineNoString, { error, row }] = curr;
-              const lineNo = parseInt(lineNoString);
-              delete result.rows[lineNo];
-              if (error.type !== "RepeatedElementsFound") {
-                return [
-                  ...prev,
-                  {
-                    lineNo,
-                    errorType: error.type,
-                    message: error.message,
-                    ...row,
-                  },
-                ];
-              }
-              if (handledDuplicateKeys[error.duplicationKey]) {
-                return prev;
-              }
-              handledDuplicateKeys[error.duplicationKey] = true;
-              const dupErrRows = [];
-              for (const lineNumber of duplicationRows[error.duplicationKey]) {
-                delete result.rows[lineNumber];
-                dupErrRows.push({
-                  lineNo: lineNumber,
-                  errorType: error.type,
-                  message: `Duplicate elements found in the following line numbers ${duplicationRows[
-                    error.duplicationKey
-                  ].join(", ")}`,
-                  ...row,
-                });
-              }
-              return [...prev, ...dupErrRows];
-            },
-            [] as any[]
+          // Flatten the error rows and delete the error rows from the result
+          const errorRowsArray = flattenErrorRowsAndDeleteErrorRows(
+            errorRows,
+            result,
+            duplicationRows
           );
+
           // Write the error rows to a file if it's not empty
           if (errorRowsArray.length > 0) {
             try {
@@ -232,6 +203,54 @@ export async function parseCSV(
       message: `An unknown error occurred.`,
     };
   }
+}
+
+type ErrorRows = {
+  [linenumber: number]: {
+    error: ValidationError | CSVParseError;
+    row: CSVRow;
+  };
+};
+
+function flattenErrorRowsAndDeleteErrorRows(
+  errorRows: ErrorRows,
+  result: CSVParsedInfo,
+  duplicationRows: { [key: string]: number[] }
+) {
+  const handledDuplicateKeys: { [key: string]: boolean } = {};
+  return Object.entries(errorRows).reduce((prev, curr) => {
+    const [lineNoString, { error, row }] = curr;
+    const lineNo = parseInt(lineNoString);
+    delete result.rows[lineNo];
+    if (error.type !== "RepeatedElementsFound") {
+      return [
+        ...prev,
+        {
+          lineNo,
+          errorType: error.type,
+          message: error.message,
+          ...row,
+        },
+      ];
+    }
+    if (handledDuplicateKeys[error.duplicationKey]) {
+      return prev;
+    }
+    handledDuplicateKeys[error.duplicationKey] = true;
+    const dupErrRows = [];
+    for (const lineNumber of duplicationRows[error.duplicationKey]) {
+      delete result.rows[lineNumber];
+      dupErrRows.push({
+        lineNo: lineNumber,
+        errorType: error.type,
+        message: `Duplicate elements found in the following line numbers ${duplicationRows[
+          error.duplicationKey
+        ].join(", ")}`,
+        ...row,
+      });
+    }
+    return [...prev, ...dupErrRows];
+  }, [] as any[]);
 }
 
 type DuplicationResult = { seen: true; lineNo: number } | { seen: false };
