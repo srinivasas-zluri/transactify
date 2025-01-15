@@ -1,4 +1,4 @@
-import { parseCSV } from "~/internal/csv/main";
+import { parseCSV } from "~/csv/main";
 import { createCSVFile } from "./utils";
 
 describe("parse valid csv", () => {

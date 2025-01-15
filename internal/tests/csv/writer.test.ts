@@ -1,14 +1,14 @@
 import fs from "fs";
 import path from "path";
-import { FileCSVWriter } from "~/internal/csv/writer";
 import {
   cleanupTestFile,
   createCSVFile,
   readFileContent,
   testFilePath,
 } from "./utils";
-import { parseCSV } from "~/internal/csv/main";
-import { CSVWriter } from "~/internal/csv/types";
+import { FileCSVWriter } from "~/csv/writer";
+import { parseCSV } from "~/csv/main";
+import { CSVWriter } from "~/csv/types";
 
 describe("Check the generic implementation of the csvwriter", () => {
   beforeEach(() => {

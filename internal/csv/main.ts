@@ -255,6 +255,8 @@ export async function parseCSV(
   }
 }
 
+
+export { handleRow };
 // async function main() {
 //   // read the csv file and process the data
 //   console.log(await parseCSV("C:/projects/zluri/transactify/test.csv"));
