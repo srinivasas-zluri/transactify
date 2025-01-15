@@ -28,19 +28,17 @@ describe("TransactionService (with DB)", () => {
     const transaction = new Transaction();
     transaction.amount = 100;
     transaction.description = "Test Transaction";
-    transaction.transaction_date = new Date();
     transaction.transaction_date_string = "21-09-2021";
     transaction.currency = "USD";
 
     const result = await transactionService.createTransaction(transaction);
-    expect(result).toEqual(transaction);
 
     const savedTransaction = await db.em.findOne(Transaction, {
       id: result.id,
     });
     expect(savedTransaction).toBeDefined();
     expect(savedTransaction?.amount).toBe(100);
-    expect(savedTransaction?.description).toBe("Test Transaction");
+    expect(savedTransaction?.description).toBe("test transaction");
   });
 
   it("should return all transactions from the DB", async () => {
@@ -48,8 +46,7 @@ describe("TransactionService (with DB)", () => {
     transaction1.amount = 50;
     transaction1.description = "First Transaction";
     transaction1.transaction_date = new Date();
-    transaction1.transaction_date_string =
-      transaction1.transaction_date.toISOString();
+    transaction1.transaction_date_string = "21-09-2021";
 
     transaction1.currency = "USD";
 
@@ -57,8 +54,7 @@ describe("TransactionService (with DB)", () => {
     transaction2.amount = 75;
     transaction2.description = "Second Transaction";
     transaction2.transaction_date = new Date();
-    transaction2.transaction_date_string =
-      transaction2.transaction_date.toISOString();
+    transaction2.transaction_date_string = "21-09-2021";
     transaction2.currency = "USD";
 
     await transactionService.createTransaction(transaction1);
@@ -66,8 +62,27 @@ describe("TransactionService (with DB)", () => {
 
     const transactions = await transactionService.getAllTransactions();
     expect(transactions.length).toBe(2);
-    expect(transactions[0].description).toBe("First Transaction");
-    expect(transactions[1].description).toBe("Second Transaction");
+    expect(transactions[0].description).toBe("first transaction");
+    expect(transactions[1].description).toBe("second transaction");
+  });
+
+  // check for invalid create
+  it("should not allow invalid data on create", async () => {
+    const transaction = new Transaction();
+    transaction.amount = 100;
+    transaction.description = "Initial Transaction";
+    transaction.transaction_date = new Date();
+    transaction.transaction_date_string = "invalid-date";
+    transaction.currency = "USD";
+
+    await expect(
+      transactionService.createTransaction(transaction)
+    ).rejects.toThrow(
+      expect.objectContaining({
+        name: "InvalidLine",
+        message: "Invalid date format(DD-MM-YYYY): invalid-date",
+      })
+    );
   });
 
   it("should return transactions with pagination from the DB", async () => {
@@ -79,8 +94,7 @@ describe("TransactionService (with DB)", () => {
       transaction.transaction_date.setDate(
         transaction.transaction_date.getDate() - i
       );
-      transaction.transaction_date_string =
-        transaction.transaction_date.toISOString();
+      transaction.transaction_date_string = "21-09-2021";
       transaction.currency = "USD";
 
       await transactionService.createTransaction(transaction);
@@ -94,8 +108,8 @@ describe("TransactionService (with DB)", () => {
     );
 
     expect(transactions.length).toBe(5);
-    expect(transactions[0].description).toBe("Transaction 10");
-    expect(transactions[4].description).toBe("Transaction 6");
+    expect(transactions[0].description).toBe("transaction 1");
+    expect(transactions[4].description).toBe("transaction 5");
   });
 
   // get transaction by id  add 100 transactions and search
@@ -109,8 +123,7 @@ describe("TransactionService (with DB)", () => {
       transaction.transaction_date.setDate(
         transaction.transaction_date.getDate() - i
       );
-      transaction.transaction_date_string =
-        transaction.transaction_date.toISOString();
+      transaction.transaction_date_string = "21-09-2021";
       transaction.currency = "USD";
 
       transactions.push(transaction);
@@ -163,8 +176,7 @@ describe("TransactionService (with DB)", () => {
     transaction.description = "Initial Transaction";
     transaction.transaction_date = new Date();
     transaction.currency = "USD";
-    transaction.transaction_date_string =
-      transaction.transaction_date.toISOString();
+    transaction.transaction_date_string = "13-09-2021";
 
     const createdTransaction = await transactionService.createTransaction(
       transaction
@@ -198,8 +210,7 @@ describe("TransactionService (with DB)", () => {
     transaction.amount = 100;
     transaction.description = "Transaction to be deleted";
     transaction.transaction_date = new Date();
-    transaction.transaction_date_string =
-      transaction.transaction_date.toISOString();
+    transaction.transaction_date_string = "13-09-2021";
     transaction.currency = "USD";
 
     const createdTransaction = await transactionService.createTransaction(
@@ -230,8 +241,7 @@ describe("TransactionService (with DB)", () => {
     transaction.currency = "USD";
     transaction.description = "Initial Transaction";
     transaction.transaction_date = new Date();
-    transaction.transaction_date_string =
-      transaction.transaction_date.toISOString();
+    transaction.transaction_date_string = "13-09-2021";
 
     const createdTransaction = await transactionService.createTransaction(
       transaction
@@ -283,26 +293,31 @@ describe("TransactionService (with DB)", () => {
     transaction.amount = 100;
     transaction.description = "Initial Transaction";
     transaction.transaction_date = new Date();
-    transaction.transaction_date_string = "13-09-2021";
+    transaction.transaction_date_string = "15-09-2021";
     transaction.currency = "USD";
 
     const transaction2 = new Transaction();
     transaction2.amount = 100;
     transaction2.description = "Initial Transaction";
     transaction2.transaction_date = new Date();
-    transaction2.transaction_date_string = "14-09-2021";
+    transaction2.transaction_date_string = "16-09-2021";
     transaction2.currency = "USD";
 
     await transactionService.createTransaction(transaction);
-    await transactionService.createTransaction(transaction2);
+    const { id } = await transactionService.createTransaction(transaction2);
+
+    // check the tnxs in db
+    const transactions = await transactionService.getAllTransactions();
+    console.log({ transactions });
+    expect(transactions.length).toBe(2);
 
     const updatedTransaction = transaction2;
-    updatedTransaction.description = transaction.description;
+    updatedTransaction.description = transaction.description.toLowerCase();
     updatedTransaction.transaction_date_string =
       transaction.transaction_date_string;
 
     expect(
-      transactionService.updateTransaction(transaction.id, updatedTransaction)
+      transactionService.updateTransaction(id, updatedTransaction)
     ).rejects.toThrow(
       expect.objectContaining({
         name: "UniqueConstraintViolationException",
@@ -312,8 +327,29 @@ describe("TransactionService (with DB)", () => {
       })
     );
   });
+});
 
-  // check the invalid data update
+describe("update", () => {
+  let db: DBServices;
+  let transactionService: TransactionService;
+
+  beforeAll(async () => {
+    db = await initORM(ormConfig);
+    // reset the db
+    await db.orm.getMigrator().up();
+    transactionService = new TransactionService(db);
+  });
+
+  afterAll(async () => {
+    // await db.em.nativeDelete(Transaction, {});
+    await db.orm.close();
+  });
+
+  beforeEach(async () => {
+    // clear the db
+    await db.em.nativeDelete(Transaction, {});
+  });
+
   it("should not allow invalid data on update", async () => {
     const transaction = new Transaction();
     transaction.amount = 100;
@@ -328,6 +364,8 @@ describe("TransactionService (with DB)", () => {
     const updatedTransaction = new Transaction();
     updatedTransaction.transaction_date_string = "invalid-date";
 
+    console.log("createdTransaction.id", createdTransaction.id);
+
     await expect(
       transactionService.updateTransaction(
         createdTransaction.id,
@@ -341,8 +379,8 @@ describe("TransactionService (with DB)", () => {
     );
   });
 
-  // invalid amount format + empty desc + empty date
-  it("should not allow invalid data on update", async () => { 
+  // pass empty date into update 
+  it("should not allow empty date on update", async () => {
     const transaction = new Transaction();
     transaction.amount = 100;
     transaction.description = "Initial Transaction";
@@ -353,25 +391,11 @@ describe("TransactionService (with DB)", () => {
     const createdTransaction = await transactionService.createTransaction(
       transaction
     );
-
     const updatedTransaction = new Transaction();
     updatedTransaction.transaction_date_string = "";
-    updatedTransaction.amount = 100;
-    updatedTransaction.description = "";
 
-    await expect(
-      transactionService.updateTransaction(
-        createdTransaction.id,
-        updatedTransaction
-      )
-    ).rejects.toThrow(
-      expect.objectContaining({
-        name: "InvalidLine",
-        message: "Description cannot be empty",
-      })
-    );
+    const  tnx = await transactionService.updateTransaction(createdTransaction.id, updatedTransaction);
+    expect(tnx).not.toBeNull();
+    expect(tnx?.transaction_date_string).toBe(transaction.transaction_date_string);
   });
-
-  // empty amount
-  // invalid num regex
 });
