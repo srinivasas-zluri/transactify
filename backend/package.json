@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node -r tsconfig-paths/register src/server.ts",
-    "build": "tsc",
+    "build": "tsc --project tsconfig.json && tsc-alias",
     "test": "jest",
     "migrate/down": "npx mikro-orm migration:down",
     "migrate/up": "npx mikro-orm migration:up"
@@ -27,6 +27,7 @@
     "@mikro-orm/migrations": "^6.4.2",
     "@types/express": "^5.0.0",
     "@types/multer": "^1.4.12",
+    "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0"
   }
 }

@@ -1,7 +1,13 @@
-import { Entity, PrimaryKey, Property, Unique } from "@mikro-orm/core";
+import { Entity, Index, PrimaryKey, Property, Unique } from "@mikro-orm/core";
 
 @Entity()
-@Unique({ properties: ["transaction_date_string", "description"] })
+// @Unique({ properties: ["transaction_date_string", "description"] })
+@Index({
+  name: "transaction_date_string_description_index",
+  properties: ["transaction_date_string", "description"],
+  expression:
+    "create unique index transaction_date_string_description_index_on_not_delete on transaction (transaction_date_string, description) where is_deleted = false",
+})
 export class Transaction {
   @PrimaryKey()
   id!: number;
