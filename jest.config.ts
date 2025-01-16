@@ -243,6 +243,7 @@ config.projects = [
     },
     moduleFileExtensions: ["ts", "js"],
     modulePathIgnorePatterns: ["<rootDir>/dist/"],
+    coveragePathIgnorePatterns: ["/node_modules/", "/dist/", "<rootDir>/internal/tests/","<rootDir>/internal/csv/csvparser.ts", "<rootDir>/internal/csv/parse.ts"],
     collectCoverageFrom: ["<rootDir>/internal/csv/main.ts"],
     coverageDirectory: "<rootDir>/internal/coverage/",
   },
