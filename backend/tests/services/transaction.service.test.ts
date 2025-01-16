@@ -113,7 +113,7 @@ describe("TransactionService (with DB)", () => {
   });
 
   // get transaction by id  add 100 transactions and search
-  it("should return a transaction by id", async () => {
+  it("should return from a multiple transaction by id", async () => {
     const transactions = [];
     for (let i = 1; i <= 100; i++) {
       const transaction = new Transaction();
