@@ -138,7 +138,7 @@ describe("API Routes testing", () => {
     expect(response.body.message).toBe("Invalid file type");
   });
 
-  it("should return 500 if there is an error writing to the file", async () => {
+  it("should return 500 if there is an error writing to the file invalid double write", async () => {
     const file = Buffer.from(`date,amount,description,currency
       08-01-2024,100,payment,cad
       09-01-2024,200,purchase,usd

@@ -51,11 +51,10 @@ export class TransactionController {
       return;
     }
 
+    const ext = path.extname(req.file.path);
+    console.log({ ext });
     // check if csv file
-    if (
-      req.file.mimetype !== "text/csv" ||
-      req.file.path.split(".")[1].toLowerCase() !== "csv"
-    ) {
+    if (req.file.mimetype !== "text/csv" || ext.toLowerCase() !== ".csv") {
       res.status(400).json({ message: "Invalid file type" });
       return;
     }
