@@ -47,30 +47,34 @@ export class CSVParseService {
       };
     }
 
-    const fileStream = createReadStream(this.filePath);
-    const checkDuplication = this.createDuplicationChecker();
+    try {
+      const fileStream = createReadStream(this.filePath);
+      const checkDuplication = this.createDuplicationChecker();
 
-    const parserOptions = this.createParserOptions();
-    const parser = csvParser(parserOptions);
-    const expectedHeaders = ["date", "amount", "description", "currency"];
+      const parserOptions = this.createParserOptions();
+      const parser = csvParser(parserOptions);
+      const expectedHeaders = ["date", "amount", "description", "currency"];
 
-    return new Promise<CSVParsedInfo>((resolve, reject) => {
-      let lineNo = 0;
+      return new Promise<CSVParsedInfo>((resolve, reject) => {
+        let lineNo = 0;
 
-      fileStream
-        .pipe(parser)
-        .on("headers", (headers) =>
-          this.handleHeaders(headers, expectedHeaders, reject)
-        )
-        .on("data", (data: any) => {
-          lineNo++;
-          this.processRow(data, lineNo, expectedHeaders, checkDuplication);
-        })
-        .on("end", async () => {
-          await this.handleEndOfFile(resolve, reject);
-        })
-        .on("error", (err) => this.handleError(err, reject));
-    });
+        fileStream
+          .pipe(parser)
+          .on("headers", (headers) =>
+            this.handleHeaders(headers, expectedHeaders, reject)
+          )
+          .on("data", (data: any) => {
+            lineNo++;
+            this.processRow(data, lineNo, expectedHeaders, checkDuplication);
+          })
+          .on("end", async () => {
+            await this.handleEndOfFile(resolve, reject);
+          })
+          .on("error", (err) => this.handleError(err, resolve));
+      });
+    } catch (err) {
+      throw { type: "UnknownError", message: "An unknown error occurred." };
+    }
   }
 
   private createParserOptions() {
@@ -248,12 +252,12 @@ export class CSVParseService {
     );
   }
 
-  private handleError(err: any, reject: Function) {
+  private handleError(err: any, resolve: Function) {
     this.result.parsingErrors.push({
       type: "UnknownError",
-      message: `An unknown error occurred: ${err.message}`,
+      message: `An unknown error occurred.`,
     });
-    reject(this.result);
+    resolve(this.result);
   }
 
   private createDuplicationChecker(): (
