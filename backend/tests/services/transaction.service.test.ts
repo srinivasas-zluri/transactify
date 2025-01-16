@@ -379,7 +379,7 @@ describe("update", () => {
     );
   });
 
-  // pass empty date into update 
+  // pass empty date into update
   it("should not allow empty date on update", async () => {
     const transaction = new Transaction();
     transaction.amount = 100;
@@ -394,8 +394,51 @@ describe("update", () => {
     const updatedTransaction = new Transaction();
     updatedTransaction.transaction_date_string = "";
 
-    const  tnx = await transactionService.updateTransaction(createdTransaction.id, updatedTransaction);
+    const tnx = await transactionService.updateTransaction(
+      createdTransaction.id,
+      updatedTransaction
+    );
     expect(tnx).not.toBeNull();
-    expect(tnx?.transaction_date_string).toBe(transaction.transaction_date_string);
+    expect(tnx?.transaction_date_string).toBe(
+      transaction.transaction_date_string
+    );
+  });
+
+  // shouldn't throw an error if the data is already deleted
+  it("should not throw an error if the data is already deleted", async () => {
+    const transaction = new Transaction();
+    transaction.amount = 100;
+    transaction.description = "Initial Transaction";
+    transaction.transaction_date = new Date();
+    transaction.transaction_date_string = "13-09-2021";
+    transaction.currency = "USD";
+
+    const createdTransaction = await transactionService.createTransaction(
+      transaction
+    );
+
+    const newTransaction = new Transaction();
+    newTransaction.amount = transaction.amount;
+    newTransaction.description = transaction.description;
+    newTransaction.transaction_date = transaction.transaction_date;
+    newTransaction.transaction_date_string =
+      transaction.transaction_date_string;
+    newTransaction.currency = transaction.currency;
+
+    await expect(
+      transactionService.createTransaction(newTransaction)
+    ).rejects.toThrow( 
+      expect.objectContaining({
+        name: "UniqueConstraintViolationException",
+        message: expect.stringContaining(
+          "duplicate key value violates unique constraint"
+        ),
+      })
+    );
+
+    await transactionService.deleteTransaction(createdTransaction.id);
+
+    const res = await transactionService.createTransaction(newTransaction);
+    expect(res).not.toBeNull();
   });
 });
