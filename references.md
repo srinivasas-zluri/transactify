@@ -14,3 +14,4 @@
 - [tsconfig path issues](https://stackoverflow.com/questions/50679031/why-are-these-tsconfig-paths-not-working)
 - [react monorepo](https://dev.to/ynwd/how-to-create-react-monorepo-with-npm-workspace-webpack-and-create-react-app-2dhn)
 - [init tailwind with vite](https://tailwindcss.com/docs/guides/vite)
+-[react icons](https://react-icons.github.io/react-icons/)
