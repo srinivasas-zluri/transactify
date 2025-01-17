@@ -23,7 +23,7 @@ enum TableState {
 
 const App = () => {
   const { file, setFile, loading, progress, handleFileUpload } = useFileUpload();
-  const [page, setPage] = useState<number>(0);
+  const [page, setPage] = useState<number>(1);
   const { transactions, handleDelete, prevNext, handleUpdate, fetchTransactions } = useTransactions();
   const { prevPage: prev, nextPage: next } = prevNext;
   const [tableState, setTableState] = useState<TableState>(TableState.Loading);
