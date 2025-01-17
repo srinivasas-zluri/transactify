@@ -64,6 +64,16 @@ const App = () => {
     );
   }
 
+  const PaginationComponent = <Pagination className="mt-6">
+    <PaginationContent>
+      {(prev.page != null) && <PaginationPrevious onClick={() => setPage((prev) => prev - 1)} />}
+      {(prev.page != null) && <PaginationItem onClick={() => setPage((prev) => prev - 1)}> <PaginationLink>{prev.page} </PaginationLink>  </PaginationItem>}
+      <PaginationItem className='bg-gray-200 rounded-sm'> <PaginationLink>{page} </PaginationLink>  </PaginationItem>
+      {(next.page != null) && <PaginationItem onClick={() => setPage((prev) => prev + 1)}> <PaginationLink> {next.page} </PaginationLink>  </PaginationItem>}
+      {(next.page != null) && <PaginationNext onClick={() => setPage((prev) => prev + 1)} />}
+    </PaginationContent>
+  </Pagination>;
+
   return (
     <div className="mx-auto p-8 rounded-lg max-w-7xl">
       <ToastContainer />
@@ -91,6 +101,8 @@ const App = () => {
       )}
 
       {/* Transaction Table */}
+      {PaginationComponent}
+      <span className='p-10'/>
       <Table>
         <TableHeader className='top-0 z-10 sticky mt-4'>
           <TableRow className='bg-gray-200 hover:bg-gray-200 rounded-lg text-left'>
@@ -132,15 +144,7 @@ const App = () => {
       </Table>
 
       {/* Pagination */}
-      <Pagination className="mt-6">
-        <PaginationContent>
-          {(prev.page != null) && <PaginationPrevious onClick={() => setPage((prev) => prev - 1)} />}
-          {(prev.page != null) && <PaginationItem onClick={() => setPage((prev) => prev - 1)}> <PaginationLink>{prev.page} </PaginationLink>  </PaginationItem>}
-          <PaginationItem className='bg-gray-200 rounded-sm'> <PaginationLink>{page} </PaginationLink>  </PaginationItem>
-          {(next.page != null) && <PaginationItem onClick={() => setPage((prev) => prev + 1)}> <PaginationLink> {next.page} </PaginationLink>  </PaginationItem>}
-          {(next.page != null) && <PaginationNext onClick={() => setPage((prev) => prev + 1)} />}
-        </PaginationContent>
-      </Pagination>
+      {PaginationComponent}
     </div>
   );
 };
