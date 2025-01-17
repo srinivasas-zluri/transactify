@@ -1,29 +1,31 @@
 import { useEffect, useState } from 'react';
+import { TbTrashXFilled } from "react-icons/tb";
+import { TbEdit } from "react-icons/tb";
 import { ToastContainer } from 'react-toastify';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Table } from "@/components/ui/table";
-import { FaEdit, FaTrashAlt, FaFileUpload } from 'react-icons/fa';
+import { Table, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { FaFileUpload } from 'react-icons/fa';
 import 'react-toastify/dist/ReactToastify.css';
 import 'tailwindcss/tailwind.css';
 
 import { useFileUpload } from './hooks/useFileUpload';
 import { useTransactions } from './hooks/useTransaction';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 
 // create an enum with the table state 
 enum TableState {
   Loading,
   View,
   Edit,
-  Delete,
   Error,
 }
 
 const App = () => {
   const { file, setFile, loading, progress, handleFileUpload } = useFileUpload();
-  // const [page, setPage] = useState(1);
-  const page = 1;
-  const { transactions, handleDelete, handleUpdate, fetchTransactions } = useTransactions();
+  const [page, setPage] = useState<number>(0);
+  const { transactions, handleDelete, prevNext, handleUpdate, fetchTransactions } = useTransactions();
+  const { prevPage: prev, nextPage: next } = prevNext;
   const [tableState, setTableState] = useState<TableState>(TableState.Loading);
 
 
@@ -46,10 +48,13 @@ const App = () => {
   }, [page]);
 
   if (tableState === TableState.Loading) {
+    // TODO: Change the loadign state later
     return (
       <div className="bg-gray-50 shadow-lg mx-auto p-8 rounded-lg max-w-7xl">
         <h1 className="mb-8 font-semibold text-4xl text-center text-gray-800">Transaction Management</h1>
-        <Progress value={100} className="mb-4" />
+        <div className="flex justify-center items-center">
+          <div className="border-gray-900 border-b-2 rounded-full w-32 h-32 animate-spin"></div>
+        </div>
       </div>
     );
   }
@@ -82,48 +87,55 @@ const App = () => {
 
       {/* Transaction Table */}
       <Table>
-        <thead>
-          <tr className="bg-gray-200 text-left">
-            <th className="px-4 py-2">Date</th>
-            <th className="px-4 py-2">Description</th>
-            <th className="px-4 py-2">Amount</th>
-            <th className="">Currency</th>
-            <th className="px-4 py-2">Actions</th>
-          </tr>
-        </thead>
+        <TableHeader>
+          <TableRow className='bg-gray-200 text-left'>
+            <TableHead> Date </TableHead>
+            <TableHead> Description </TableHead>
+            <TableHead> Amount </TableHead>
+            <TableHead>Currency</TableHead>
+            <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
         <tbody>
           {transactions.map((transaction) => (
-            <tr key={transaction.id} className="hover:bg-gray-100 border-blue-200">
-              <td className="px-4 py-2">{transaction.transaction_date_string}</td>
-              <td className="px-4 py-2">
+            <TableRow>
+              <TableCell className='px-4 py-2'> {transaction.transaction_date_string} </TableCell>
+              <TableCell className='px-4 py-2'>
                 <ExpandableDescription description={transaction.description} />
-              </td>
-              <td className="px-4 py-2"> {transaction.amount} </td>
-              <td className=""> {transaction.currency} </td>
-              <td className="flex space-x-3 px-4 py-2">
-                <Button
-                  onClick={() => handleUpdate(transaction.id, 100)}
-                  className="flex items-center border-2 border-yellow-400 bg-yellow-400/10 hover:bg-yellow-400/30 rounded-lg text-yellow-800"
-                >
-                  <FaEdit />
-                </Button>
-                <Button
-                  onClick={() => handleDelete(transaction.id)}
-                  className="flex items-center border-2 bg-red-400/10 hover:bg-red-400/30 border-red-400 rounded-lg text-red-800"
-                >
-                  <FaTrashAlt />
-                </Button>
-              </td>
-            </tr>
+              </TableCell>
+              <TableCell className='px-4 py-2'> {transaction.amount} </TableCell>
+              <TableCell className='px-4 py-2'> {transaction.currency} </TableCell>
+              <TableCell className='px-4 py-2'>
+                <div className='flex h-full'>
+                  <Button
+                    onClick={() => handleUpdate(transaction.id, 100)}
+                    className="flex items-center border-2 bg-transparent hover:bg-transparent shadow-none px-4 py-4 border-none h-full text-slate-300 hover:text-yellow-500"
+                  >
+                    <TbEdit className='scale-150' />
+                  </Button>
+                  <Button
+                    onClick={() => handleDelete(transaction.id)}
+                    className="flex items-center border-2 bg-transparent hover:bg-transparent shadow-none px-4 py-4 border-none rounded-lg text-slate-300 hover:text-red-500"
+                  >
+                    <TbTrashXFilled className='scale-150' />
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
           ))}
         </tbody>
       </Table>
 
       {/* Pagination */}
-      {/* <Pagination className="mt-6">
-        <PaginationItem onClick={prevPage} disabled={page === 1}>Previous</PaginationItem>
-        <PaginationItem onClick={nextPage} disabled={page === totalPages}>Next</PaginationItem>
-      </Pagination> */}
+      <Pagination className="mt-6">
+        <PaginationContent>
+          {(prev.page != null) && <PaginationPrevious onClick={() => setPage((prev) => prev - 1)} />}
+          {(prev.page != null) && <PaginationItem onClick={() => setPage((prev) => prev - 1)}> <PaginationLink>{prev.page} </PaginationLink>  </PaginationItem>}
+          <PaginationItem className='bg-gray-200 rounded-sm'> <PaginationLink>{page} </PaginationLink>  </PaginationItem>
+          {(next.page != null) && <PaginationItem onClick={() => setPage((prev) => prev + 1)}> <PaginationLink> {next.page} </PaginationLink>  </PaginationItem>}
+          {(next.page != null) && <PaginationNext onClick={() => setPage((prev) => prev + 1)} />}
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 };
@@ -142,7 +154,7 @@ function ExpandableDescription({ description }: { description: string }) {
       {expanded ? description : truncateDescription(description)}
       {/* only show the button if the text is too large */}
       {description.length > 100 && (
-        <Button onClick={toggle} variant="link">
+        <Button onClick={toggle} variant="link" className="text-blue-500">
           {expanded ? "Show Less" : "Show More"}
         </Button>
       )}
