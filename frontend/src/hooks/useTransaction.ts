@@ -5,15 +5,29 @@ import { routes } from "@/const";
 
 import { Transaction } from "@/models/transaction";
 
+interface PageProps {
+  page: number | null;
+  limit: number;
+}
+
+interface PrevNextProps {
+  prevPage: PageProps;
+  nextPage: PageProps;
+}
+
 export const useTransactions = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [totalPages, setTotalPages] = useState(1);
+  const [prevNext, setPrevNext] = useState<PrevNextProps>({
+    prevPage: { page: null, limit: 0 },
+    nextPage: { page: null, limit: 0 },
+  });
 
   const fetchTransactions = async (page: number) => {
     try {
       const response = await axios.get(routes.transactions.fetch({ page }));
       setTransactions(response.data.transactions);
-      setTotalPages(response.data.totalPages ?? 0);
+      const { prevPage, nextPage } = response.data;
+      setPrevNext({ prevPage, nextPage });
     } catch (error) {
       toast.error("Failed to fetch transactions try refreshing the page");
       console.error(error);
@@ -51,7 +65,7 @@ export const useTransactions = () => {
   return {
     transactions,
     fetchTransactions,
-    totalPages,
+    prevNext,
     handleDelete,
     handleUpdate,
   };
