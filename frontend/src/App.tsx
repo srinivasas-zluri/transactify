@@ -1,17 +1,19 @@
-import { useEffect, useState } from 'react';
-import { TbFileSpreadsheet, TbTrashXFilled } from "react-icons/tb";
+import { ChangeEvent, useEffect, useState } from 'react';
+import { TbCancel, TbCheck, TbFileSpreadsheet, TbTrashXFilled } from "react-icons/tb";
 import { TbCloudUpload } from "react-icons/tb";
 import { TbEdit } from "react-icons/tb";
 import { toast, ToastContainer } from 'react-toastify';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
 import 'react-toastify/dist/ReactToastify.css';
 import 'tailwindcss/tailwind.css';
 
 import { useFileUpload } from './hooks/useFileUpload';
 import { useTransactions } from './hooks/useTransaction';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import { Transaction } from './models/transaction';
 
 enum TableState {
   Loading,
@@ -28,6 +30,40 @@ const App = () => {
   const { prevPage: prev, nextPage: next } = prevNext;
   const [pageState, setPageState] = useState<TableState>(TableState.Loading);
 
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+
+  function onEditClicked(transaction: Transaction) {
+    setPageState(TableState.Edit);
+    setEditingTransaction({ ...transaction });
+  }
+
+  async function onEditSaveClicked(id: number) {
+    if (editingTransaction == null) {
+      toast.error('No transaction found');
+      console.error(`This should not happen, please check the code, the received transaction is null for id: ${id}`);
+      return;
+    }
+    
+    await handleUpdate(editingTransaction);
+    setEditingTransaction(null);
+    setPageState(TableState.View);
+  }
+
+  async function onEditCancelClicked() {
+    setEditingTransaction(null);
+    setPageState(TableState.View);
+  }
+
+  function handleInputChange(e: ChangeEvent<HTMLInputElement>, id: number) {
+    const { name, value } = e.target;
+    if (editingTransaction == null) {
+      toast.error('No transaction found');
+      console.error(`This should not happen, please check the code, the received transaction is null for id: ${id}`);
+      return;
+    }
+    // @ts-expect-error - We know that the name is a key of Transaction
+    setEditingTransaction((prev) => ({ ...prev, [name]: value }));
+  }
 
 
   useEffect(() => {
@@ -102,7 +138,7 @@ const App = () => {
 
       {/* Transaction Table */}
       {PaginationComponent}
-      <span className='p-10'/>
+      <span className='p-10' />
       <Table>
         <TableHeader className='top-0 z-10 sticky mt-4'>
           <TableRow className='bg-gray-200 hover:bg-gray-200 rounded-lg text-left'>
@@ -114,7 +150,63 @@ const App = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {transactions.map((transaction) => (
+          {transactions.map((transaction) => (pageState === TableState.Edit && transaction.id === editingTransaction?.id) ? (
+            <TableRow>
+              <TableCell>
+                <Input
+                  type="text"
+                  name="transaction_date_string"
+                  value={editingTransaction?.transaction_date_string}
+                  className='block border-2 bg-transparent px-4 py-2 min-w-0'
+                  onChange={(e) => handleInputChange(e, transaction.id)}
+                />
+              </TableCell>
+              <TableCell>
+                <Input
+                  type="text"
+                  name="description"
+                  value={editingTransaction?.description}
+                  className='bg-transparent px-4 py-2'
+                  onChange={(e) => handleInputChange(e, transaction.id)}
+                />
+              </TableCell>
+              <TableCell>
+                <Input
+                  type="number"
+                  name="amount"
+                  value={editingTransaction?.amount}
+                  className='bg-transparent px-4 py-2'
+                  onChange={(e) => handleInputChange(e, transaction.id)}
+                />
+              </TableCell>
+              <TableCell>
+                <Input
+                  type="text"
+                  name="currency"
+                  value={editingTransaction?.currency}
+                  className='bg-transparent px-4 py-2'
+                  onChange={(e) => handleInputChange(e, transaction.id)}
+                />
+              </TableCell>
+              <TableCell>
+                <div className='flex'>
+                  <Button
+                    onClick={() => { onEditSaveClicked(transaction.id) }}
+                    className="flex items-center border-2 bg-transparent hover:bg-transparent shadow-none px-4 py-3 border-none h-full text-slate-300 hover:text-green-500"
+                  >
+                    <TbCheck className='scale-150' />
+                  </Button>
+                  <Button
+                    onClick={onEditCancelClicked}
+                    className="flex items-center border-2 bg-transparent hover:bg-transparent shadow-none px-4 py-3 border-none h-full text-slate-300 hover:text-red-500"
+                  >
+                    {/* <TbTrashXFilled className='scale-150' /> */}
+                    <TbCancel className='scale-150' />
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ) : (
             <TableRow key={transaction.id}>
               <TableCell className='px-4 py-2'> {transaction.transaction_date_string} </TableCell>
               <TableCell className='px-4 py-2'>
@@ -125,11 +217,13 @@ const App = () => {
               <TableCell className='px-4 py-2'>
                 <div className='flex h-full'>
                   <Button
-                    onClick={() => handleUpdate(transaction.id, 100)}
+                    onClick={() => { onEditClicked(transaction) }}
                     className="flex items-center border-2 bg-transparent hover:bg-transparent shadow-none px-4 py-3 border-none h-full text-slate-300 hover:text-yellow-500"
                   >
                     <TbEdit className='scale-150' />
                   </Button>
+
+
                   <Button
                     onClick={() => handleDelete(transaction.id)}
                     className="flex items-center border-2 bg-transparent hover:bg-transparent shadow-none px-4 py-4 border-none rounded-lg text-slate-300 hover:text-red-500"
