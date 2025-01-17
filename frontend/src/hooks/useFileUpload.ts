@@ -5,7 +5,6 @@ import { routes } from "@/const";
 
 export const useFileUpload = () => {
   const [file, setFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
 
   const handleFileUpload = async () => {
@@ -15,7 +14,6 @@ export const useFileUpload = () => {
     formData.append("file", file);
 
     try {
-      setLoading(true);
       await axios.post(routes.transactions.upload, formData, {
         headers: { "Content-Type": "multipart/form-data" },
         onUploadProgress: (progressEvent) => {
@@ -33,15 +31,12 @@ export const useFileUpload = () => {
     } catch (error) {
       toast.error("File upload failed");
       console.error(error);
-    } finally {
-      setLoading(false);
     }
   };
 
   return {
     file,
     setFile,
-    loading,
     progress,
     handleFileUpload,
   };
