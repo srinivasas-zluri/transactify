@@ -16,6 +16,7 @@ export const routes = {
     upload: mergeRoutes(transactionsURL, "/upload"),
     fetch: ({ page }: { page: number }) =>
       mergeRoutes(transactionsURL, `?page=${page}&limit=50`),
+    create: mergeRoutes(transactionsURL, "/"),
     delete: ({ id }: { id: number }) => mergeRoutes(transactionsURL, `/${id}`),
     update: ({ id }: { id: number }) => mergeRoutes(transactionsURL, `/${id}`),
   },

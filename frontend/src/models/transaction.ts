@@ -7,3 +7,10 @@ export interface Transaction {
   currency: string;
   is_deleted: false;
 }
+
+export interface CreateTransactionData {
+  date: string;
+  description: string;
+  amount: number;
+  currency: string;
+}

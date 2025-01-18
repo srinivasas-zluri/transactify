@@ -13,7 +13,8 @@ import 'tailwindcss/tailwind.css';
 import { useFileUpload } from './hooks/useFileUpload';
 import { useTransactions } from './hooks/useTransaction';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
-import { Transaction } from './models/transaction';
+import { CreateTransactionData, Transaction } from './models/transaction';
+import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger, DialogFooter, DialogHeader } from '@/components/ui/dialog';
 
 enum PageState {
   Loading,
@@ -26,11 +27,18 @@ enum PageState {
 const App = () => {
   const { progress, handleFileUpload } = useFileUpload();
   const [page, setPage] = useState<number>(9);
-  const { transactions, handleDelete, prevNext, handleUpdate, fetchTransactions } = useTransactions();
+  const { transactions, addTransaction, handleDelete, prevNext, handleUpdate, fetchTransactions } = useTransactions();
   const { prevPage: prev, nextPage: next } = prevNext;
   const [pageState, setPageState] = useState<PageState>(PageState.Loading);
 
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+
+  async function onCreateTransaction(data: CreateTransactionData) {
+    setPageState(PageState.Loading);
+    await addTransaction(data);
+    await fetchTransactions(page);
+    setPageState(PageState.View);
+  }
 
   function onEditClicked(transaction: Transaction) {
     setPageState(PageState.Edit);
@@ -143,10 +151,25 @@ const App = () => {
         <TableBody>
           <TableRow>
             <TableCell className='top-[3.6rem] z-10 sticky border-2 bg-background w-full h-12' colSpan={10}>
-              <Button className="flex justify-center items-center border-4 border-slate-300 bg-transparent hover:bg-transparent shadow-none border-dotted w-full h-full hover:text-black-300">
-                <TbPlus className='text-slate-400 scale-150' />
-                <p className='text-md text-secondary-foreground text-slate-400'>Add a new transaction</p>
-              </Button>
+              <Dialog>
+                <DialogTrigger className='w-full'>
+                  <Button className="flex justify-center items-center border-4 border-slate-300 bg-background hover:bg-background shadow-none border-dotted w-full h-full hover:text-black-300">
+                    <TbPlus className='text-slate-400 scale-150' />
+                    <p className='text-md text-secondary-foreground text-slate-400'>Add a new transaction</p>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="bg-background shadow-xl p-4 sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>
+                      Add a new transaction
+                    </DialogTitle>
+                    <DialogDescription>
+                      Enter the transaction you want to add
+                    </DialogDescription>
+                  </DialogHeader>
+                  <AddTransactionDialog onSubmit={onCreateTransaction} />
+                </DialogContent>
+              </Dialog>
             </TableCell>
           </TableRow>
           {transactions.map((transaction) => (pageState === PageState.Edit && transaction.id === editingTransaction?.id) ? (
@@ -183,6 +206,101 @@ const App = () => {
     </div >
   );
 };
+
+interface TransactionErrors {
+  date?: string;
+  description?: string;
+  amount?: string;
+  currency?: string;
+}
+
+function AddTransactionDialog({ onSubmit }: { onSubmit: (data: CreateTransactionData) => void }) {
+  const data: CreateTransactionData = {
+    date: '',
+    description: '',
+    amount: 0,
+    currency: '',
+  };
+
+  const [errors, setErrors] = useState<TransactionErrors>({});
+
+  function submitDataFn(data: CreateTransactionData) {
+    console.log({ data });
+    const errors: { [key: string]: string } = {};
+    if (!data.date.match(/\d{2}-\d{2}-\d{4}/)) {
+      errors.date = 'Invalid date format';
+    }
+
+    if (data.description.length > 254) {
+      errors.description = 'Description is too long';
+    }
+
+    if (data.description.length < 5) {
+      errors.description = 'Description is too short';
+    }
+
+    if (data.currency === '') {
+      errors.currency = 'Currency is required';
+    }
+
+    if (data.amount == 0) {
+      errors.amount = 'Amount is required, and can\'t be 0';
+    }
+
+    // check if there are errors 
+    if (Object.keys(errors).length > 0) {
+      setErrors(errors);
+      return;
+    }
+
+    onSubmit(data);
+  }
+
+  return <>
+    <div className="gap-4 grid py-4">
+      <div className="items-center gap-4 grid grid-cols-4">
+        <label htmlFor="date" className="text-right">
+          Date
+        </label>
+        <Input id="date" name="date" className="col-span-3" placeholder='dd-mm-yyyy' onChange={(e) => {
+          data.date = e.target.value;
+        }} />
+        {errors.date && <span className='col-span-4 col-start-2 text-red-500'>{errors.date}</span>}
+      </div>
+      <div className="items-center gap-4 grid grid-cols-4">
+        <label htmlFor="description" className="text-right">
+          Description
+        </label>
+        <Input id="description" name="description" className="col-span-3" placeholder='Add a description' onChange={(e) => {
+          data.description = e.target.value;
+        }} />
+        {errors.description && <span className='col-span-4 col-start-2 text-red-500'>{errors.description}</span>}
+      </div>
+      <div className="items-center gap-4 grid grid-cols-4">
+        <label htmlFor="amount" className="text-right">
+          Amount
+        </label>
+        <Input id="amount" name="amount" type="number" className="col-span-3" placeholder='300.00' onChange={(e) => {
+          data.amount = parseFloat(e.target.value);
+        }} />
+        {errors.amount && <span className='col-span-4 col-start-2 text-red-500'>{errors.amount}</span>}
+      </div>
+      <div className="items-center gap-4 grid grid-cols-4">
+        <label htmlFor="currency" className="text-right">
+          Currency
+        </label>
+        <Input id="currency" name="currency" className="col-span-3" placeholder='USD' onChange={(e) => {
+          data.currency = e.target.value;
+        }} />
+        {errors.currency && <span className='col-span-4 col-start-2 text-red-500'>{errors.currency}</span>}
+      </div>
+    </div>
+
+    <DialogFooter>
+      <Button onClick={() => submitDataFn(data)}>Save changes</Button>
+    </DialogFooter>
+  </>
+}
 
 function EditableTransactionRow({
   transaction,

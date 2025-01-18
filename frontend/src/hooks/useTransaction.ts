@@ -3,7 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { routes } from "@/const";
 
-import { Transaction } from "@/models/transaction";
+import { CreateTransactionData, Transaction } from "@/models/transaction";
 
 interface PageProps {
   page: number | null;
@@ -30,6 +30,20 @@ export const useTransactions = () => {
       setPrevNext({ prevPage, nextPage });
     } catch (error) {
       toast.error("Failed to fetch transactions try refreshing the page");
+      console.error(error);
+    }
+  };
+
+  const addTransaction = async (transaction: CreateTransactionData) => {
+    try {
+      const response = await axios.post(
+        routes.transactions.create,
+        transaction
+      );
+      setTransactions((prev) => [...prev, response.data]);
+      toast.success("Transaction created!");
+    } catch (error) {
+      toast.error("Failed to create transaction");
       console.error(error);
     }
   };
@@ -82,6 +96,7 @@ export const useTransactions = () => {
   return {
     transactions,
     fetchTransactions,
+    addTransaction,
     prevNext,
     handleDelete,
     handleUpdate,
