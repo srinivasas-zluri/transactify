@@ -49,6 +49,12 @@ const ApplicationPage = () => {
     setPageState(PageState.View);
   }
 
+  async function onDeleteClicked(id: number)  {
+    setPageState(PageState.Loading);
+    await handleDelete(id);
+    setPageState(PageState.View);
+   }
+
   function onEditClicked(transaction: Transaction) {
     setPageState(PageState.Edit);
     setEditingTransaction({ ...transaction });
@@ -193,7 +199,7 @@ const ApplicationPage = () => {
               key={transaction.id}
               transaction={transaction}
               onEdit={() => onEditClicked(transaction)}
-              onDelete={() => handleDelete(transaction.id)}
+              onDelete={() => onDeleteClicked(transaction.id)}
             />
           ))}
         </TableBody>
