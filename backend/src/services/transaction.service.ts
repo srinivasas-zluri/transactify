@@ -10,6 +10,10 @@ export class TransactionService {
     this.db = db;
   }
 
+  get em() {
+    return this.db.em.fork();
+  }
+
   async createTransaction(
     transaction: Transaction,
     validateRowFn: (row: CSVRow) => {
@@ -17,7 +21,7 @@ export class TransactionService {
       err: CSVParseError | null;
     } = (x) => handleRow(x, 0)
   ) {
-    const em = this.db.em;
+    const em = this.em;
     // validate the transaction
     const { tnx, err } = validateRowFn({
       date: transaction.transaction_date_string,
@@ -35,7 +39,7 @@ export class TransactionService {
   async createTransactions(
     transactions: Transaction[]
   ): Promise<{ duplicates: Transaction[] }> {
-    const em = this.db.em;
+    const em = this.em;
     // TODO: Optimize the search of the transactions later
     // find duplicates with the db where (transaction_date, description) is the same
     const duplicates = await em.find(
@@ -59,22 +63,22 @@ export class TransactionService {
   }
 
   async getAllTransactions() {
-    return this.db.em.find(Transaction, { is_deleted: false });
+    return this.em.find(Transaction, { is_deleted: false });
   }
 
   async getTransactionById(id: number) {
-    return this.db.em.findOne(Transaction, { id, is_deleted: false });
+    return this.em.findOne(Transaction, { id, is_deleted: false });
   }
 
   async getTransactions(page: number, limit: number) {
     // return with if next and prev page are available
-    const totalTransactions = await this.db.em.count(Transaction, {
+    const totalTransactions = await this.em.count(Transaction, {
       is_deleted: false,
     });
     const totalPages = Math.ceil(totalTransactions / limit);
     const hasNextPage = page < totalPages;
     const hasPrevPage = page > 1;
-    const transactions = await this.db.em.find(
+    const transactions = await this.em.find(
       Transaction,
       { is_deleted: false },
       {
@@ -87,7 +91,7 @@ export class TransactionService {
   }
 
   // async getTransactionById(id: number) {
-  //   return this.db.em.findOne(Transaction, { id });
+  //   return this.em.findOne(Transaction, { id });
   // }
 
   async updateTransaction(
@@ -98,7 +102,7 @@ export class TransactionService {
       err: CSVParseError | null;
     } = (x) => handleRow(x, 0)
   ): Promise<Transaction | null> {
-    const em = this.db.em;
+    const em = this.em.fork();
     const originalTransaction = await em.findOne(Transaction, {
       id,
       is_deleted: false,
@@ -153,7 +157,7 @@ export class TransactionService {
 
   // delete transaction
   async deleteTransaction(id: number) {
-    const em = this.db.em;
+    const em = this.em.fork();
     const transaction = await em.findOne(Transaction, {
       id,
       is_deleted: false,
@@ -168,7 +172,7 @@ export class TransactionService {
 
   //   // delete multiple transactions
   //   async deleteTransactions(ids: number[]) {
-  //     const em = this.db.em;
+  //     const em = this.em;
   //     const transactions = await em.find(Transaction, { id: { $in: ids } });
   //     if (!transactions) {
   //       return null;
