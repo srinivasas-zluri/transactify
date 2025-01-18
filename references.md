@@ -17,3 +17,5 @@
 -[react icons](https://react-icons.github.io/react-icons/)
 -[div inside tr not expanding](https://stackoverflow.com/questions/49370783/div-inside-displaytable-row-section-not-expanding-to-full-width)
 -[weird invalid persistance fork() behaviour fix](https://mikro-orm.io/docs/transactions)
+-[daily forex rates](https://www.kaggle.com/datasets/asaniczka/forex-exchange-rate-since-2004-updated-daily)
+-[my impl of getting inr exchange rates](https://colab.research.google.com/drive/1eWqdt1xKwFyyhYlco9Ip31JgxbCbPOAz?usp=sharing)
