@@ -25,6 +25,15 @@ enum PageState {
 }
 
 const App = () => {
+  return (
+    <>
+      <ToastContainer />
+      <ApplicationPage />
+    </>
+  );
+}
+
+const ApplicationPage = () => {
   const { progress, handleFileUpload } = useFileUpload();
   const [page, setPage] = useState<number>(9);
   const { transactions, addTransaction, handleDelete, prevNext, handleUpdate, fetchTransactions } = useTransactions();
@@ -88,7 +97,7 @@ const App = () => {
     // TODO: don't disable the lint use `useCallback` to memoize the function
     const loadTransactions = async () => {
       setPageState(PageState.Loading);
-      await fetchTransactions(page); 
+      await fetchTransactions(page);
       setPageState(PageState.View);
     };
 
@@ -129,7 +138,6 @@ const App = () => {
 
   return (
     <div className="mx-auto p-8 rounded-lg max-w-7xl">
-      <ToastContainer />
       <h1 className="mb-8 font-semibold text-4xl text-center text-gray-800">Transaction Management</h1>
       <UploadFile onUpload={uploadFileFn} />
 
