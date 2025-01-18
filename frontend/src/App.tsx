@@ -207,7 +207,7 @@ const App = () => {
               </TableCell>
             </TableRow>
           ) : (
-            <TableRow key={transaction.id}>
+            <TableRow key={transaction.id} onDoubleClick={() => onEditClicked(transaction)}>
               <TableCell className='px-4 py-2'> {transaction.transaction_date_string} </TableCell>
               <TableCell className='px-4 py-2'>
                 <ExpandableDescription description={transaction.description} />
