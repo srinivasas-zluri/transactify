@@ -16,24 +16,10 @@ export class TransactionService {
 
   async createTransaction(
     transaction: Transaction,
-    validateRowFn: (row: CSVRow) => {
-      tnx: Transaction;
-      err: CSVParseError | null;
-    } = (x) => handleRow(x, 0)
   ) {
     const em = this.em;
-    // validate the transaction
-    const { tnx, err } = validateRowFn({
-      date: transaction.transaction_date_string,
-      amount: transaction.amount.toString(),
-      description: transaction.description,
-      currency: transaction.currency,
-    });
-    if (err !== null) {
-      throw new TransactionParseError(err);
-    }
-    await em.persistAndFlush(tnx);
-    return tnx;
+    await em.persistAndFlush(transaction);
+    return transaction;
   }
 
   async createTransactions(
