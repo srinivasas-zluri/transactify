@@ -81,7 +81,7 @@ describe("testing single create route", () => {
       .send(invalidData);
 
     expect(response.status).toBe(400);
-    expect(response.body.message).toBe("Invalid amount format: NaN");
+    expect(response.body.message).toBe("Invalid amount format: not-a-number");
   });
 
   it("should return 500 if there is a generic server error", async () => {
