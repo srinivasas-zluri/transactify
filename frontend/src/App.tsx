@@ -1,5 +1,5 @@
 import { ChangeEvent, useEffect, useState } from 'react';
-import { TbCancel, TbCheck, TbFileSpreadsheet, TbTrashXFilled } from "react-icons/tb";
+import { TbCancel, TbCheck, TbFileSpreadsheet, TbPlus, TbTrashXFilled } from "react-icons/tb";
 import { TbCloudUpload } from "react-icons/tb";
 import { TbEdit } from "react-icons/tb";
 import { toast, ToastContainer } from 'react-toastify';
@@ -43,7 +43,7 @@ const App = () => {
       console.error(`This should not happen, please check the code, the received transaction is null for id: ${id}`);
       return;
     }
-    
+
     await handleUpdate(editingTransaction);
     setEditingTransaction(null);
     setPageState(PageState.View);
@@ -61,7 +61,7 @@ const App = () => {
     await handleFileUpload(file);
     await fetchTransactions(page);
     setPageState(PageState.View);
-   }
+  }
 
   function handleInputChange(e: ChangeEvent<HTMLInputElement>, id: number) {
     const { name, value } = e.target;
@@ -125,126 +125,170 @@ const App = () => {
       <h1 className="mb-8 font-semibold text-4xl text-center text-gray-800">Transaction Management</h1>
       <UploadFile onUpload={uploadFileFn} />
 
-      {/* File Upload Section */}
-      <div className="flex md:flex-row flex-col items-start md:items-center mb-6">
-        {/* <input
-          type="file"
-          onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
-          className="border-2 border-yellow-400/10 mb-2 md:mb-0 p-3 rounded-lg w-full md:w-80"
-        /> */}
-
-      </div>
-
-      {progress > 0 && progress < 100 && (
-        <Progress value={progress} className="mb-4" />
-      )}
-
       {/* Transaction Table */}
       {PaginationComponent}
       <span className='p-10' />
       <Table>
-        <TableHeader className='top-0 z-10 sticky mt-4'>
+        <TableHeader className='top-0 z-10 sticky mt-4 h-12'>
           <TableRow className='bg-gray-200 hover:bg-gray-200 rounded-lg text-left'>
             <TableHead className='p-5'> Date </TableHead>
             <TableHead> Description </TableHead>
             <TableHead> Amount </TableHead>
             <TableHead>Currency</TableHead>
-            <TableHead>Actions</TableHead>
+            <TableHead>Actions
+
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
+          <TableRow>
+            <TableCell className='top-[3.6rem] z-10 sticky border-2 bg-background w-full h-12' colSpan={10}>
+              <Button className="flex justify-center items-center border-4 border-slate-300 bg-transparent hover:bg-transparent shadow-none border-dotted w-full h-full hover:text-black-300">
+                <TbPlus className='text-slate-400 scale-150' />
+                <p className='text-md text-secondary-foreground text-slate-400'>Add a new transaction</p>
+              </Button>
+            </TableCell>
+          </TableRow>
           {transactions.map((transaction) => (pageState === PageState.Edit && transaction.id === editingTransaction?.id) ? (
-            <TableRow key={transaction.id}>
-              <TableCell>
-                <Input
-                  type="text"
-                  name="transaction_date_string"
-                  value={editingTransaction?.transaction_date_string}
-                  className='block border-2 bg-transparent px-4 py-2 min-w-0'
-                  onChange={(e) => handleInputChange(e, transaction.id)}
-                />
-              </TableCell>
-              <TableCell>
-                <Input
-                  type="text"
-                  name="description"
-                  value={editingTransaction?.description}
-                  className='bg-transparent px-4 py-2'
-                  onChange={(e) => handleInputChange(e, transaction.id)}
-                />
-              </TableCell>
-              <TableCell>
-                <Input
-                  type="number"
-                  name="amount"
-                  value={editingTransaction?.amount}
-                  className='bg-transparent px-4 py-2'
-                  onChange={(e) => handleInputChange(e, transaction.id)}
-                />
-              </TableCell>
-              <TableCell>
-                <Input
-                  type="text"
-                  name="currency"
-                  value={editingTransaction?.currency}
-                  className='bg-transparent px-4 py-2'
-                  onChange={(e) => handleInputChange(e, transaction.id)}
-                />
-              </TableCell>
-              <TableCell>
-                <div className='flex'>
-                  <Button
-                    onClick={() => { onEditSaveClicked(transaction.id) }}
-                    className="flex items-center border-2 bg-transparent hover:bg-transparent shadow-none px-4 py-3 border-none h-full text-slate-300 hover:text-green-500"
-                  >
-                    <TbCheck className='scale-150' />
-                  </Button>
-                  <Button
-                    onClick={onEditCancelClicked}
-                    className="flex items-center border-2 bg-transparent hover:bg-transparent shadow-none px-4 py-3 border-none h-full text-slate-300 hover:text-red-500"
-                  >
-                    {/* <TbTrashXFilled className='scale-150' /> */}
-                    <TbCancel className='scale-150' />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
+            <EditableTransactionRow
+              key={transaction.id}
+              transaction={editingTransaction}
+              onInputChange={handleInputChange}
+              onSave={onEditSaveClicked}
+              onCancel={onEditCancelClicked}
+            />
           ) : (
-            <TableRow key={transaction.id} onDoubleClick={() => onEditClicked(transaction)}>
-              <TableCell className='px-4 py-2'> {transaction.transaction_date_string} </TableCell>
-              <TableCell className='px-4 py-2'>
-                <ExpandableDescription description={transaction.description} />
-              </TableCell>
-              <TableCell className='px-4 py-2'> {transaction.amount} </TableCell>
-              <TableCell className='px-4 py-2'> {transaction.currency} </TableCell>
-              <TableCell className='px-4 py-2'>
-                <div className='flex h-full'>
-                  <Button
-                    onClick={() => { onEditClicked(transaction) }}
-                    className="flex items-center border-2 bg-transparent hover:bg-transparent shadow-none px-4 py-3 border-none h-full text-slate-300 hover:text-yellow-500"
-                  >
-                    <TbEdit className='scale-150' />
-                  </Button>
-
-
-                  <Button
-                    onClick={() => handleDelete(transaction.id)}
-                    className="flex items-center border-2 bg-transparent hover:bg-transparent shadow-none px-4 py-4 border-none rounded-lg text-slate-300 hover:text-red-500"
-                  >
-                    <TbTrashXFilled className='scale-150' />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
+            <ViewTransactionRow
+              key={transaction.id}
+              transaction={transaction}
+              onEdit={() => onEditClicked(transaction)}
+              onDelete={() => handleDelete(transaction.id)}
+            />
           ))}
         </TableBody>
+        {/* <TableFooter>
+          <TableRow>
+            <TableCell colSpan={10}>
+              <Button className="flex justify-center items-center border-4 border-slate-300 bg-transparent hover:bg-transparent shadow-none border-dotted w-full h-full hover:text-black-300">
+                <TbPlus className='text-slate-400 scale-150' />
+                <p className='text-md text-secondary-foreground text-slate-400'>Add a new transaction</p>
+              </Button>
+            </TableCell>
+          </TableRow>
+        </TableFooter> */}
       </Table>
 
       {/* Pagination */}
       {PaginationComponent}
-    </div>
+    </div >
   );
 };
+
+function EditableTransactionRow({
+  transaction,
+  onInputChange,
+  onSave,
+  onCancel
+}: {
+  transaction: Transaction;
+  onInputChange: (e: ChangeEvent<HTMLInputElement>, id: number) => void;
+  onSave: (id: number) => void;
+  onCancel: () => void;
+}) {
+  return <TableRow key={transaction.id}>
+    <TableCell>
+      <Input
+        type="text"
+        name="transaction_date_string"
+        value={transaction?.transaction_date_string}
+        className='block border-2 bg-transparent px-4 py-2 min-w-0'
+        onChange={(e) => onInputChange(e, transaction.id)}
+      />
+    </TableCell>
+    <TableCell>
+      <Input
+        type="text"
+        name="description"
+        value={transaction?.description}
+        className='bg-transparent px-4 py-2'
+        onChange={(e) => onInputChange(e, transaction.id)}
+      />
+    </TableCell>
+    <TableCell>
+      <Input
+        type="number"
+        name="amount"
+        value={transaction?.amount}
+        className='bg-transparent px-4 py-2'
+        onChange={(e) => onInputChange(e, transaction.id)}
+      />
+    </TableCell>
+    <TableCell>
+      <Input
+        type="text"
+        name="currency"
+        value={transaction?.currency}
+        className='bg-transparent px-4 py-2'
+        onChange={(e) => onInputChange(e, transaction.id)}
+      />
+    </TableCell>
+    <TableCell>
+      <div className='flex'>
+        <Button
+          onClick={() => { onSave(transaction.id) }}
+          className="flex items-center border-2 bg-transparent hover:bg-transparent shadow-none px-4 py-3 border-none h-full text-slate-300 hover:text-green-500"
+        >
+          <TbCheck className='scale-150' />
+        </Button>
+        <Button
+          onClick={onCancel}
+          className="flex items-center border-2 bg-transparent hover:bg-transparent shadow-none px-4 py-3 border-none h-full text-slate-300 hover:text-red-500"
+        >
+          {/* <TbTrashXFilled className='scale-150' /> */}
+          <TbCancel className='scale-150' />
+        </Button>
+      </div>
+    </TableCell>
+  </TableRow>
+}
+
+function ViewTransactionRow({
+  transaction,
+  onEdit,
+  onDelete
+}: {
+  transaction: Transaction;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  return <TableRow key={transaction.id} onDoubleClick={onEdit}>
+    <TableCell className='px-4 py-2'> {transaction.transaction_date_string} </TableCell>
+    <TableCell className='px-4 py-2'>
+      <ExpandableDescription description={transaction.description} />
+    </TableCell>
+    <TableCell className='px-4 py-2'> {transaction.amount} </TableCell>
+    <TableCell className='px-4 py-2'> {transaction.currency} </TableCell>
+    <TableCell className='px-4 py-2'>
+      <div className='flex h-full'>
+        <Button
+          onClick={onEdit}
+          className="flex items-center border-2 bg-transparent hover:bg-transparent shadow-none px-4 py-3 border-none h-full text-slate-300 hover:text-yellow-500"
+        >
+          <TbEdit className='scale-150' />
+        </Button>
+
+
+        <Button
+          onClick={onDelete}
+          className="flex items-center border-2 bg-transparent hover:bg-transparent shadow-none px-4 py-4 border-none rounded-lg text-slate-300 hover:text-red-500"
+        >
+          <TbTrashXFilled className='scale-150' />
+        </Button>
+      </div>
+    </TableCell>
+  </TableRow>
+
+}
 
 // create a expandabledescription component 
 function ExpandableDescription({ description }: { description: string }) {
