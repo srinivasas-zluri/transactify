@@ -30,6 +30,9 @@ export const useFileUpload = () => {
         toast.success("File uploaded successfully!");
       } else if (res.status == 200) {
         console.log(res);
+        toast.warning(
+          "File failed to upload one (or) more transactions, check the file for more details"
+        );
         triggerDownloadBlob(res.data, "errors.csv");
       }
     } catch (error) {
