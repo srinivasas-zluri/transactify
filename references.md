@@ -15,3 +15,5 @@
 - [react monorepo](https://dev.to/ynwd/how-to-create-react-monorepo-with-npm-workspace-webpack-and-create-react-app-2dhn)
 - [init tailwind with vite](https://tailwindcss.com/docs/guides/vite)
 -[react icons](https://react-icons.github.io/react-icons/)
+-[div inside tr not expanding](https://stackoverflow.com/questions/49370783/div-inside-displaytable-row-section-not-expanding-to-full-width)
+-[weird invalid persistance fork() behaviour fix](https://mikro-orm.io/docs/transactions)
