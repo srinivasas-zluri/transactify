@@ -46,6 +46,17 @@
           "scale": 0,
           "mappedType": "decimal"
         },
+        "inr_amount": {
+          "name": "inr_amount",
+          "type": "numeric(10,0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 10,
+          "scale": 0,
+          "mappedType": "decimal"
+        },
         "description": {
           "name": "description",
           "type": "text",
