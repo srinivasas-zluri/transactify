@@ -54,6 +54,15 @@ const App = () => {
     setPageState(PageState.View);
   }
 
+  async function uploadFileFn(file: File) {
+    console.log("Got to the upload file in root")
+    console.log({ file })
+    setPageState(PageState.UploadingFile);
+    await handleFileUpload(file);
+    await fetchTransactions(page);
+    setPageState(PageState.View);
+   }
+
   function handleInputChange(e: ChangeEvent<HTMLInputElement>, id: number) {
     const { name, value } = e.target;
     if (editingTransaction == null) {
@@ -114,13 +123,7 @@ const App = () => {
     <div className="mx-auto p-8 rounded-lg max-w-7xl">
       <ToastContainer />
       <h1 className="mb-8 font-semibold text-4xl text-center text-gray-800">Transaction Management</h1>
-      <UploadFile onUpload={async (file: File) => {
-        setPageState(PageState.UploadingFile);
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-        await handleFileUpload(file);
-        await fetchTransactions(page);
-        setPageState(PageState.View);
-      }} />
+      <UploadFile onUpload={uploadFileFn} />
 
       {/* File Upload Section */}
       <div className="flex md:flex-row flex-col items-start md:items-center mb-6">
@@ -280,7 +283,6 @@ function UploadFile({ onUpload }: { onUpload: (file: File) => Promise<void> }) {
 
     try {
       await onUpload(uploadedFile);
-      console.log("Got here")
       setFile(null);
     } catch (error) {
       console.error(error);
