@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import { routes } from "@/const";
 
@@ -43,8 +43,22 @@ export const useTransactions = () => {
       setTransactions((prev) => [...prev, response.data]);
       toast.success("Transaction created!");
     } catch (error) {
-      toast.error("Failed to create transaction");
-      console.error(error);
+      // check for axios error and 400, 409
+      if (!(error instanceof AxiosError)) {
+        toast.error("Failed to create transaction");
+        console.error(error);
+        return;
+      }
+      const { response, status } = error;
+      if (status === 400) {
+        toast.error("Invalid data");
+        console.error(response?.data);
+      } else if (status === 409) {
+        toast.error("Transaction already exists");
+      } else {
+        toast.error("Failed to create transaction");
+        console.error(error);
+      }
     }
   };
 
@@ -83,13 +97,24 @@ export const useTransactions = () => {
         prev.map((t) => (t.id === id ? { ...t, ...transaction } : t))
       );
     } catch (error) {
-      toast.error("Failed to update transaction");
-      console.error(error);
       const index = transactions.findIndex((t) => t.id === id);
       setTransactions((prev) => {
         prev[index] = prevTransaction as Transaction;
         return [...prev];
       });
+      if (!(error instanceof AxiosError)) {
+        toast.error("Failed to update transaction");
+        console.error(error);
+        return;
+      }
+
+      const { status } = error;
+      if (status === 409) {
+        toast.error("Transaction already exists with the same data");
+      } else {
+        toast.error("Failed to update transaction");
+        console.error(error);
+      }
     }
   };
 
