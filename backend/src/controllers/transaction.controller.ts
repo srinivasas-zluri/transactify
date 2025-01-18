@@ -7,6 +7,7 @@ import { Transaction } from "~/models/transaction";
 import path from "node:path";
 import { parseCSV } from "~/internal/csv/main";
 import { FileCSVWriter } from "~/internal/csv/writer";
+import { UniqueConstraintViolationException } from "@mikro-orm/core";
 
 export class TransactionController {
   private transactionService: TransactionService;
@@ -35,6 +36,11 @@ export class TransactionController {
     } catch (error) {
       if (error instanceof TransactionParseError) {
         res.status(400).json({ message: error.message });
+        return;
+      }
+
+      if (error instanceof UniqueConstraintViolationException) {
+        res.status(409).json({ message: "Transaction already exists" });
         return;
       }
       console.error("Error creating transaction:", error);
