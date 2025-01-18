@@ -88,7 +88,7 @@ const App = () => {
     // TODO: don't disable the lint use `useCallback` to memoize the function
     const loadTransactions = async () => {
       setPageState(PageState.Loading);
-      await fetchTransactions(page);  // Use the function directly
+      await fetchTransactions(page); 
       setPageState(PageState.View);
     };
 
