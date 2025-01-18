@@ -15,7 +15,7 @@ import { useTransactions } from './hooks/useTransaction';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Transaction } from './models/transaction';
 
-enum TableState {
+enum PageState {
   Loading,
   UploadingFile,
   View,
@@ -28,12 +28,12 @@ const App = () => {
   const [page, setPage] = useState<number>(9);
   const { transactions, handleDelete, prevNext, handleUpdate, fetchTransactions } = useTransactions();
   const { prevPage: prev, nextPage: next } = prevNext;
-  const [pageState, setPageState] = useState<TableState>(TableState.Loading);
+  const [pageState, setPageState] = useState<PageState>(PageState.Loading);
 
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
 
   function onEditClicked(transaction: Transaction) {
-    setPageState(TableState.Edit);
+    setPageState(PageState.Edit);
     setEditingTransaction({ ...transaction });
   }
 
@@ -46,12 +46,12 @@ const App = () => {
     
     await handleUpdate(editingTransaction);
     setEditingTransaction(null);
-    setPageState(TableState.View);
+    setPageState(PageState.View);
   }
 
   async function onEditCancelClicked() {
     setEditingTransaction(null);
-    setPageState(TableState.View);
+    setPageState(PageState.View);
   }
 
   function handleInputChange(e: ChangeEvent<HTMLInputElement>, id: number) {
@@ -70,9 +70,9 @@ const App = () => {
     // TODO: debouncing
     // TODO: don't disable the lint use `useCallback` to memoize the function
     const loadTransactions = async () => {
-      setPageState(TableState.Loading);
+      setPageState(PageState.Loading);
       await fetchTransactions(page);  // Use the function directly
-      setPageState(TableState.View);
+      setPageState(PageState.View);
     };
 
     loadTransactions();
@@ -83,12 +83,12 @@ const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
-  if (pageState === TableState.UploadingFile) {
+  if (pageState === PageState.UploadingFile) {
     // return progress bar 
     return <Progress value={progress} className="w-[60%]" />
   }
 
-  if (pageState === TableState.Loading) {
+  if (pageState === PageState.Loading) {
     // TODO: Change the loadign state later
     return (
       <div className="bg-gray-50 shadow-lg mx-auto p-8 rounded-lg max-w-7xl">
@@ -115,11 +115,11 @@ const App = () => {
       <ToastContainer />
       <h1 className="mb-8 font-semibold text-4xl text-center text-gray-800">Transaction Management</h1>
       <UploadFile onUpload={async (file: File) => {
-        setPageState(TableState.UploadingFile);
+        setPageState(PageState.UploadingFile);
         await new Promise((resolve) => setTimeout(resolve, 5000));
         await handleFileUpload(file);
         await fetchTransactions(page);
-        setPageState(TableState.View);
+        setPageState(PageState.View);
       }} />
 
       {/* File Upload Section */}
@@ -150,8 +150,8 @@ const App = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {transactions.map((transaction) => (pageState === TableState.Edit && transaction.id === editingTransaction?.id) ? (
-            <TableRow>
+          {transactions.map((transaction) => (pageState === PageState.Edit && transaction.id === editingTransaction?.id) ? (
+            <TableRow key={transaction.id}>
               <TableCell>
                 <Input
                   type="text"
