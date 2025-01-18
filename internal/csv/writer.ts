@@ -24,6 +24,7 @@ export class FileCSVWriter implements CSVWriter {
       const csvWriter = createObjectCsvWriter({
         path: this.filepath,
         header: headers,
+        append: true,
       });
 
       await csvWriter.writeRecords(rows);

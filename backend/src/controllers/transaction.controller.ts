@@ -8,6 +8,8 @@ import path from "node:path";
 import { parseCSV } from "~/internal/csv/main";
 import { FileCSVWriter } from "~/internal/csv/writer";
 import { UniqueConstraintViolationException } from "@mikro-orm/core";
+import { convertCurrency } from "~/services/conversion.service";
+import { cleanRow, mergeCSVErrors, validateRow } from "~/internal/csv/parse";
 
 export class TransactionController {
   private transactionService: TransactionService;
@@ -19,15 +21,46 @@ export class TransactionController {
   async createTransaction(req: Request, res: Response): Promise<void> {
     try {
       const transactionData = req.body as TransactionData;
-      if (!checkValidTransactionData(transactionData)) {
+      if (!checkValidHeadersPresent(transactionData)) {
         res.status(400).json({ message: "Invalid transaction data" });
         return;
       }
+
+      const cleanedRow = cleanRow(transactionData);
+      const TEMP_LINE_NO = 0;
+      const errs = mergeCSVErrors(
+        validateRow(cleanedRow, transactionData, TEMP_LINE_NO),
+        TEMP_LINE_NO
+      );
+
+      if (errs !== null) {
+        res.status(400).json({ message: errs.message });
+        return;
+      }
+
+      const splitDate = cleanedRow.date_string!.split("-");
+
+      const { amount, err } = convertCurrency({
+        from: cleanedRow.currency!,
+        amount: cleanedRow.amount!,
+        year: splitDate[2],
+        month: splitDate[1],
+        day: splitDate[0],
+      });
+
+      if (err != null) {
+        res.status(400).json({ message: err });
+        return;
+      }
+
       const newTnx = new Transaction();
-      newTnx.transaction_date_string = transactionData.date;
-      newTnx.amount = parseFloat(transactionData.amount);
-      newTnx.description = transactionData.description;
-      newTnx.currency = transactionData.currency;
+      newTnx.transaction_date = cleanedRow.date!;
+      newTnx.transaction_date_string = cleanedRow.date_string!;
+      newTnx.amount = cleanedRow.amount!;
+      newTnx.description = cleanedRow.description!;
+      newTnx.currency = cleanedRow.currency!;
+      newTnx.inr_amount = amount;
+
       const transaction = await this.transactionService.createTransaction(
         newTnx
       );
@@ -74,6 +107,32 @@ export class TransactionController {
         req.file.path,
         { errorFileWriter: CSVWriter }
       );
+      Object.entries(rows).forEach(([lineNo, tnx]) => {
+        const splitDate = tnx.transaction_date_string.split("-");
+        const { amount, err } = convertCurrency({
+          from: tnx.currency,
+          amount: tnx.amount,
+          year: splitDate[2],
+          month: splitDate[1],
+          day: splitDate[0],
+        });
+        if (err != null) {
+          // reommve the line
+          delete rows[Number(lineNo)];
+          // write the errors
+          CSVWriter.writeRows([
+            {
+              lineNo: parseInt(lineNo),
+              errorType: "ConversionError",
+              message: err,
+              ...tnx,
+            },
+          ]);
+          return;
+        }
+        tnx.inr_amount = amount;
+      });
+
       const transactions = [...Object.values(rows)];
       const { duplicates } = await this.transactionService.createTransactions(
         transactions
@@ -245,7 +304,7 @@ interface TransactionData {
   currency: string;
 }
 
-function checkValidTransactionData(data: any): boolean {
+function checkValidHeadersPresent(data: any): boolean {
   const requiredFields = ["date", "amount", "description", "currency"];
   for (const field of requiredFields) {
     if (!data[field]) {
