@@ -1,5 +1,3 @@
-// create a simple object wiht the routes of the app
-
 const mergeRoutes = (url1: string, url2: string) => {
   const res =  url1.replace(/\/+$/, "") + "/" + url2.replace(/^\/+/, "");
   res.replace(/\/+$/, "");
@@ -7,7 +5,13 @@ const mergeRoutes = (url1: string, url2: string) => {
   return res;
 };
 
-const rootURL = "http://localhost:3000";
+// read the root url from env 
+const rootURL =  import.meta.env.VITE_API_ROOT_URL;
+if (!rootURL) {
+  throw new Error("API_ROOT_URL is not defined");
+}
+
+// const rootURL = "http://localhost:3000";
 const apiURL = mergeRoutes(rootURL, "/api/v1");
 const transactionsURL = mergeRoutes(apiURL, "/transaction");
 
