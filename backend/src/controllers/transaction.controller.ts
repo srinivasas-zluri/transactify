@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import {
+  CurrencyConversionError,
   TransactionParseError,
   TransactionService,
 } from "~/services/transaction.service";
@@ -258,7 +259,21 @@ export class TransactionController {
       res.status(200).json(updatedTransaction);
       return;
     } catch (error) {
-      console.error("Error updating transaction:", error);
+      console.log("Error updating transaction:", error);
+      // print the instance of error 
+      console.log({ error });
+      if (error instanceof TransactionParseError) {
+        res.status(400).json({ message: error.message });
+        return;
+      }
+      if (error instanceof UniqueConstraintViolationException) {
+        res.status(409).json({ message: "Transaction already exists" });
+        return;
+      }
+      if (error instanceof CurrencyConversionError) {
+        res.status(400).json({ message: error.message });
+        return;
+      }
       res.status(500).json({ message: "Failed to update transaction" });
       return;
     }

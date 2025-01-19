@@ -2,6 +2,7 @@ import { DBServices } from "~/db";
 import { handleRow } from "~/internal/csv/main";
 import { CSVParseError, CSVRow } from "~/internal/csv/types";
 import { Transaction } from "~/models/transaction";
+import { convertCurrency } from "./conversion.service";
 
 export class TransactionService {
   private db: DBServices;
@@ -14,9 +15,7 @@ export class TransactionService {
     return this.db.em.fork();
   }
 
-  async createTransaction(
-    transaction: Transaction,
-  ) {
+  async createTransaction(transaction: Transaction) {
     const em = this.em;
     await em.persistAndFlush(transaction);
     return transaction;
@@ -93,7 +92,6 @@ export class TransactionService {
       id,
       is_deleted: false,
     });
-    console.log("originalTransaction", originalTransaction);
     if (!originalTransaction) {
       return null;
     }
@@ -133,9 +131,29 @@ export class TransactionService {
     // update the transaction
     originalTransaction.transaction_date = tnx.transaction_date;
     originalTransaction.transaction_date_string = tnx.transaction_date_string;
-    originalTransaction.amount = tnx.amount;
     originalTransaction.description = tnx.description;
-    originalTransaction.currency = tnx.currency;
+
+    // check if they have changed
+    if (
+      originalTransaction.amount !== tnx.amount ||
+      tnx.currency !== originalTransaction.currency
+    ) {
+      const splitDate = tnx.transaction_date_string.split("-");
+      originalTransaction.amount = tnx.amount;
+      originalTransaction.currency = tnx.currency;
+      const { amount, err } = convertCurrency({
+        from: originalTransaction.currency,
+        amount: originalTransaction.amount,
+        year: splitDate[2],
+        month: splitDate[1],
+        day: splitDate[0],
+      });
+      if (err !== null) {
+        console.log({ err });
+        throw new CurrencyConversionError(err);
+      }
+      originalTransaction.inr_amount = amount;
+    }
 
     await em.persistAndFlush(originalTransaction);
     return originalTransaction;
@@ -188,6 +206,14 @@ export class TransactionParseError extends Error {
   constructor(err: CSVParseError) {
     super(err.message);
     this.name = err.type;
+    this.stack = new Error().stack;
+  }
+}
+
+export class CurrencyConversionError extends Error {
+  constructor(err: string) {
+    super(err);
+    this.name = "ConversionError";
     this.stack = new Error().stack;
   }
 }

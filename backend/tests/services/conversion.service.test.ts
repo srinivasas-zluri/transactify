@@ -9,6 +9,7 @@ describe("check if conversion is working", () => {
             month: "01",
             day: "01"
         })
-        expect(res).toBeCloseTo(72.63);
+        expect(res.amount).toBeDefined();
+        expect(res.amount).toBeCloseTo(72.63);
      });
 })
