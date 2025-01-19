@@ -5,7 +5,7 @@ import { TbEdit } from "react-icons/tb";
 import { toast, ToastContainer } from 'react-toastify';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import 'react-toastify/dist/ReactToastify.css';
 import 'tailwindcss/tailwind.css';
@@ -49,11 +49,11 @@ const ApplicationPage = () => {
     setPageState(PageState.View);
   }
 
-  async function onDeleteClicked(id: number)  {
+  async function onDeleteClicked(id: number) {
     setPageState(PageState.Loading);
     await handleDelete(id);
     setPageState(PageState.View);
-   }
+  }
 
   function onEditClicked(transaction: Transaction) {
     setPageState(PageState.Edit);
@@ -157,9 +157,8 @@ const ApplicationPage = () => {
             <TableHead> Description </TableHead>
             <TableHead> Amount </TableHead>
             <TableHead>Currency</TableHead>
-            <TableHead>Actions
-
-            </TableHead>
+            <TableHead className='p-4 text-center'> Amount (INR) </TableHead>
+            <TableHead>Actions </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -203,16 +202,18 @@ const ApplicationPage = () => {
             />
           ))}
         </TableBody>
-        {/* <TableFooter>
-          <TableRow>
-            <TableCell colSpan={10}>
-              <Button className="flex justify-center items-center border-4 border-slate-300 bg-transparent hover:bg-transparent shadow-none border-dotted w-full h-full hover:text-black-300">
-                <TbPlus className='text-slate-400 scale-150' />
-                <p className='text-md text-secondary-foreground text-slate-400'>Add a new transaction</p>
-              </Button>
-            </TableCell>
-          </TableRow>
-        </TableFooter> */}
+        {(transactions.length > 20) &&
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={10}>
+                <Button className="flex justify-center items-center border-4 border-slate-300 bg-transparent hover:bg-transparent shadow-none border-dotted w-full h-full hover:text-black-300">
+                  <TbPlus className='text-slate-400 scale-150' />
+                  <p className='text-md text-secondary-foreground text-slate-400'>Add a new transaction</p>
+                </Button>
+              </TableCell>
+            </TableRow>
+          </TableFooter>
+        }
       </Table>
 
       {/* Pagination */}
@@ -364,6 +365,7 @@ function EditableTransactionRow({
         onChange={(e) => onInputChange(e, transaction.id)}
       />
     </TableCell>
+    <TableCell className='px-4 py-2'> {transaction.inr_amount} </TableCell>
     <TableCell>
       <div className='flex'>
         <Button
@@ -400,6 +402,7 @@ function ViewTransactionRow({
     </TableCell>
     <TableCell className='px-4 py-2'> {transaction.amount} </TableCell>
     <TableCell className='px-4 py-2'> {transaction.currency} </TableCell>
+    <TableCell className='px-4 py-2'> {transaction.inr_amount} </TableCell>
     <TableCell className='px-4 py-2'>
       <div className='flex h-full'>
         <Button
