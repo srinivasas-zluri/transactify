@@ -87,13 +87,6 @@ export function useAppState({ toast }: { toast: Toast }) {
   }
 
   useEffect(() => {
-    enum PageState {
-      Loading,
-      UploadingFile,
-      View,
-      Edit,
-      Error,
-    }
     // TODO: debouncing
     // TODO: don't disable the lint use `useCallback` to memoize the function
     const loadTransactions = async () => {
