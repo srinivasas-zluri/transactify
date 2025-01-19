@@ -1,13 +1,68 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vite + React + TS</title>
+  <style />
+  .container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  }
+
+  .loading-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px;
+  border-radius: 12px;
+  background-color: white;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  }
+
+  .spinner {
+  width: 128px;
+  height: 128px;
+  border: 6px solid #e0e0e0;
+  border-top: 6px solid #333;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+  }
+
+  .loading-text {
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: #4a4a4a;
+  }
+
+  @keyframes spin {
+  0% {
+  transform: rotate(0deg);
+  }
+  100% {
+  transform: rotate(360deg);
+  }
+  }
+  </style>
+</head>
+
+<body>
+  <div id="root">
+    <div class="container">
+      <div class="loading-wrapper">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading...</div>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
