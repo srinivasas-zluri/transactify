@@ -84,7 +84,9 @@ const ApplicationPage = () => {
     );
   }
 
-  const PaginationComponent = (
+  const isDataNull = transactions.length === 0 && prev.page === null && next.page === null;
+
+  const PaginationComponent = (!isDataNull) ? (
     <Pagination className="mt-6">
       <PaginationContent>
         {prev.page != null && (
@@ -111,7 +113,7 @@ const ApplicationPage = () => {
         )}
       </PaginationContent>
     </Pagination>
-  );
+  ) : null;
 
   return (
     <div className="mx-auto p-8 rounded-lg max-w-7xl">
@@ -199,6 +201,7 @@ const ApplicationPage = () => {
 
       {/* Pagination */}
       {PaginationComponent}
+
     </div>
   );
 };
