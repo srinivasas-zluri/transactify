@@ -3,7 +3,6 @@ import { TbCancel, TbCheck, TbPlus, TbTrashXFilled } from "react-icons/tb";
 import { TbEdit } from "react-icons/tb";
 import { toast, ToastContainer } from "react-toastify";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import {
   Table,
   TableBody,
@@ -38,6 +37,7 @@ import {
 import { UploadFile } from "./components/uploadFile";
 import { ExpandableDescription } from "./components/expandableDescription";
 import { PageState, useAppState } from "./hooks/useAppState";
+import { UploadingFile } from "./pages/uploadingFile";
 
 const App = () => {
   return (
@@ -69,18 +69,16 @@ const ApplicationPage = () => {
 
   if (pageState === PageState.UploadingFile) {
     // return progress bar
-    return <Progress value={progress} className="w-[60%]" />;
+    return <UploadingFile progress={progress} />
   }
 
   if (pageState === PageState.Loading) {
     // TODO: Change the loadign state later
     return (
-      <div className="bg-gray-50 shadow-lg mx-auto p-8 rounded-lg max-w-7xl">
-        <h1 className="mb-8 font-semibold text-4xl text-center text-gray-800">
-          Transaction Management
-        </h1>
-        <div className="flex justify-center items-center">
-          <div className="border-gray-900 border-b-2 rounded-full w-32 h-32 animate-spin"></div>
+      <div className="flex justify-center items-center p-4 min-h-screen">
+        <div className="flex flex-col items-center space-y-4 p-8 rounded-lg w-full sm:w-96 max-w-md">
+          <div className="border-gray-900 mb-4 border-b-2 rounded-full w-32 h-32 animate-spin"></div>
+          <div className="font-semibold text-gray-700 text-xl">Loading...</div>
         </div>
       </div>
     );
@@ -130,7 +128,7 @@ const ApplicationPage = () => {
           <TableRow className="bg-gray-200 hover:bg-gray-200 rounded-lg text-left">
             <TableHead className="p-5"> Date </TableHead>
             <TableHead> Description </TableHead>
-            <TableHead> Amount </TableHead>
+            <TableHead > Amount </TableHead>
             <TableHead>Currency</TableHead>
             <TableHead className="p-4 text-center"> Amount (INR) </TableHead>
             <TableHead>Actions </TableHead>
@@ -165,7 +163,7 @@ const ApplicationPage = () => {
           </TableRow>
           {transactions.map((transaction) =>
             pageState === PageState.Edit &&
-            transaction.id === editingTransaction?.id ? (
+              transaction.id === editingTransaction?.id ? (
               <EditableTransactionRow
                 key={transaction.id}
                 transaction={editingTransaction}
@@ -365,7 +363,7 @@ function EditableTransactionRow({
           type="text"
           name="transaction_date_string"
           value={transaction?.transaction_date_string}
-          className="block border-2 bg-transparent px-4 py-2 min-w-0"
+          className="block border-2 bg-transparent px-4 py-2 min-w-28"
           onChange={(e) => onInputChange(e, transaction.id)}
         />
       </TableCell>
@@ -374,7 +372,7 @@ function EditableTransactionRow({
           type="text"
           name="description"
           value={transaction?.description}
-          className="bg-transparent px-4 py-2"
+          className="bg-transparent px-4 py-2 min-w-32"
           onChange={(e) => onInputChange(e, transaction.id)}
         />
       </TableCell>
@@ -383,7 +381,7 @@ function EditableTransactionRow({
           type="number"
           name="amount"
           value={transaction?.amount}
-          className="bg-transparent px-4 py-2"
+          className="bg-transparent px-4 py-2 min-w-32"
           onChange={(e) => onInputChange(e, transaction.id)}
         />
       </TableCell>
@@ -392,7 +390,7 @@ function EditableTransactionRow({
           type="text"
           name="currency"
           value={transaction?.currency}
-          className="bg-transparent px-4 py-2"
+          className="bg-transparent px-4 py-2 min-w-32"
           onChange={(e) => onInputChange(e, transaction.id)}
         />
       </TableCell>
@@ -431,18 +429,18 @@ function ViewTransactionRow({
 }) {
   return (
     <TableRow key={transaction.id} onDoubleClick={onEdit}>
-      <TableCell className="px-4 py-2">
+      <TableCell className="px-4 py-2 min-w-28">
         {" "}
         {transaction.transaction_date_string}{" "}
       </TableCell>
-      <TableCell className="px-4 py-2">
+      <TableCell className="px-4 py-2 w-full">
         <ExpandableDescription description={transaction.description} />
       </TableCell>
-      <TableCell className="px-4 py-2"> {transaction.amount} </TableCell>
+      <TableCell className="text-right px-4 py-2"> {transaction.amount} </TableCell>
       <TableCell className="px-4 py-2"> {transaction.currency} </TableCell>
-      <TableCell className="px-4 py-2"> {transaction.inr_amount} </TableCell>
+      <TableCell className="px-4 py-2 w-full"> Rs.{transaction.inr_amount} </TableCell>
       <TableCell className="px-4 py-2">
-        <div className="flex h-full">
+        <div className="flex shrink">
           <Button
             onClick={onEdit}
             className="flex items-center border-2 bg-transparent hover:bg-transparent shadow-none px-4 py-3 border-none h-full text-slate-300 hover:text-yellow-500"
