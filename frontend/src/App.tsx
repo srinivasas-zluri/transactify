@@ -3,7 +3,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "tailwindcss/tailwind.css";
 
 import { PageState, useAppState } from "./hooks/useAppState";
-import { UploadingFile } from "./pages/uploadingFile";
+import { UploadingFile } from "./pages/uploadingFileLoadingPage";
 import { PaginationComponent } from "./components/Table/pagination";
 import { TransactionTable } from "./components/Table/TransactionTable";
 import { UploadFile } from "./components/TransactionManagement/uploadFile";
