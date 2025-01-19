@@ -3,6 +3,7 @@ export interface Transaction {
   transaction_date: Date;
   transaction_date_string: string;
   amount: number;
+  inr_amount: number;
   description: string;
   currency: string;
   is_deleted: false;
