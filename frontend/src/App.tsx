@@ -4,10 +4,10 @@ import "tailwindcss/tailwind.css";
 
 import { PageState, useAppState } from "./hooks/useAppState";
 import { UploadingFile } from "./pages/uploadingFileLoadingPage";
-import { PaginationComponent } from "./components/Table/pagination";
 import { TransactionTable } from "./components/Table/TransactionTable";
-import { UploadFile } from "./components/TransactionManagement/uploadFile";
 import { TransactionManagementLoadingPage } from "./components/TransactionManagement/LoadingPage";
+import { UploadFile } from "./components/TransactionManagement/UploadFile";
+import { PaginationComponent } from "./components/Table/Pagination";
 
 const App = () => {
   return (
@@ -44,6 +44,7 @@ const ApplicationPage = () => {
   if (pageState === PageState.Loading) {
     return <TransactionManagementLoadingPage />;
   }
+  console.log({transactions, prev,  next})
 
   const isDataNull = transactions.length === 0 && prev.page === null && next.page === null;
 
@@ -52,7 +53,7 @@ const ApplicationPage = () => {
       <h1 className="mb-8 font-semibold text-4xl text-center text-gray-800">Transaction Management</h1>
       <UploadFile onUpload={uploadFile} toast={toast} />
 
-      {(isDataNull) && <PaginationComponent page={page} prev={prev} next={next} setPage={setPage} />}
+      {(!isDataNull) && <PaginationComponent page={page} prev={prev} next={next} setPage={setPage} />}
       <span className="p-10" />
       <TransactionTable
         pageState={pageState}
@@ -65,7 +66,9 @@ const ApplicationPage = () => {
         onDeleteClicked={onDeleteClicked}
         onCreateTransaction={onCreateTransaction}
       />
-      {(isDataNull) && <PaginationComponent page={page} prev={prev} next={next} setPage={setPage} />}
+
+      <span className="p-10" />
+      {(!isDataNull) && <PaginationComponent page={page} prev={prev} next={next} setPage={setPage} />}
     </div>
   );
 };

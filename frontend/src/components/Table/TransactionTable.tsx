@@ -15,7 +15,7 @@ import { ViewTransactionRow } from "./ViewTransactionRow";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTrigger } from "../ui/dialog";
 import { PageState } from "@/hooks/useAppState";
-import { AddTransactionDialog } from "../TransactionManagement/addTransactionDialog";
+import { AddTransactionDialog } from "../TransactionManagement/AddTransactionDialog";
 
 interface TransactionTableProps {
     transactions: Transaction[];
