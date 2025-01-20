@@ -29,7 +29,6 @@ export function ViewTransactionRow({
                 currency: transaction.currency || "USD",
             })}
             </TableCell>
-            {/* <TableCell className="px-4 py-2"> {transaction.currency} </TableCell> */}
             <TableCell className="text-right px-4 py-2 w-full"> Rs.{transaction.inr_amount} </TableCell>
             <TableCell className="px-4 py-2">
                 <div className="flex shrink">
