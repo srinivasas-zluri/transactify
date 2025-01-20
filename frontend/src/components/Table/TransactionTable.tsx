@@ -47,7 +47,6 @@ export const TransactionTable = ({
                     <TableHead className="p-5"> Date </TableHead>
                     <TableHead> Description </TableHead>
                     <TableHead > Amount </TableHead>
-                    <TableHead>Currency</TableHead>
                     <TableHead className="p-4 text-center"> Amount (INR) </TableHead>
                     <TableHead>Actions </TableHead>
                 </TableRow>
