@@ -11,6 +11,7 @@ import { FileCSVWriter } from "~/internal/csv/writer";
 import { UniqueConstraintViolationException } from "@mikro-orm/core";
 import { convertCurrency } from "~/services/conversion.service";
 import { cleanRow, mergeCSVErrors, validateRow } from "~/internal/csv/parse";
+import fs from "fs";
 
 export class TransactionController {
   private transactionService: TransactionService;
@@ -100,10 +101,17 @@ export class TransactionController {
     }
     try {
       // take the file path add -errors to it
-      const fileName = req.file.path.split(".csv")[0] + "-errors.csv";
-      // get the abs path of the file
+      const errorWriterFile = req.file.path.split(".csv")[0] + "-errors.csv" ;
 
-      const CSVWriter = new FileCSVWriter(fileName);
+      // Get the directory of the file
+      const dir = path.dirname(errorWriterFile);
+
+      // Check if the directory exists, if not, create it
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+
+      const CSVWriter = new FileCSVWriter(errorWriterFile);
       const { rows, parsingErrors, validationErrors } = await parseCSV(
         req.file.path,
         { errorFileWriter: CSVWriter }
@@ -124,8 +132,8 @@ export class TransactionController {
           CSVWriter.writeRows([
             {
               lineNo: parseInt(lineNo),
-              errorType: "ConversionError",
               message: err,
+              date: tnx.transaction_date_string,
               ...tnx,
             },
           ]);
@@ -167,9 +175,9 @@ export class TransactionController {
       const errorRowsArray = [
         ...duplicatesLineNumbers.map((lineNo) => ({
           lineNo: lineNo,
-          errorType: "RepeatedElementsFound",
           message: "Duplicate entry already in db",
-          ...transactions[lineNo],
+          date: transactions[lineNo - 1].transaction_date_string,
+          ...transactions[lineNo - 1],
         })),
       ];
 
@@ -185,7 +193,7 @@ export class TransactionController {
       }
 
       // return the error file
-      res.sendFile(path.resolve(fileName));
+      res.sendFile(path.resolve(errorWriterFile));
     } catch (error) {
       console.error("Error creating transactions:", error);
       res.status(500).json({ message: "Failed to create transactions" });
@@ -260,7 +268,7 @@ export class TransactionController {
       return;
     } catch (error) {
       console.log("Error updating transaction:", error);
-      // print the instance of error 
+      // print the instance of error
       console.log({ error });
       if (error instanceof TransactionParseError) {
         res.status(400).json({ message: error.message });

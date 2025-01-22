@@ -108,7 +108,7 @@ const config: Config = {
   // projects: undefined,
 
   // Use this configuration option to add custom reporters to Jest
-  reporters: [["summary", { summaryThreshold: 10 }],],
+  // reporters: [["summary", { summaryThreshold: 10 }],],
 
   // Automatically reset mock state before every test
   // resetMocks: false,

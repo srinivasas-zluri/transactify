@@ -8,7 +8,7 @@ import {
 } from "./utils";
 import { FileCSVWriter } from "~/csv/writer";
 import { parseCSV } from "~/csv/main";
-import { CSVWriter } from "~/csv/types";
+import { CSVWriter, ErrorRow } from "~/csv/types";
 
 describe("Check the generic implementation of the csvwriter", () => {
   beforeEach(() => {
@@ -24,12 +24,22 @@ describe("Check the generic implementation of the csvwriter", () => {
   it("should write rows to the CSV file with auto-generated headers", async () => {
     const writer = new FileCSVWriter(testFilePath);
 
-    const rows = [
-      { lineNo: 1, errorType: "InvalidLine", message: "Invalid amount format" },
+    const rows: ErrorRow[] = [
+      {
+        lineNo: 1,
+        message: "Invalid amount format",
+        date: "2025-01-08",
+        amount: "302",
+        description: "payment",
+        currency: "cad",
+      },
       {
         lineNo: 2,
-        errorType: "MissingColumn",
         message: "Missing required column",
+        date: "2025-01-08",
+        amount: "302",
+        description: "payment",
+        currency: "cad",
       },
     ];
 
@@ -40,9 +50,15 @@ describe("Check the generic implementation of the csvwriter", () => {
     const fileContent = readFileContent(testFilePath);
 
     // Check that the file content has the correct headers and rows
-    expect(fileContent).toContain("lineNo,errorType,message");
-    expect(fileContent).toContain("1,InvalidLine,Invalid amount format");
-    expect(fileContent).toContain("2,MissingColumn,Missing required column");
+    expect(fileContent).toContain(
+      "lineNo,message,date,amount,description,currency"
+    );
+    expect(fileContent).toContain(
+      "1,Invalid amount format,2025-01-08,302,payment,cad"
+    );
+    expect(fileContent).toContain(
+      "2,Missing required column,2025-01-08,302,payment,cad"
+    );
     expect(result).toBeNull(); // Ensure no error was returned
   });
 
@@ -67,7 +83,14 @@ describe("Check the generic implementation of the csvwriter", () => {
     const writer = new FileCSVWriter(invalidFilePath);
 
     const rows = [
-      { lineNo: 1, errorType: "InvalidLine", message: "Invalid amount format" },
+      {
+        lineNo: 1,
+        message: "Invalid amount format",
+        date: "2025-01-08",
+        amount: "302",
+        description: "payment",
+        currency: "cad",
+      },
     ];
 
     // Try to write rows to the CSV file
@@ -118,19 +141,23 @@ describe("check the impl of csvwriter with parsecsv", () => {
     // Check that the file content has the correct headers and rows
 
     expect(fileContent).toContain(
-      "lineNo,errorType,message,date,amount,description,currency"
+      "lineNo,message,date,amount,description,currency"
     );
-    expect(fileContent).toContain("1,InvalidLine,Invalid amount format");
-    expect(fileContent).toContain("2,InvalidLine,Invalid amount format");
+    expect(fileContent).toContain(
+      "1,Invalid amount format: 3 -0 2,08/01/2025,3 -0 2,payment,cad"
+    );
+    expect(fileContent).toContain(
+      "2,Invalid amount format: 3 -0 2,08/01/2025,3 -0 2,payment,cad"
+    );
 
     expect(fileContent).toContain(
-      `4,RepeatedElementsFound,"Duplicate elements found in the following line numbers 4, 5, 6",10-01-2025,100,payment,cad`
+      `4,"Duplicate elements found in the following line numbers 4, 5, 6",10-01-2025,100,payment,cad`
     );
     expect(fileContent).toContain(
-      `5,RepeatedElementsFound,"Duplicate elements found in the following line numbers 4, 5, 6",10-01-2025,100,payment,cad`
+      `5,"Duplicate elements found in the following line numbers 4, 5, 6",10-01-2025,100,payment,cad`
     );
     expect(fileContent).toContain(
-      `6,RepeatedElementsFound,"Duplicate elements found in the following line numbers 4, 5, 6",10-01-2025,100,payment,cad`
+      `6,"Duplicate elements found in the following line numbers 4, 5, 6",10-01-2025,100,payment,cad`
     );
     expect(result.rows).toEqual({
       "3": {

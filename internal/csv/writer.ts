@@ -1,31 +1,41 @@
 import { createObjectCsvWriter } from "csv-writer";
-import { CSVWriter, IOError } from "./types";
+import { CSVWriter, ErrorRow, IOError } from "./types";
 
 export class FileCSVWriter implements CSVWriter {
   private filepath: string;
+  private headerWritten: boolean;
 
   constructor(filePath: string) {
     this.filepath = filePath;
+    this.headerWritten = false;
   }
 
-  async writeRows(rows: any[]): Promise<IOError | null> {
+  async writeRows(rows: ErrorRow[]): Promise<IOError | null> {
     try {
       if (rows.length === 0) {
         console.log("No data to write.");
         return null;
       }
 
-      // Use the first row's keys as the header for the CSV file
-      const headers = Object.keys(rows[0]).map((key) => ({
-        id: key,
-        title: key,
-      }));
+      const headers = {
+        lineNo: "lineNo",
+        message: "message",
+        date: "date",
+        amount: "amount",
+        description: "description",
+        currency: "currency",
+      };
 
       const csvWriter = createObjectCsvWriter({
         path: this.filepath,
-        header: headers,
+        header: Object.values(headers),
         append: true,
       });
+
+      if (!this.headerWritten) {
+        await csvWriter.writeRecords([headers]);
+        this.headerWritten = true;
+      }
 
       await csvWriter.writeRecords(rows);
       return null;

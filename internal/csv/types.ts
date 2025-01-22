@@ -7,7 +7,12 @@ export type IOError =
 
 export type CSVParseError =
   | { type: "InvalidLine"; lineNo: number; message: string }
-  | { type: "MultipleErrors"; message: string; lineNo: number; errors: CSVParseError[] }
+  | {
+      type: "MultipleErrors";
+      message: string;
+      lineNo: number;
+      errors: CSVParseError[];
+    }
   | { type: "UnknownError"; message: string };
 
 export type ValidationError =
@@ -33,6 +38,15 @@ export type CSVRow = {
   currency: string;
 };
 
+export type ErrorRow = {
+  lineNo: number;
+  message: string;
+  date: string;
+  amount: string | number;
+  description: string;
+  currency: string;
+};
+
 export type CSVWriter = {
-  writeRows: (rows: any[]) => Promise<IOError | null>;
+  writeRows: (rows: ErrorRow[]) => Promise<IOError | null>;
 };
