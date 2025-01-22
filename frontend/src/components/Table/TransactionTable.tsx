@@ -8,7 +8,6 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { CreateTransactionData, Transaction } from "@/models/transaction";
-import { EditableTransactionRow } from "./EditableTransactionRow";
 import { Button } from "../ui/button";
 import { TbPlus } from "react-icons/tb";
 import { ViewTransactionRow } from "./ViewTransactionRow";
@@ -20,22 +19,13 @@ import { AddTransactionDialog } from "../TransactionManagement/AddTransactionDia
 interface TransactionTableProps {
     transactions: Transaction[];
     pageState: PageState;
-    handleInputChange: (e: React.ChangeEvent<HTMLInputElement>, id: number) => void;
-    editingTransaction: Transaction | null;
-    onEditCancelClicked: () => void;
-    onEditClicked: (transaction: Transaction) => void;
-    onEditSaveClicked: (id: number) => void;
+    onEditSaveClicked: (transaction: Transaction) => void;
     onDeleteClicked: (id: number) => void;
     onCreateTransaction: (data: CreateTransactionData) => void;
 }
 
 export const TransactionTable = ({
     transactions,
-    pageState,
-    handleInputChange,
-    editingTransaction,
-    onEditCancelClicked,
-    onEditClicked,
     onEditSaveClicked,
     onDeleteClicked,
     onCreateTransaction,
@@ -44,9 +34,11 @@ export const TransactionTable = ({
         <Table>
             <TableHeader className="top-0 z-10 sticky mt-4 h-12">
                 <TableRow className="bg-gray-200 hover:bg-gray-200 rounded-lg text-left">
+                    <TableHead></TableHead>
                     <TableHead className="p-5"> Date </TableHead>
                     <TableHead> Description </TableHead>
-                    <TableHead > Amount </TableHead>
+                    <TableHead> Amount </TableHead>
+                    <TableHead > Currency </TableHead>
                     <TableHead className="p-4 text-center"> Amount (INR) </TableHead>
                     <TableHead>Actions </TableHead>
                 </TableRow>
@@ -54,23 +46,14 @@ export const TransactionTable = ({
             <TableBody>
                 <AddNewTransactionRow onCreateTransaction={onCreateTransaction} />
                 {transactions.map((transaction) =>
-                    pageState === PageState.Edit &&
-                        transaction.id === editingTransaction?.id ? (
-                        <EditableTransactionRow
-                            key={transaction.id}
-                            transaction={editingTransaction}
-                            onInputChange={handleInputChange}
-                            onSave={onEditSaveClicked}
-                            onCancel={onEditCancelClicked}
-                        />
-                    ) : (
-                        <ViewTransactionRow
-                            key={transaction.id}
-                            transaction={transaction}
-                            onEdit={() => onEditClicked(transaction)}
-                            onDelete={() => onDeleteClicked(transaction.id)}
-                        />
-                    )
+                (
+                    <ViewTransactionRow
+                        key={transaction.id}
+                        transaction={transaction}
+                        onEditSave={onEditSaveClicked}
+                        onDelete={() => onDeleteClicked(transaction.id)}
+                    />
+                )
                 )}
             </TableBody>
             {transactions.length > 20 && (

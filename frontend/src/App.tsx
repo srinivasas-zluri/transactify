@@ -23,19 +23,15 @@ const ApplicationPage = () => {
     pageState,
     progress,
     transactions,
-    handleInputChange,
-    editingTransaction,
     setPage,
     page,
     prev,
     next,
     uploadFile,
     onCreateTransaction,
-    onEditCancelClicked,
-    onEditClicked,
     onEditSaveClicked,
     onDeleteClicked,
-  } = useAppState({ toast });
+  } = useAppState();
 
   if (pageState === PageState.UploadingFile) {
     return <UploadingFile progress={progress} />
@@ -58,10 +54,6 @@ const ApplicationPage = () => {
       <TransactionTable
         pageState={pageState}
         transactions={transactions}
-        handleInputChange={handleInputChange}
-        editingTransaction={editingTransaction}
-        onEditCancelClicked={onEditCancelClicked}
-        onEditClicked={onEditClicked}
         onEditSaveClicked={onEditSaveClicked}
         onDeleteClicked={onDeleteClicked}
         onCreateTransaction={onCreateTransaction}
