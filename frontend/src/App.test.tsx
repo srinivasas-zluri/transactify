@@ -22,7 +22,7 @@ vi.mock('./hooks/useAppState', async () => {
 export const CreateTransactionDataFn = (idx: number): Transaction => {
   let randDesc: string;
   if (idx == 10) {
-    randDesc = Math.random().toString(120);
+    randDesc = "A".repeat(100);
   } else {
     randDesc = "";
   }
