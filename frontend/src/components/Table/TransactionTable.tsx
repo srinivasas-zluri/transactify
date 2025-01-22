@@ -8,79 +8,175 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { CreateTransactionData, Transaction } from "@/models/transaction";
-import { EditableTransactionRow } from "./EditableTransactionRow";
 import { Button } from "../ui/button";
-import { TbPlus } from "react-icons/tb";
+import { TbPlus, TbTrashXFilled } from "react-icons/tb";
 import { ViewTransactionRow } from "./ViewTransactionRow";
 import { DialogTitle } from "@radix-ui/react-dialog";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTrigger } from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTrigger } from "../ui/dialog";
 import { PageState } from "@/hooks/useAppState";
 import { AddTransactionDialog } from "../TransactionManagement/AddTransactionDialog";
+import { useState } from "react";
+import { Checkbox } from "../ui/checkbox";
+
 
 interface TransactionTableProps {
     transactions: Transaction[];
     pageState: PageState;
-    handleInputChange: (e: React.ChangeEvent<HTMLInputElement>, id: number) => void;
-    editingTransaction: Transaction | null;
-    onEditCancelClicked: () => void;
-    onEditClicked: (transaction: Transaction) => void;
-    onEditSaveClicked: (id: number) => void;
+    onEditSaveClicked: (transaction: Transaction) => void;
     onDeleteClicked: (id: number) => void;
+    onMultipleDeleteClicked: (ids: number[]) => void;
     onCreateTransaction: (data: CreateTransactionData) => void;
+    paginationComponent: JSX.Element;
 }
 
 export const TransactionTable = ({
     transactions,
-    pageState,
-    handleInputChange,
-    editingTransaction,
-    onEditCancelClicked,
-    onEditClicked,
     onEditSaveClicked,
     onDeleteClicked,
+    paginationComponent,
     onCreateTransaction,
-}: TransactionTableProps) => (
-    <>
-        <Table>
-            <TableHeader className="top-0 z-10 sticky mt-4 h-12">
-                <TableRow className="bg-gray-200 hover:bg-gray-200 rounded-lg text-left">
-                    <TableHead className="p-5"> Date </TableHead>
-                    <TableHead> Description </TableHead>
-                    <TableHead > Amount </TableHead>
-                    <TableHead className="p-4 text-center"> Amount (INR) </TableHead>
-                    <TableHead>Actions </TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                <AddNewTransactionRow onCreateTransaction={onCreateTransaction} />
-                {transactions.map((transaction) =>
-                    pageState === PageState.Edit &&
-                        transaction.id === editingTransaction?.id ? (
-                        <EditableTransactionRow
-                            key={transaction.id}
-                            transaction={editingTransaction}
-                            onInputChange={handleInputChange}
-                            onSave={onEditSaveClicked}
-                            onCancel={onEditCancelClicked}
-                        />
-                    ) : (
+    onMultipleDeleteClicked,
+}: TransactionTableProps) => {
+
+    const { selected, toggleCheckbox, toggleAllCheckbox } = useCheckboxes();
+
+
+    return (
+        <>
+            <div className="flex gap-4 p-4" >
+                <Dialog>
+                    <DialogTrigger disabled={selected.length === 0}>
+                        <div className="relative w-full h-full">
+                            <Button
+                                type="button"
+                                variant="destructive"
+                                className="border-2 disabled:bg-transparent border-red-500 border-dashed disabled:text-red-400 disabled:cursor-not-allowed"
+                                disabled={selected.length === 0}
+                            >
+                                <TbTrashXFilled className="text-red-900 scale-150" />
+                                Delete selected
+                            </Button>
+                            {/* Cross overlay when disabled */}
+                            {selected.length === 0 && (
+                                <>
+                                    <div className="absolute inset-0 pointer-events-none">
+                                        <div className="top-0 left-0 absolute border-t border-red-400 border-dashed w-full h-0.5 transform origin-left translate-y-1/2 rotate-12"></div>
+                                        <div className="top-0 right-0 absolute border-t border-red-400 border-dashed w-full h-0.5 transform origin-right translate-y-1/2 -rotate-12"></div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                    </DialogTrigger>
+                    <DialogContent className="bg-background shadow-xl p-4 sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Delete selected transactions</DialogTitle>
+                            <DialogDescription>
+                                Are you sure you want to delete the selected transactions?
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                            <Button
+                                className="bg-red-500 text-white"
+                                onClick={() => onMultipleDeleteClicked(selected)}
+                            >
+                                Delete
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+
+                <Dialog>
+                    <DialogTrigger className="">
+                        <Button className="flex justify-center items-center border-4 border-slate-300 bg-background hover:bg-background shadow-none border-dotted w-full hover:text-black-300">
+                            <TbPlus className="text-slate-400 scale-150" />
+                            <p className="text-md text-secondary-foreground text-slate-400">
+                                Add a new transaction
+                            </p>
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-background shadow-xl">
+                        <DialogHeader>
+                            <DialogTitle>Add a new transaction</DialogTitle>
+                            <DialogDescription>
+                                Enter the transaction you want to add
+                            </DialogDescription>
+                        </DialogHeader>
+                        <AddTransactionDialog onSubmit={onCreateTransaction} />
+                    </DialogContent>
+                </Dialog>
+
+                <div className="flex justify-end w-full">
+                    <div>
+                        {paginationComponent}
+                    </div>
+                </div>
+            </div>
+
+            <Table>
+                <TableHeader className="top-0 z-10 sticky mt-4 h-12">
+                    <TableRow className="bg-gray-200 hover:bg-gray-200 rounded-lg text-left">
+                        <TableHead className="p-4">
+                            <Checkbox
+                                checked={selected.length === transactions.length}
+                                onCheckedChange={() => toggleAllCheckbox(transactions.map((t) => t.id))}
+                            />
+                        </TableHead>
+                        <TableHead className="p-5"> Date </TableHead>
+                        <TableHead> Description </TableHead>
+                        <TableHead> Amount </TableHead>
+                        <TableHead > Currency </TableHead>
+                        <TableHead className="p-4 text-center"> Amount (INR) </TableHead>
+                        <TableHead>Actions </TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    <AddNewTransactionRow onCreateTransaction={onCreateTransaction} />
+                    {transactions.map((transaction) =>
+                    (
                         <ViewTransactionRow
                             key={transaction.id}
                             transaction={transaction}
-                            onEdit={() => onEditClicked(transaction)}
+                            onEditSave={onEditSaveClicked}
                             onDelete={() => onDeleteClicked(transaction.id)}
+                            onCheckboxChange={() => toggleCheckbox(transaction.id)}
+                            selected={selected.includes(transaction.id)}
                         />
                     )
+                    )}
+                </TableBody>
+                {transactions.length > 20 && (
+                    <TableFooter>
+                        <AddNewTransactionRow onCreateTransaction={onCreateTransaction} />
+                    </TableFooter>
                 )}
-            </TableBody>
-            {transactions.length > 20 && (
-                <TableFooter>
-                    <AddNewTransactionRow onCreateTransaction={onCreateTransaction} />
-                </TableFooter>
-            )}
-        </Table>
-    </>
-);
+            </Table>
+        </>
+    )
+};
+
+function useCheckboxes() {
+    const [selected, setSelected] = useState<number[]>([]);
+
+    function toggleCheckbox(id: number) {
+        if (selected.includes(id)) {
+            setSelected(selected.filter((s) => s !== id));
+        } else {
+            setSelected([...selected, id]);
+        }
+    }
+
+    function toggleAllCheckbox(ids: number[]): void {
+        if (selected.length === ids.length) {
+            setSelected([]);
+        } else {
+            setSelected(ids);
+        }
+    }
+
+    return { selected, toggleCheckbox, toggleAllCheckbox };
+}
 
 function AddNewTransactionRow({ onCreateTransaction }: { onCreateTransaction: (data: CreateTransactionData) => void }) {
     return <TableRow>

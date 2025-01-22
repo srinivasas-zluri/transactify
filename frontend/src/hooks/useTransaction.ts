@@ -61,12 +61,12 @@ export const useTransactions = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (ids: number[]) => {
     try {
-      await axios.delete(routes.transactions.delete({ id }));
+      await axios.delete(routes.transactions.delete, { data: { ids } });
       toast.success("Transaction deleted!");
       setTransactions((prev) =>
-        prev.filter((transaction) => transaction.id !== id)
+        prev.filter((transaction) => !ids.includes(transaction.id))
       );
     } catch (error) {
       toast.error("Failed to delete transaction");

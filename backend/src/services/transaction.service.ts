@@ -175,15 +175,11 @@ export class TransactionService {
   }
 
   //   // delete multiple transactions
-  //   async deleteTransactions(ids: number[]) {
-  //     const em = this.em;
-  //     const transactions = await em.find(Transaction, { id: { $in: ids } });
-  //     if (!transactions) {
-  //       return null;
-  //     }
-  //     await em.removeAndFlush(transactions);
-  //     return transactions;
-  //   }
+    async deleteTransactions(ids: number[]) {
+      const em = this.em.fork();
+      const deleted = await em.nativeDelete(Transaction, { id: { $in: ids } });
+      return deleted;
+    }
 }
 
 function cleanString(value: string | undefined | null) {

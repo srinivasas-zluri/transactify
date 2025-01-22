@@ -3,6 +3,7 @@ import { useState } from "react";
 import { DialogFooter } from "../ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { validateTransaction } from "../validators/validateTransaction";
 
 
 interface TransactionErrors {
@@ -27,30 +28,8 @@ export function AddTransactionDialog({
     const [errors, setErrors] = useState<TransactionErrors>({});
 
     function submitDataFn(data: CreateTransactionData) {
-        console.log({ data });
-        const errors: { [key: string]: string } = {};
-        if (!data.date.match(/\d{2}-\d{2}-\d{4}/)) {
-            errors.date = "Invalid date format";
-        }
-
-        if (data.description.length > 254) {
-            errors.description = "Description is too long";
-        }
-
-        if (data.description.length < 5) {
-            errors.description = "Description is too short";
-        }
-
-        if (data.currency === "") {
-            errors.currency = "Currency is required";
-        }
-
-        if (data.amount == 0) {
-            errors.amount = "Amount is required, and can't be 0";
-        }
-
-        // check if there are errors
-        if (Object.keys(errors).length > 0) {
+        const errors = validateTransaction(data);
+        if (errors) {
             setErrors(errors);
             return;
         }

@@ -23,19 +23,16 @@ const ApplicationPage = () => {
     pageState,
     progress,
     transactions,
-    handleInputChange,
-    editingTransaction,
     setPage,
     page,
     prev,
     next,
     uploadFile,
     onCreateTransaction,
-    onEditCancelClicked,
-    onEditClicked,
     onEditSaveClicked,
     onDeleteClicked,
-  } = useAppState({ toast });
+    onMultipleDeleteClicked,
+  } = useAppState();
 
   if (pageState === PageState.UploadingFile) {
     return <UploadingFile progress={progress} />
@@ -44,7 +41,6 @@ const ApplicationPage = () => {
   if (pageState === PageState.Loading) {
     return <TransactionManagementLoadingPage />;
   }
-  console.log({transactions, prev,  next})
 
   const isDataNull = transactions.length === 0 && prev.page === null && next.page === null;
 
@@ -53,18 +49,15 @@ const ApplicationPage = () => {
       <h1 className="mb-8 font-semibold text-4xl text-center text-gray-800">Transaction Management</h1>
       <UploadFile onUpload={uploadFile} toast={toast} />
 
-      {(!isDataNull) && <PaginationComponent page={page} prev={prev} next={next} setPage={setPage} />}
       <span className="p-10" />
       <TransactionTable
+        onMultipleDeleteClicked={onMultipleDeleteClicked}
         pageState={pageState}
         transactions={transactions}
-        handleInputChange={handleInputChange}
-        editingTransaction={editingTransaction}
-        onEditCancelClicked={onEditCancelClicked}
-        onEditClicked={onEditClicked}
         onEditSaveClicked={onEditSaveClicked}
         onDeleteClicked={onDeleteClicked}
         onCreateTransaction={onCreateTransaction}
+        paginationComponent={<PaginationComponent page={page} prev={prev} next={next} setPage={setPage} />}
       />
 
       <span className="p-10" />

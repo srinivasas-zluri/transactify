@@ -36,8 +36,9 @@ export default function createTransactionRouter(db: DBServices) {
     transactionController.updateTransaction.bind(transactionController)
   );
   transactionRouter.delete(
-    "/:id",
-    transactionController.deleteTransaction.bind(transactionController)
+    "/",
+    upload.single("file"),
+    transactionController.deleteTransactions.bind(transactionController)
   );
 
   return transactionRouter;
