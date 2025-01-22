@@ -69,10 +69,6 @@ export class TransactionController {
       res.status(201).json(transaction);
       return;
     } catch (error) {
-      if (error instanceof TransactionParseError) {
-        res.status(400).json({ message: error.message });
-        return;
-      }
 
       if (error instanceof UniqueConstraintViolationException) {
         res.status(409).json({ message: "Transaction already exists" });
@@ -255,6 +251,7 @@ export class TransactionController {
     try {
       const { id } = req.params;
       const transactionData = req.body as Transaction;
+      console.log({transactionData})
       const updatedTransaction =
         await this.transactionService.updateTransaction(
           Number(id),
