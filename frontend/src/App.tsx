@@ -31,6 +31,7 @@ const ApplicationPage = () => {
     onCreateTransaction,
     onEditSaveClicked,
     onDeleteClicked,
+    onMultipleDeleteClicked,
   } = useAppState();
 
   if (pageState === PageState.UploadingFile) {
@@ -51,11 +52,13 @@ const ApplicationPage = () => {
       {(!isDataNull) && <PaginationComponent page={page} prev={prev} next={next} setPage={setPage} />}
       <span className="p-10" />
       <TransactionTable
+        onMultipleDeleteClicked={onMultipleDeleteClicked}
         pageState={pageState}
         transactions={transactions}
         onEditSaveClicked={onEditSaveClicked}
         onDeleteClicked={onDeleteClicked}
         onCreateTransaction={onCreateTransaction}
+        paginationComponent={<PaginationComponent page={page} prev={prev} next={next} setPage={setPage} />}
       />
 
       <span className="p-10" />

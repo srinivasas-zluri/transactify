@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table";
 import { CreateTransactionData, Transaction } from "@/models/transaction";
 import { Button } from "../ui/button";
-import { TbPlus } from "react-icons/tb";
+import { TbPlus, TbTrashXFilled } from "react-icons/tb";
 import { ViewTransactionRow } from "./ViewTransactionRow";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTrigger } from "../ui/dialog";
@@ -26,12 +26,14 @@ interface TransactionTableProps {
     onDeleteClicked: (id: number) => void;
     onMultipleDeleteClicked: (ids: number[]) => void;
     onCreateTransaction: (data: CreateTransactionData) => void;
+    paginationComponent: JSX.Element;
 }
 
 export const TransactionTable = ({
     transactions,
     onEditSaveClicked,
     onDeleteClicked,
+    paginationComponent,
     onCreateTransaction,
     onMultipleDeleteClicked,
 }: TransactionTableProps) => {
