@@ -47,13 +47,6 @@ export function UploadFile({ onUpload, toast }: UploadFileProps) {
                             />
                         </>
                     }
-                    {(file != null) && <>
-                        <TbFileSpreadsheet className='p-5 text-slate-800 size-28' />
-                        <span className="mt-2 px-5 pb-2 text-slate-600">
-                            {file.name}
-                        </span>
-                    </>}
-
                 </label>
             </div>
         </div>
