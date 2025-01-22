@@ -33,7 +33,7 @@ const config: Config = {
   // ],
 
   // Indicates which provider should be used to instrument code for coverage
-  coverageProvider: "v8",
+  coverageProvider: "babel",
 
   // A list of reporter names that Jest uses when writing coverage reports
   // coverageReporters: [
@@ -108,7 +108,7 @@ const config: Config = {
   // projects: undefined,
 
   // Use this configuration option to add custom reporters to Jest
-  // reporters: undefined,
+  reporters: [["summary", { summaryThreshold: 10 }],],
 
   // Automatically reset mock state before every test
   // resetMocks: false,
@@ -216,9 +216,10 @@ config.projects = [
       "~/internal/(.*)": "<rootDir>/internal/$1", // Resolves '~' to the internal folder
       "~/(.*)": "<rootDir>/backend/src/$1", // Resolves '~' to the backend folder
     },
+    // reporters: [['summary', {summaryThreshold: 10}]],
     moduleFileExtensions: ["ts", "js"],
     modulePathIgnorePatterns: ["<rootDir>/dist/"],
-    coveragePathIgnorePatterns: ["/node_modules/", "/dist/", "<rootDir>/internal/"],
+    coveragePathIgnorePatterns: ["/node_modules/", "/dist/", "<rootDir>/internal/" ],
     collectCoverageFrom: ["<rootDir>/backend/src/*.ts"],
     coverageDirectory: "<rootDir>/backend/coverage",
   },

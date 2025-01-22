@@ -44,12 +44,6 @@ export function convertCurrency(
   }
 
   // check if the from currency is present in the currency data
-  if (!currencyData[date][from.toUpperCase()]) {
-    return {
-      amount: null,
-      err: `No conversion rates found for ${from} on ${date}`,
-    };
-  }
   const rate = currencyData[date][from.toUpperCase()];
   if (!rate) {
     return {
