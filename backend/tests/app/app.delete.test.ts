@@ -6,7 +6,7 @@ import { DBServices } from "~/db";
 import { TransactionService } from "~/services/transaction.service";
 import { Transaction } from "~/models/transaction";
 
-describe("get paginated requests", () => {
+describe("DELETE", () => {
   let server: http.Server;
   beforeAll(async () => {
     await startApp(testDBConfig);
@@ -34,16 +34,12 @@ describe("get paginated requests", () => {
     // reset mocks
     jest.resetAllMocks();
   });
-  // delete route
-  it("should return 404 if transaction is not found", async () => {
-    const deleteResponse = await request(app).delete(`/api/v1/transaction/404`);
-    expect(deleteResponse.status).toBe(404);
-  });
 
   it("should delete a transaction", async () => {
     const file = Buffer.from(`date,amount,description,currency
       08-01-2024,100,payment,cad
       09-01-2024,200,purchase,usd
+      10-01-2024,200,purchase,usd
       `);
     const response = await request(app)
       .post("/api/v1/transaction/upload")
@@ -57,21 +53,37 @@ describe("get paginated requests", () => {
 
     const transactions = await request(app).get("/api/v1/transaction");
     const transactionId = transactions.body.transactions[0].id;
+    const tnx2Id = transactions.body.transactions[1].id;
 
-    const deleteResponse = await request(app).delete(
-      `/api/v1/transaction/${transactionId}`
-    );
+    const deleteResponse = await request(app)
+      .delete(`/api/v1/transaction/`)
+      .send({ ids: [transactionId, tnx2Id] });
+
+    const getResponse = await request(app).get("/api/v1/transaction");
+    expect(getResponse.body.transactions.length).toBe(1);
+
     expect(deleteResponse.status).toBe(200);
   });
 
   it("should return 500 if there is an error", async () => {
     // mock the updateTransaction method to throw an error
     jest
-      .spyOn(TransactionService.prototype, "deleteTransaction")
+      .spyOn(TransactionService.prototype, "deleteTransactions")
       .mockImplementation(() => {
         throw new Error("Error");
       });
-    const response = await request(app).delete(`/api/v1/transaction/500`);
+    const response = await request(app)
+      .delete(`/api/v1/transaction`)
+      .send({
+        ids: [1, 2],
+      });
     expect(response.status).toBe(500);
+  });
+
+  it("should return 400 if ids are not provided", async () => {
+    const response = await request(app)
+      .delete(`/api/v1/transaction`)
+      .send({});
+    expect(response.status).toBe(400);
   });
 });

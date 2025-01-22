@@ -69,7 +69,6 @@ export class TransactionController {
       res.status(201).json(transaction);
       return;
     } catch (error) {
-
       if (error instanceof UniqueConstraintViolationException) {
         res.status(409).json({ message: "Transaction already exists" });
         return;
@@ -97,7 +96,7 @@ export class TransactionController {
     }
     try {
       // take the file path add -errors to it
-      const errorWriterFile = req.file.path.split(".csv")[0] + "-errors.csv" ;
+      const errorWriterFile = req.file.path.split(".csv")[0] + "-errors.csv";
 
       // Get the directory of the file
       const dir = path.dirname(errorWriterFile);
@@ -248,7 +247,7 @@ export class TransactionController {
     try {
       const { id } = req.params;
       const transactionData = req.body as Transaction;
-      console.log({transactionData})
+      console.log({ transactionData });
       const updatedTransaction =
         await this.transactionService.updateTransaction(
           Number(id),
@@ -281,37 +280,25 @@ export class TransactionController {
     }
   }
 
-  // Delete a transaction by ID
-  async deleteTransaction(req: Request, res: Response): Promise<void> {
+  // Delete multiple transactions (if needed)
+  async deleteTransactions(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
-      const deletedTransaction =
-        await this.transactionService.deleteTransaction(Number(id));
-      if (!deletedTransaction) {
-        res.status(404).json({ message: "Transaction not found" });
+      const { ids } = req.body; // expects an array of IDs
+      console.log({ids})
+      if (!Array.isArray(ids) || ids.length === 0) {
+        res.status(400).json({ message: "Invalid or missing 'ids' array" });
         return;
       }
-      res.status(200).json(deletedTransaction);
+      const deletedTransactions =
+        await this.transactionService.deleteTransactions(ids);
+      res.status(200).json(deletedTransactions);
+      return;
     } catch (error) {
-      console.error("Error deleting transaction:", error);
-      res.status(500).json({ message: "Failed to delete transaction" });
+      console.error("Error deleting transactions:", error);
+      res.status(500).json({ message: "Failed to delete transactions" });
+      return;
     }
   }
-
-  // Delete multiple transactions (if needed)
-  // async deleteTransactions(req: Request, res: Response) {
-  //   try {
-  //     const { ids } = req.body; // expects an array of IDs
-  //     const deletedTransactions = await this.transactionService.deleteTransactions(ids);
-  //     if (!deletedTransactions || deletedTransactions.length === 0) {
-  //       return res.status(404).json({ message: "Transactions not found" });
-  //     }
-  //     return res.status(200).json(deletedTransactions);
-  //   } catch (error) {
-  //     console.error("Error deleting transactions:", error);
-  //     return res.status(500).json({ message: "Failed to delete transactions" });
-  //   }
-  // }
 }
 
 interface TransactionData {
