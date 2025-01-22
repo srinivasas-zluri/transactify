@@ -1,12 +1,12 @@
 const mergeRoutes = (url1: string, url2: string) => {
-  const res =  url1.replace(/\/+$/, "") + "/" + url2.replace(/^\/+/, "");
+  const res = url1.replace(/\/+$/, "") + "/" + url2.replace(/^\/+/, "");
   res.replace(/\/+$/, "");
   console.log({ url: res });
   return res;
 };
 
-// read the root url from env 
-const rootURL =  import.meta.env.VITE_API_ROOT_URL;
+// read the root url from env
+const rootURL = import.meta.env.VITE_API_ROOT_URL;
 if (!rootURL) {
   throw new Error("API_ROOT_URL is not defined");
 }
@@ -21,7 +21,7 @@ export const routes = {
     fetch: ({ page }: { page: number }) =>
       mergeRoutes(transactionsURL, `?page=${page}&limit=50`),
     create: mergeRoutes(transactionsURL, "/"),
-    delete: ({ id }: { id: number }) => mergeRoutes(transactionsURL, `/${id}`),
+    delete: mergeRoutes(transactionsURL, "/"),
     update: ({ id }: { id: number }) => mergeRoutes(transactionsURL, `/${id}`),
   },
 };

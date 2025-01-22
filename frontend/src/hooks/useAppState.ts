@@ -33,7 +33,7 @@ export function useAppState() {
 
   async function onDeleteClicked(id: number) {
     setPageState(PageState.Loading);
-    await handleDelete(id);
+    await handleDelete([id]);
     setPageState(PageState.View);
   }
 
