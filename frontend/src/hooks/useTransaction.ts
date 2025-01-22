@@ -49,10 +49,9 @@ export const useTransactions = () => {
         console.error(error);
         return;
       }
-      const { response, status } = error;
+      const { status } = error;
       if (status === 400) {
         toast.error("Invalid data");
-        console.error(response?.data);
       } else if (status === 409) {
         toast.error("Transaction already exists");
       } else {
@@ -78,6 +77,7 @@ export const useTransactions = () => {
   const handleUpdate = async (transaction: Transaction) => {
     const id = transaction.id;
     const prevTransaction = transactions.find((t) => t.id === id);
+    console.log({ id, prevTransaction, transactions });
     if (prevTransaction === undefined) {
       console.error(
         "Transaction not found this shouldn't happen check your code"

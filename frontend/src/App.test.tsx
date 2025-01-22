@@ -126,6 +126,10 @@ describe('App Component', () => {
     const inputLen = screen.getAllByRole('textbox').length;
 
     expect(inputLen).toEqual(3);
+
+    // click the show more button 
+    screen.getByText(/Show More/i).click();
+
   });
 
 });
