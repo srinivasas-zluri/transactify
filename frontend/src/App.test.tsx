@@ -115,7 +115,7 @@ describe('App Component', () => {
   it('should show the edit view', () => {
     mockUseAppState.mockReturnValue(defaultAppState && {
       pageState: UseAppState.PageState.Edit,
-      transactions: (new Array(10)).fill(0).map((_, idx) => CreateTransactionDataFn(idx)),
+      transactions: (new Array(30)).fill(0).map((_, idx) => CreateTransactionDataFn(idx)),
       prev: { page: 1 },
       next: { page: 2 },
       editingTransaction: CreateTransactionDataFn(1),
