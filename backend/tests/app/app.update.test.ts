@@ -32,6 +32,10 @@ describe("check the update request", () => {
   beforeEach(async () => {
     // reset mocks
     jest.resetAllMocks();
+
+    // refersh the db
+    const db: DBServices = await app.get("db");
+    await db.em.nativeDelete(Transaction, {});
   });
 
   // check a valid update
@@ -66,6 +70,36 @@ describe("check the update request", () => {
       .put(`/api/v1/transaction/1`)
       .send({ amount: 200 });
     expect(updateResponse.status).toBe(404);
+  });
+
+  it("should return 409 if there is a UniqueConstraintViolationException", async () => { 
+    // don't mock just send the data 
+    const file = Buffer.from(`date,amount,description,currency
+      08-01-2024,100,payment,cad
+      09-01-2024,200,purchase,usd
+      `);
+    
+    const response = await request(app)
+      .post("/api/v1/transaction/upload")
+      .attach("file", file, "test-file.csv");
+    
+    expect(response.status).toBe(201);
+
+    const transactions = await request(app).get("/api/v1/transaction");
+    const transaction1 = transactions.body.transactions[0];
+    const transaction2 = transactions.body.transactions[1];
+
+    console.log({tnxs: transactions.body.transactions})
+
+    // send the update request again 
+    const updateResponse = await request(app)
+      .put(`/api/v1/transaction/${transaction2.id}`)
+      .send({ 
+        transaction_date_string: transaction1.transaction_date_string,
+        description: transaction1.description,
+       });
+
+    expect(updateResponse.status).toBe(409);
   });
 
   it("should return 500 if there is an error", async () => {
