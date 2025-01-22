@@ -46,17 +46,27 @@ export const TransactionTable = ({
             <div className="flex gap-4 p-4" >
                 <Dialog>
                     <DialogTrigger disabled={selected.length === 0}>
-                        <Button
-                            // className="flex justify-center items-center border-4 border-slate-300 bg-background hover:bg-background shadow-none border-dotted w-full h-12 hover:text-black-300"
-                            type="button"
-                            variant="destructive"
-                            className="border-2 disabled:bg-transparent border-red-500 border-dashed disabled:text-red-400 disabled:cursor-not-allowed"
-                            disabled={selected.length === 0}
-                        >
-                            {/* put the trash icon */}
-                            < TbTrashXFilled className="text-red-900 scale-150" />
-                            Delete selected
-                        </Button>
+                        <div className="relative w-full h-full">
+                            <Button
+                                type="button"
+                                variant="destructive"
+                                className="border-2 disabled:bg-transparent border-red-500 border-dashed disabled:text-red-400 disabled:cursor-not-allowed"
+                                disabled={selected.length === 0}
+                            >
+                                <TbTrashXFilled className="text-red-900 scale-150" />
+                                Delete selected
+                            </Button>
+                            {/* Cross overlay when disabled */}
+                            {selected.length === 0 && (
+                                <>
+                                    <div className="absolute inset-0 pointer-events-none">
+                                        <div className="top-0 left-0 absolute border-t border-red-400 border-dashed w-full h-0.5 transform origin-left translate-y-1/2 rotate-12"></div>
+                                        <div className="top-0 right-0 absolute border-t border-red-400 border-dashed w-full h-0.5 transform origin-right translate-y-1/2 -rotate-12"></div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
                     </DialogTrigger>
                     <DialogContent className="bg-background shadow-xl p-4 sm:max-w-[425px]">
                         <DialogHeader>

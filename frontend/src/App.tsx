@@ -49,7 +49,6 @@ const ApplicationPage = () => {
       <h1 className="mb-8 font-semibold text-4xl text-center text-gray-800">Transaction Management</h1>
       <UploadFile onUpload={uploadFile} toast={toast} />
 
-      {(!isDataNull) && <PaginationComponent page={page} prev={prev} next={next} setPage={setPage} />}
       <span className="p-10" />
       <TransactionTable
         onMultipleDeleteClicked={onMultipleDeleteClicked}

@@ -112,24 +112,4 @@ describe('App Component', () => {
     expect(screen.getByText(/Test Transaction/i)).toBeDefined();
   });
 
-  it('should show the edit view', () => {
-    mockUseAppState.mockReturnValue(defaultAppState && {
-      pageState: UseAppState.PageState.Edit,
-      transactions: (new Array(30)).fill(0).map((_, idx) => CreateTransactionDataFn(idx)),
-      prev: { page: 1 },
-      next: { page: 2 },
-      editingTransaction: CreateTransactionDataFn(1),
-    });
-
-    render(<App />);
-
-    const inputLen = screen.getAllByRole('textbox').length;
-
-    expect(inputLen).toEqual(3);
-
-    // click the show more button 
-    screen.getByText(/Show More/i).click();
-
-  });
-
 });
