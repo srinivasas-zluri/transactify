@@ -57,7 +57,7 @@ export function ViewTransactionRow({
                         </DialogContent>
                     </Dialog>
 
-                   <DeleteButtonWithPopupDialog onDelete={onDelete} /> 
+                    <DeleteButtonWithPopupDialog onDelete={onDelete} />
                 </div>
             </TableCell>
         </TableRow>
@@ -111,7 +111,7 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({ transacti
 
     return (
         <form className="" onSubmit={handleSubmit(onSubmit)}>
-            <div className="gap-x-4 gap-y-2 grid grid-cols-4 p-4">
+            <div className="items-center gap-x-4 gap-y-2 grid grid-cols-4 p-2">
                 <label htmlFor="date" className="text-right">
                     Date
                 </label>
@@ -129,7 +129,7 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({ transacti
                 )}
             </div>
 
-            <div className="gap-x-4 gap-y-2 grid grid-cols-4 p-4">
+            <div className="items-center gap-x-4 gap-y-2 grid grid-cols-4 p-2">
                 <label htmlFor="description" className="text-right">
                     Description
                 </label>
@@ -147,7 +147,7 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({ transacti
             </div>
 
 
-            <div className="gap-x-4 gap-y-2 grid grid-cols-4 p-2">
+            <div className="items-center gap-x-4 gap-y-2 grid grid-cols-4 p-2">
                 <label htmlFor="amount" className="text-right">
                     Amount
                 </label>
@@ -164,7 +164,7 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({ transacti
                 )}
             </div>
 
-            <div className="gap-x-4 gap-y-2 grid grid-cols-4 p-2">
+            <div className="items-center gap-x-4 gap-y-2 grid grid-cols-4 p-2">
                 <label htmlFor="currency" className="text-right">
                     Currency
                 </label>
