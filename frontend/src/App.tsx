@@ -40,7 +40,6 @@ const ApplicationPage = () => {
   if (pageState === PageState.Loading) {
     return <TransactionManagementLoadingPage />;
   }
-  console.log({transactions, prev,  next})
 
   const isDataNull = transactions.length === 0 && prev.page === null && next.page === null;
 

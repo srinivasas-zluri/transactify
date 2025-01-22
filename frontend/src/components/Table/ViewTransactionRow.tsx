@@ -8,21 +8,26 @@ import { SubmitHandler, useForm } from 'react-hook-form'
 import { Input } from "@/components/ui/input";
 import { validateTransaction } from "../validators/validateTransaction";
 import { DialogClose, DialogTitle } from "@radix-ui/react-dialog";
+import { Checkbox } from "../ui/checkbox";
 
 export function ViewTransactionRow({
     transaction,
     onEditSave,
     onDelete,
+    onCheckboxChange,
+    selected,
 }: {
     transaction: Transaction;
     onEditSave: (transaction: Transaction) => void;
     onDelete: () => void;
+    onCheckboxChange: (transactionId: number, isSelected: boolean ) => void;
+    selected: boolean;
 }) {
     return (
         <TableRow key={transaction.id}>
             {/* add a checkbox */}
             <TableCell className="px-4 py-2">
-                <input type="checkbox" onChange={() => { }} />
+                <Checkbox checked={selected} onCheckedChange={ (e) => onCheckboxChange(transaction.id, e as boolean)}/> 
             </TableCell>
             <TableCell className="px-4 py-2 min-w-28">
                 {" "}

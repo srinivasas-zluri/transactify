@@ -37,6 +37,13 @@ export function useAppState() {
     setPageState(PageState.View);
   }
 
+  async function onMultipleDeleteClicked(ids: number[]) {
+    setPageState(PageState.Loading);
+    await handleDelete(ids);
+    await fetchTransactions(page);
+    setPageState(PageState.View);
+  }
+
   async function onEditSaveClicked(transaction: Transaction) {
     await handleUpdate(transaction);
     setPageState(PageState.View);
@@ -75,6 +82,7 @@ export function useAppState() {
     pageState,
     onCreateTransaction,
     onDeleteClicked,
+    onMultipleDeleteClicked,
     onEditSaveClicked,
     prev,
     next,
