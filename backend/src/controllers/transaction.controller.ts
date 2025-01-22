@@ -69,10 +69,6 @@ export class TransactionController {
       res.status(201).json(transaction);
       return;
     } catch (error) {
-      if (error instanceof TransactionParseError) {
-        res.status(400).json({ message: error.message });
-        return;
-      }
 
       if (error instanceof UniqueConstraintViolationException) {
         res.status(409).json({ message: "Transaction already exists" });
@@ -106,16 +102,12 @@ export class TransactionController {
       // Get the directory of the file
       const dir = path.dirname(errorWriterFile);
 
-      // Check if the directory exists, if not, create it
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-
       const CSVWriter = new FileCSVWriter(errorWriterFile);
       const { rows, parsingErrors, validationErrors } = await parseCSV(
         req.file.path,
         { errorFileWriter: CSVWriter }
       );
+      let conversionErrors = 0;
       Object.entries(rows).forEach(([lineNo, tnx]) => {
         const splitDate = tnx.transaction_date_string.split("-");
         const { amount, err } = convertCurrency({
@@ -128,6 +120,7 @@ export class TransactionController {
         if (err != null) {
           // reommve the line
           delete rows[Number(lineNo)];
+          conversionErrors++;
           // write the errors
           CSVWriter.writeRows([
             {
@@ -149,7 +142,7 @@ export class TransactionController {
 
       const numErrors =
         parsingErrors.length + Object.keys(validationErrors).length;
-      if (numErrors == 0 && duplicates.length == 0) {
+      if (numErrors == 0 && duplicates.length == 0 && conversionErrors == 0) {
         res.status(201).json({
           message: "All transactions created successfully",
         });
@@ -255,6 +248,7 @@ export class TransactionController {
     try {
       const { id } = req.params;
       const transactionData = req.body as Transaction;
+      console.log({transactionData})
       const updatedTransaction =
         await this.transactionService.updateTransaction(
           Number(id),

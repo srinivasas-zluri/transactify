@@ -33,6 +33,10 @@ describe("testing single create route", () => {
   beforeEach(async () => {
     // reset mocks
     jest.resetAllMocks();
+
+    // refresh the db 
+    const db: DBServices = await app.get("db");
+    await db.em.nativeDelete(Transaction, {});
   });
 
   it("should create a transaction", async () => {
@@ -82,6 +86,26 @@ describe("testing single create route", () => {
 
     expect(response.status).toBe(400);
     expect(response.body.message).toBe("Invalid amount format: not-a-number");
+  });
+
+  // should return 409 if the transaction already exists
+  it("should return 409 if the transaction already exists", async () => {
+    const validData = {
+      date: "08-01-2024",
+      amount: 100,
+      description: "payment",
+      currency: "CAD",
+    };
+
+    const response1 = await request(app).post("/api/v1/transaction/").send(validData);
+    expect(response1.status).toBe(201);
+
+    const response = await request(app)
+      .post("/api/v1/transaction/")
+      .send(validData);
+
+    expect(response.status).toBe(409);
+    expect(response.body.message).toBe("Transaction already exists");
   });
 
   it("should return 500 if there is a generic server error", async () => {

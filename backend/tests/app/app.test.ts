@@ -56,6 +56,19 @@ describe("API Routes testing", () => {
     // You can also add more checks to ensure the transactions have been saved in the DB
   });
 
+
+  it("should return a file with invalid curreies", async () => {
+    const file = Buffer.from(`date,amount,description,currency
+      08-01-2024,100,payment,mywish
+      09-01-2024,200,purchase,invalid-currency
+      `);
+    const response = await request(app)
+      .post("/api/v1/transaction/upload")
+      .attach("file", file, "test-file.csv");
+
+    expect(response.status).toBe(200);
+  });
+
   // write duplicates
   it("should upload a file and create transactions with duplicates", async () => {
     const file = Buffer.from(`date,amount,description,currency
