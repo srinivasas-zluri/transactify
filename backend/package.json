@@ -17,6 +17,7 @@
     "@mikro-orm/core": "^6.4.2",
     "@mikro-orm/postgresql": "^6.4.2",
     "backend": "file:",
+    "cors": "^2.8.5",
     "csv-parser": "^3.1.0",
     "csv-writer": "^1.6.0",
     "express": "^4.21.2",
@@ -25,6 +26,7 @@
   "devDependencies": {
     "@mikro-orm/cli": "^6.4.2",
     "@mikro-orm/migrations": "^6.4.2",
+    "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/multer": "^1.4.12",
     "tsc-alias": "^1.8.10",

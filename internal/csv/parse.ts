@@ -1,6 +1,89 @@
 import { Transaction } from "~/models/transaction";
 import { CSVParseError, CSVRow } from "./types";
 
+interface CleanedRow {
+  date: Date | null;
+  date_string: string;
+  amount: number | null;
+  description: string;
+  currency: string;
+}
+
+export function cleanRow(row: CSVRow): CleanedRow {
+  const trimExtraSpaces = (x: string) => x.trim().replace(/\s+/g, " ");
+  return {
+    date: parseDate(cleanSpaces(row.date)),
+    date_string: cleanSpaces(row.date),
+    amount: parseAmount(cleanSpaces(row.amount.toString())),
+    description: trimExtraSpaces(row.description.trim()).toLowerCase(),
+    currency: cleanSpaces(row.currency.trim()).toUpperCase(),
+  };
+}
+
+export function validateRow(
+  row: CleanedRow,
+  originalRow: CSVRow,
+  lineNo: number
+): CSVParseError[] {
+  const errors: CSVParseError[] = [];
+
+  const date = row.date;
+  if (date === null) {
+    errors.push({
+      type: "InvalidLine",
+      message: `Invalid date format(DD-MM-YYYY): ${originalRow.date}`,
+      lineNo,
+    });
+  }
+
+  const amount = row.amount;
+  if (amount === null) {
+    errors.push({
+      type: "InvalidLine",
+      message: `Invalid amount format: ${originalRow.amount}`,
+      lineNo,
+    });
+  }
+
+  if (row.description === "") {
+    errors.push({
+      type: "InvalidLine",
+      message: "Description cannot be empty",
+      lineNo,
+    });
+  }
+
+  if (row.description.length > 253) {
+    errors.push({
+      type: "InvalidLine",
+      message: "Description cannot be more than 253 characters",
+      lineNo,
+    });
+  }
+
+  return errors;
+}
+
+export const mergeCSVErrors = (
+  errors: CSVParseError[],
+  lineNo: number
+): CSVParseError | null => {
+  if (errors.length === 0) {
+    return null;
+  }
+
+  if (errors.length === 1) {
+    return errors[0];
+  } else {
+    return {
+      type: "MultipleErrors",
+      message: errors.map((e) => e.message).join(", "),
+      lineNo,
+      errors,
+    };
+  }
+};
+
 export function handleRow(
   row: CSVRow,
   lineno: number
@@ -9,65 +92,17 @@ export function handleRow(
   err: CSVParseError | null;
 } {
   const tnx = new Transaction();
-  const errors: CSVParseError[] = [];
 
-  // Parse the date
-  const cleanDate = cleanSpaces(row.date);
-  const date = parseDate(cleanDate);
-  if (date !== null) {
-    tnx.transaction_date = date;
-  } else {
-    errors.push({
-      type: "InvalidLine",
-      message: `Invalid date format(DD-MM-YYYY): ${row.date}`,
-      lineNo: lineno,
-    });
-  }
+  const cleanedRow = cleanRow(row);
+  const errors = validateRow(cleanedRow, row, lineno);
 
-  // Parse the amount
-  const amount = parseAmount(cleanSpaces(row.amount));
-  if (amount !== null) {
-    tnx.amount = amount;
-  } else {
-    errors.push({
-      type: "InvalidLine",
-      message: `Invalid amount format: ${row.amount}`,
-      lineNo: lineno,
-    });
-  }
+  tnx.transaction_date = cleanedRow.date || new Date();
+  tnx.transaction_date_string = cleanedRow.date_string;
+  tnx.amount = cleanedRow.amount || 0;
+  tnx.description = cleanedRow.description;
+  tnx.currency = cleanedRow.currency;
 
-  // Parse the description
-  row.description = row.description.trim().toLowerCase();
-  // remove any extra spaces
-  row.description = row.description.replace(/\s+/g, " ");
-  if (row.description === "") {
-    errors.push({
-      type: "InvalidLine",
-      message: "Description cannot be empty",
-      lineNo: lineno,
-    });
-  }
-
-  // blit the description
-  tnx.description = row.description.trim().toLowerCase();
-
-  // Parse the currency
-  tnx.currency = row.currency.trim().toUpperCase();
-
-  // Set the transaction date string
-  tnx.transaction_date_string = cleanDate;
-
-  let err: CSVParseError | null = null;
-  if (errors.length == 1) {
-    err = errors[0];
-  } else if (errors.length > 1) {
-    err = {
-      type: "MultipleErrors",
-      message: errors.map((e) => e.message).join(", "),
-      lineNo: lineno,
-      errors,
-    };
-  }
+  let err: CSVParseError | null = mergeCSVErrors(errors, lineno);
 
   return {
     tnx,

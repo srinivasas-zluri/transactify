@@ -21,6 +21,9 @@ export class Transaction {
   @Property({ type: "numeric(10, 2)" })
   amount!: number;
 
+  @Property({ type: "numeric(10, 2)" })
+  inr_amount!: number;
+
   @Property({ type: "text" })
   description!: string;
 

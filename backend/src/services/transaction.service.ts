@@ -2,6 +2,7 @@ import { DBServices } from "~/db";
 import { handleRow } from "~/internal/csv/main";
 import { CSVParseError, CSVRow } from "~/internal/csv/types";
 import { Transaction } from "~/models/transaction";
+import { convertCurrency } from "./conversion.service";
 
 export class TransactionService {
   private db: DBServices;
@@ -10,32 +11,20 @@ export class TransactionService {
     this.db = db;
   }
 
-  async createTransaction(
-    transaction: Transaction,
-    validateRowFn: (row: CSVRow) => {
-      tnx: Transaction;
-      err: CSVParseError | null;
-    } = (x) => handleRow(x, 0)
-  ) {
-    const em = this.db.em;
-    // validate the transaction
-    const { tnx, err } = validateRowFn({
-      date: transaction.transaction_date_string,
-      amount: transaction.amount.toString(),
-      description: transaction.description,
-      currency: transaction.currency,
-    });
-    if (err !== null) {
-      throw new TransactionParseError(err);
-    }
-    await em.persistAndFlush(tnx);
-    return tnx;
+  get em() {
+    return this.db.em.fork();
+  }
+
+  async createTransaction(transaction: Transaction) {
+    const em = this.em;
+    await em.persistAndFlush(transaction);
+    return transaction;
   }
 
   async createTransactions(
     transactions: Transaction[]
   ): Promise<{ duplicates: Transaction[] }> {
-    const em = this.db.em;
+    const em = this.em;
     // TODO: Optimize the search of the transactions later
     // find duplicates with the db where (transaction_date, description) is the same
     const duplicates = await em.find(
@@ -59,22 +48,22 @@ export class TransactionService {
   }
 
   async getAllTransactions() {
-    return this.db.em.find(Transaction, { is_deleted: false });
+    return this.em.find(Transaction, { is_deleted: false });
   }
 
   async getTransactionById(id: number) {
-    return this.db.em.findOne(Transaction, { id, is_deleted: false });
+    return this.em.findOne(Transaction, { id, is_deleted: false });
   }
 
   async getTransactions(page: number, limit: number) {
     // return with if next and prev page are available
-    const totalTransactions = await this.db.em.count(Transaction, {
+    const totalTransactions = await this.em.count(Transaction, {
       is_deleted: false,
     });
     const totalPages = Math.ceil(totalTransactions / limit);
     const hasNextPage = page < totalPages;
     const hasPrevPage = page > 1;
-    const transactions = await this.db.em.find(
+    const transactions = await this.em.find(
       Transaction,
       { is_deleted: false },
       {
@@ -87,7 +76,7 @@ export class TransactionService {
   }
 
   // async getTransactionById(id: number) {
-  //   return this.db.em.findOne(Transaction, { id });
+  //   return this.em.findOne(Transaction, { id });
   // }
 
   async updateTransaction(
@@ -98,12 +87,11 @@ export class TransactionService {
       err: CSVParseError | null;
     } = (x) => handleRow(x, 0)
   ): Promise<Transaction | null> {
-    const em = this.db.em;
+    const em = this.em.fork();
     const originalTransaction = await em.findOne(Transaction, {
       id,
       is_deleted: false,
     });
-    console.log("originalTransaction", originalTransaction);
     if (!originalTransaction) {
       return null;
     }
@@ -143,9 +131,29 @@ export class TransactionService {
     // update the transaction
     originalTransaction.transaction_date = tnx.transaction_date;
     originalTransaction.transaction_date_string = tnx.transaction_date_string;
-    originalTransaction.amount = tnx.amount;
     originalTransaction.description = tnx.description;
-    originalTransaction.currency = tnx.currency;
+
+    // check if they have changed
+    if (
+      originalTransaction.amount !== tnx.amount ||
+      tnx.currency !== originalTransaction.currency
+    ) {
+      const splitDate = tnx.transaction_date_string.split("-");
+      originalTransaction.amount = tnx.amount;
+      originalTransaction.currency = tnx.currency;
+      const { amount, err } = convertCurrency({
+        from: originalTransaction.currency,
+        amount: originalTransaction.amount,
+        year: splitDate[2],
+        month: splitDate[1],
+        day: splitDate[0],
+      });
+      if (err !== null) {
+        console.log({ err });
+        throw new CurrencyConversionError(err);
+      }
+      originalTransaction.inr_amount = amount;
+    }
 
     await em.persistAndFlush(originalTransaction);
     return originalTransaction;
@@ -153,7 +161,7 @@ export class TransactionService {
 
   // delete transaction
   async deleteTransaction(id: number) {
-    const em = this.db.em;
+    const em = this.em.fork();
     const transaction = await em.findOne(Transaction, {
       id,
       is_deleted: false,
@@ -168,7 +176,7 @@ export class TransactionService {
 
   //   // delete multiple transactions
   //   async deleteTransactions(ids: number[]) {
-  //     const em = this.db.em;
+  //     const em = this.em;
   //     const transactions = await em.find(Transaction, { id: { $in: ids } });
   //     if (!transactions) {
   //       return null;
@@ -198,6 +206,14 @@ export class TransactionParseError extends Error {
   constructor(err: CSVParseError) {
     super(err.message);
     this.name = err.type;
+    this.stack = new Error().stack;
+  }
+}
+
+export class CurrencyConversionError extends Error {
+  constructor(err: string) {
+    super(err);
+    this.name = "ConversionError";
     this.stack = new Error().stack;
   }
 }
