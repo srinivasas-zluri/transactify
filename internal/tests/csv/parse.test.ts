@@ -38,4 +38,22 @@ describe("data with spaces", () => {
 
     expect(result.rows).toEqual({});
   });
+
+  it("should fail for future date", async () => { 
+    const extraColumnsCSV = `DaTe,amount,desCription,Currency, extra_column
+  08/01/2026, 302, payment, cad, false`;
+    const filePath = createCSVFile("error-columns.csv", extraColumnsCSV);
+
+    const result = await parseCSV(filePath);
+
+    expect(result.parsingErrors).toEqual([
+      {
+        lineNo: 1,
+        message: "Date cannot be in the future",
+        type: "InvalidLine",
+      },
+    ]);
+
+    expect(result.rows).toEqual({});
+  });
 });

@@ -36,6 +36,14 @@ export function validateRow(
     });
   }
 
+  if (date && date > new Date()) { 
+    errors.push({
+      type: "InvalidLine",
+      message: "Date cannot be in the future",
+      lineNo,
+    });
+  }
+
   const amount = row.amount;
   if (amount === null) {
     errors.push({
