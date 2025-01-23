@@ -2,6 +2,7 @@
     "extends": "../tsconfig.json",
     "compilerOptions": {
         // "rootDir": ".",
+        "resolveJsonModule": true,
         "outDir": "../dist/backend",
         "experimentalDecorators": true, // Required for MikroORM
         "emitDecoratorMetadata": true, // Required for MikroORM

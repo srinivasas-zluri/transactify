@@ -13,8 +13,23 @@
 
 import fs from "fs";
 import path from "path";
+import * as importedCurrencyData from "./currency_inr_conversion.json";
 
-const [currencyData, currencyKeys] = readCurrencyFile();
+type CurrencyData = {
+  [date: string]: {
+    [currency: string]: number; // assuming the currency data maps to a numeric value
+  };
+};
+
+const currencyData: CurrencyData = importedCurrencyData as CurrencyData;
+
+
+const currencyKeys = new Set();
+for (const date in currencyData) {
+  for (const currency in currencyData[date]) {
+    currencyKeys.add(currency);
+  }
+}
 
 interface ConvertCurrencyArgs {
   from: string;
