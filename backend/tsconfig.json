@@ -20,7 +20,8 @@
     "include": [
         "src/**/*.ts",
         "models/**/*.ts",
-        "tests/**/*.ts"
+        "tests/**/*.ts",
+        "src/services/currency_inr_conversion.json"
     ],
     "exclude": [
         "node_modules"
