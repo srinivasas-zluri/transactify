@@ -105,7 +105,7 @@ describe("check the update request", () => {
   it("should return 500 if there is an error", async () => {
     // mock the updateTransaction method to throw an error
     jest
-      .spyOn(TransactionService.prototype, "updateTransaction")
+      .spyOn(TransactionService.prototype, "prepareUpdateTransaction")
       .mockImplementation(() => {
         throw new Error("Error");
       });

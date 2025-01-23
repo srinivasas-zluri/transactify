@@ -1,6 +1,5 @@
 import { TransactionController } from "~/controllers/transaction.controller";
 import {
-  CurrencyConversionError,
   TransactionParseError,
   TransactionService,
 } from "~/services/transaction.service";
@@ -52,18 +51,20 @@ describe("TransactionController", () => {
     };
   });
 
-  // 400 on get with no page and limit 
+  // 400 on get with no page and limit
   it("should return 400 when no page and limit are provided", async () => {
     req.query = {};
 
-    await transactionController.getTransactions(req as Request, res as Response);
+    await transactionController.getTransactions(
+      req as Request,
+      res as Response
+    );
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({
       message: "Invalid page or limit",
     });
   });
-
 
   it("should return 400 when invalid transaction data is provided", async () => {
     req.body = {
@@ -95,7 +96,9 @@ describe("TransactionController", () => {
       message: "Invalid transaction",
       type: "InvalidLine",
     } as CSVParseError);
-    transactionService.updateTransaction = jest.fn().mockRejectedValue(error);
+    transactionService.prepareUpdateTransaction = jest
+      .fn()
+      .mockRejectedValue(error);
 
     req = {
       params: { id: "1" },
@@ -111,31 +114,12 @@ describe("TransactionController", () => {
     expect(res.json).toHaveBeenCalledWith({ message: error.message });
   });
 
-  it("should return 400 for CurrencyConversionError", async () => {
-    // Setup the mock to throw CurrencyConversionError
-    const error = new CurrencyConversionError("Currency conversion failed");
-    transactionService.updateTransaction = jest.fn().mockRejectedValue(error);
-
-    req = {
-      params: { id: "1" },
-      body: {
-        /* transaction data that triggers currency conversion error */
-      },
-    };
-
-    await transactionController.updateTransaction(
-      req as Request,
-      res as Response
-    );
-
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ message: error.message });
-  });
-
   it("should return 500 for unexpected errors", async () => {
     // Setup the mock to throw a generic error
     const error = new Error("Unexpected error");
-    transactionService.updateTransaction = jest.fn().mockRejectedValue(error);
+    transactionService.prepareUpdateTransaction = jest
+      .fn()
+      .mockRejectedValue(error);
 
     req = {
       params: { id: "1" },

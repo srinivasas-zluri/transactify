@@ -72,14 +72,14 @@ export class TransactionService {
         orderBy: { transaction_date: "asc" },
       }
     );
-    return { transactions, hasNextPage, hasPrevPage };
+    return { transactions, hasNextPage, hasPrevPage, totalTransactions };
   }
 
   // async getTransactionById(id: number) {
   //   return this.em.findOne(Transaction, { id });
   // }
 
-  async updateTransaction(
+  async prepareUpdateTransaction(
     id: number,
     transaction: Transaction,
     validateRowFn: (row: CSVRow) => {
@@ -129,34 +129,19 @@ export class TransactionService {
     }
 
     // update the transaction
+    originalTransaction.id = id;
     originalTransaction.transaction_date = tnx.transaction_date;
     originalTransaction.transaction_date_string = tnx.transaction_date_string;
     originalTransaction.description = tnx.description;
+    originalTransaction.amount = tnx.amount;
 
-    // check if they have changed
-    if (
-      originalTransaction.amount !== tnx.amount ||
-      tnx.currency !== originalTransaction.currency
-    ) {
-      const splitDate = tnx.transaction_date_string.split("-");
-      originalTransaction.amount = tnx.amount;
-      originalTransaction.currency = tnx.currency;
-      const { amount, err } = convertCurrency({
-        from: originalTransaction.currency,
-        amount: originalTransaction.amount,
-        year: splitDate[2],
-        month: splitDate[1],
-        day: splitDate[0],
-      });
-      if (err !== null) {
-        console.log({ err });
-        throw new CurrencyConversionError(err);
-      }
-      originalTransaction.inr_amount = amount;
-    }
-
-    await em.persistAndFlush(originalTransaction);
     return originalTransaction;
+  }
+
+  async updateTransaction(id: number, transaction: Transaction) {
+    const em = this.em.fork();
+    await em.persistAndFlush(transaction);
+    return transaction;
   }
 
   // delete transaction
@@ -175,11 +160,11 @@ export class TransactionService {
   }
 
   //   // delete multiple transactions
-    async deleteTransactions(ids: number[]) {
-      const em = this.em.fork();
-      const deleted = await em.nativeDelete(Transaction, { id: { $in: ids } });
-      return deleted;
-    }
+  async deleteTransactions(ids: number[]) {
+    const em = this.em.fork();
+    const deleted = await em.nativeDelete(Transaction, { id: { $in: ids } });
+    return deleted;
+  }
 }
 
 function cleanString(value: string | undefined | null) {
@@ -202,14 +187,6 @@ export class TransactionParseError extends Error {
   constructor(err: CSVParseError) {
     super(err.message);
     this.name = err.type;
-    this.stack = new Error().stack;
-  }
-}
-
-export class CurrencyConversionError extends Error {
-  constructor(err: string) {
-    super(err);
-    this.name = "ConversionError";
     this.stack = new Error().stack;
   }
 }
