@@ -47,6 +47,7 @@ export function useAppState() {
   async function onEditSaveClicked(transaction: Transaction) {
     setPageState(PageState.Loading);
     await handleUpdate(transaction);
+    await fetchTransactions(page);
     setPageState(PageState.View);
   }
 
