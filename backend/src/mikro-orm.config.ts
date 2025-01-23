@@ -8,6 +8,13 @@ const config: Options = {
   migrations: {
     path: "./migrations",
   },
+  driverOptions: {
+    connection: {
+      ssl: {
+        rejectUnauthorized: false,
+      },
+    },
+  },
   entities: [User, Transaction],
   // clientUrl: "postgresql://user:password@localhost:5432/database",
   clientUrl: clientURL,
