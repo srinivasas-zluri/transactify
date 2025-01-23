@@ -207,13 +207,14 @@ describe("useTransactions", () => {
 
     // Act
     await act(async () => {
-      await result.current.handleDelete(1);
+      await result.current.handleDelete([1]);
     });
 
     // Assert
-    expect(axios.delete).toHaveBeenCalledWith(
-      routes.transactions.delete({ id: 1 })
-    );
+    // expect(axios.delete).toHaveBeenCalledWith(routes.transactions.delete);
+    expect(axios.delete).toHaveBeenCalledWith(routes.transactions.delete, {
+      data: { ids: [1] },
+    });
     expect(toast.success).toHaveBeenCalledWith("Transaction deleted!");
   });
 
@@ -225,13 +226,14 @@ describe("useTransactions", () => {
 
     // Act
     await act(async () => {
-      await result.current.handleDelete(1);
+      await result.current.handleDelete([1]);
     });
 
     // Assert
-    expect(axios.delete).toHaveBeenCalledWith(
-      routes.transactions.delete({ id: 1 })
-    );
+    // expect(axios.delete).toHaveBeenCalledWith(routes.transactions.delete);
+    expect(axios.delete).toHaveBeenCalledWith(routes.transactions.delete, {
+      data: { ids: [1] },
+    });
     expect(toast.error).toHaveBeenCalledWith("Failed to delete transaction");
   });
 
@@ -318,7 +320,7 @@ describe("useTransactions", () => {
     expect(toast.error).toHaveBeenCalledWith("Failed to update transaction");
   });
 
-  it("should throw an error if the transaction isn't found", async () => { 
+  it("should throw an error if the transaction isn't found", async () => {
     const { result } = renderHook(() => useTransactions());
 
     await act(async () => {
@@ -326,5 +328,4 @@ describe("useTransactions", () => {
     });
     expect(toast.error).toHaveBeenCalledWith("Transaction not found");
   });
-
 });
