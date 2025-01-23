@@ -1,82 +1,108 @@
 import { convertCurrency } from "~/services/conversion.service";
 
-// Mock the filesystem to return the sample JSON
-jest.mock("fs", () => ({
-  readFileSync: jest.fn().mockReturnValue(
-    JSON.stringify({
-      "2021-01-01": {
-        USD: 74.25,
-        EUR: 88.5,
-      },
-      "2021-01-02": {
-        USD: 74.4,
-        EUR: 88.75,
-      },
-      "2024-01-02": {
-        APKI: 88.75,
-      },
-    })
-  ),
+// Mock the currency data module first
+jest.mock("~/services/selected_currencies.json", () => ({
+  "2025-01-01": {
+    USD: 1.0,
+    EUR: 0.9,
+    GBP: 0.75,
+    XRA: 0.88,
+  },
+  "2025-01-02": {
+    USD: 1.0,
+    EUR: 0.88,
+    GBP: 0.76,
+  },
 }));
 
 describe("convertCurrency function", () => {
-  it("should convert USD to INR correctly for 2021-01-01", () => {
-    const result = convertCurrency({
-      from: "usd",
-      amount: 1,
-      year: "2021",
+  it("should return correct amount for valid conversion", () => {
+    const args = {
+      from: "USD",
+      amount: 100,
+      year: "2025",
       month: "01",
       day: "01",
-    });
-    expect(result.amount).toBe(74.25);
+    };
+    const result = convertCurrency(args);
+    expect(result.amount).toBe(100);
     expect(result.err).toBeNull();
   });
 
-  it("should return an error if the currency is not supported", () => {
-    const result = convertCurrency({
-      from: "gbp", // GBP is not in the data
-      amount: 1,
-      year: "2021",
+  it("should return an error for unsupported currency", () => {
+    const args = {
+      from: "INRA",
+      amount: 100,
+      year: "2025",
       month: "01",
       day: "01",
-    });
+    };
+    const result = convertCurrency(args);
     expect(result.amount).toBeNull();
-    expect(result.err).toBe("Currency gbp not supported");
   });
 
-  it("should return an error if the date has no conversion rates", () => {
-    const result = convertCurrency({
-      from: "usd",
-      amount: 1,
-      year: "2020", // There is no data for 2020
+  it("should return an error when no conversion rate is found for the given date", () => {
+    const args = {
+      from: "USD",
+      amount: 100,
+      year: "2025",
+      month: "01",
+      day: "03", // Date not present in mockCurrencyData
+    };
+    const result = convertCurrency(args);
+    expect(result.amount).toBeNull();
+    expect(result.err).toBe("No conversion rates found for 2025-01-03");
+  });
+
+  it("should return an error for unsupported currency", () => {
+    const args = {
+      from: "INR",
+      amount: 100,
+      year: "2025",
       month: "01",
       day: "01",
-    });
+    };
+    const result = convertCurrency(args);
     expect(result.amount).toBeNull();
-    expect(result.err).toBe("No conversion rates found for 2020-01-01");
+    expect(result.err).toBe("Currency INR not supported");
   });
 
-  it("should return an error if the from currency does not exist for the given date", () => {
-    const result = convertCurrency({
-      from: "usd", // USD exists, but check with EUR for another date
-      amount: 1,
-      year: "2021",
+  it("should return an error when no conversion rate is found for the from currency on a given date", () => {
+    const args = {
+      from: "XRA", 
+      amount: 100,
+      year: "2025",
       month: "01",
       day: "02",
-    });
-    expect(result.amount).toBe(74.4);
+    };
+    const result = convertCurrency(args);
+    expect(result.amount).toBeNull();
+    expect(result.err).toBe("No conversion rate found for XRA on 2025-01-02");
+  });
+
+  it("should return correct amount for valid conversion with EUR currency on a different date", () => {
+    const args = {
+      from: "EUR",
+      amount: 100,
+      year: "2025",
+      month: "01",
+      day: "02",
+    };
+    const result = convertCurrency(args);
+    expect(result.amount).toBe(88); // 100 * 0.88 = 88
     expect(result.err).toBeNull();
   });
 
-
-  it("return an error if on invalid currency ", () => {
-    const result = convertCurrency({
-      from: "apki", 
-      amount: 1,
-      year: "2021",
-      month: "01",
+  it("should handle invalid date formats", () => {
+    const args = {
+      from: "USD",
+      amount: 100,
+      year: "2025",
+      month: "13", // Invalid month
       day: "01",
-    });
-    expect(result.err).toBe("No conversion rate found for apki on 2021-01-01");
+    };
+    const result = convertCurrency(args);
+    expect(result.amount).toBeNull();
+    expect(result.err).toBe("No conversion rates found for 2025-13-01");
   });
 });
