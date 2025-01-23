@@ -99,7 +99,7 @@ export class TransactionController {
       );
 
       // convert the currency
-      const { rowsWithoutErrors, conversionErrors } = this.processCSVRows(
+      const { rowsWithoutErrors, conversionErrors } = this.convertCurrencyRows(
         rows,
         CSVWriter
       );
@@ -287,8 +287,8 @@ export class TransactionController {
     return path.join(dir, `${base}-errors.csv`);
   }
 
-  // Process rows from CSV, handle conversion errors
-  private processCSVRows(
+  // converts the currency and checks for errors
+  private convertCurrencyRows(
     rows: { [lineNo: number]: Transaction },
     CSVWriter: FileCSVWriter
   ) {
