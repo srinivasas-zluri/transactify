@@ -10,9 +10,6 @@
 //     day: "01"
 // })
 // console.log(res);
-
-import fs from "fs";
-import path from "path";
 import * as importedCurrencyData from "./selected_currencies.json";
 
 type CurrencyData = {
@@ -67,21 +64,4 @@ export function convertCurrency(
     };
   }
   return { amount: amount * rate, err: null };
-}
-
-function readCurrencyFile() {
-  const currencyKeys = new Set();
-  const currFilePath = __filename;
-  const filePath = path.join(
-    path.dirname(currFilePath),
-    "currency_inr_conversion.json"
-  );
-  const currencyData = fs.readFileSync(filePath, "utf8");
-  const data = JSON.parse(currencyData);
-  for (const date in data) {
-    for (const currency in data[date]) {
-      currencyKeys.add(currency);
-    }
-  }
-  return [data, currencyKeys];
 }
