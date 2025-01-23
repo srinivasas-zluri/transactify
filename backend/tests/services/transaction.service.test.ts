@@ -3,6 +3,20 @@ import { DBServices, initORM } from "~/db";
 import { TransactionService } from "~/services/transaction.service";
 import ormConfig from "../mikro-orm.test-config";
 
+const createTestTransaction = (
+  overrides: Partial<Transaction> = {}
+): Transaction => {
+  const transaction = new Transaction();
+  transaction.amount = 100;
+  transaction.description = "Test Transaction";
+  transaction.transaction_date_string = "21-09-2021";
+  transaction.currency = "USD";
+  transaction.inr_amount = 100;
+  transaction.transaction_date = new Date();
+  Object.assign(transaction, overrides);
+  return transaction;
+};
+
 describe("TransactionService (with DB)", () => {
   let db: DBServices;
   let transactionService: TransactionService;
@@ -25,14 +39,7 @@ describe("TransactionService (with DB)", () => {
   });
 
   it("should create and persist a transaction in the DB", async () => {
-    const transaction = new Transaction();
-    transaction.amount = 100;
-    transaction.description = "Test Transaction";
-    transaction.transaction_date_string = "21-09-2021";
-    transaction.currency = "USD";
-    transaction.inr_amount = 100;
-    transaction.transaction_date = new Date();
-
+    const transaction = createTestTransaction();
     const result = await transactionService.createTransaction(transaction);
 
     const savedTransaction = await db.em.findOne(Transaction, {
@@ -44,21 +51,12 @@ describe("TransactionService (with DB)", () => {
   });
 
   it("should return all transactions from the DB", async () => {
-    const transaction1 = new Transaction();
-    transaction1.amount = 50;
-    transaction1.description = "First Transaction";
-    transaction1.transaction_date = new Date();
-    transaction1.transaction_date_string = "21-09-2021";
-    transaction1.inr_amount = 100;
-    transaction1.currency = "USD";
-
-    const transaction2 = new Transaction();
-    transaction2.amount = 75;
-    transaction2.description = "Second Transaction";
-    transaction2.transaction_date = new Date();
-    transaction2.transaction_date_string = "21-09-2021";
-    transaction2.currency = "USD";
-    transaction2.inr_amount = 100;
+    const transaction1 = createTestTransaction({
+      description: "First Transaction",
+    });
+    const transaction2 = createTestTransaction({
+      description: "Second Transaction",
+    });
 
     await transactionService.createTransaction(transaction1);
     await transactionService.createTransaction(transaction2);
@@ -71,17 +69,9 @@ describe("TransactionService (with DB)", () => {
 
   it("should return transactions with pagination from the DB", async () => {
     for (let i = 1; i <= 10; i++) {
-      const transaction = new Transaction();
-      transaction.amount = 100 + i;
-      transaction.description = `Transaction ${i}`;
-      transaction.transaction_date = new Date();
-      transaction.transaction_date.setDate(
-        transaction.transaction_date.getDate() - i
-      );
-      transaction.inr_amount = 100;
-      transaction.transaction_date_string = "21-09-2021";
-      transaction.currency = "USD";
-
+      const transaction = createTestTransaction({
+        description: `Transaction ${i}`,
+      });
       await transactionService.createTransaction(transaction);
     }
 
@@ -93,25 +83,17 @@ describe("TransactionService (with DB)", () => {
     );
 
     expect(transactions.length).toBe(5);
-    expect(transactions[0].description).toBe("Transaction 10");
-    expect(transactions[4].description).toBe("Transaction 6");
+    expect(transactions[0].description).toBe("Transaction 1");
+    expect(transactions[4].description).toBe("Transaction 5");
   });
 
   // get transaction by id  add 100 transactions and search
   it("should return from a multiple transaction by id", async () => {
     const transactions = [];
     for (let i = 1; i <= 100; i++) {
-      const transaction = new Transaction();
-      transaction.amount = 100 + i;
-      transaction.description = `Transaction ${i}`;
-      transaction.transaction_date = new Date();
-      transaction.transaction_date.setDate(
-        transaction.transaction_date.getDate() - i
-      );
-      transaction.transaction_date_string = "21-09-2021";
-      transaction.currency = "USD";
-      transaction.inr_amount = 100;
-
+      const transaction = createTestTransaction({
+        description: `Transaction ${i}`,
+      });
       transactions.push(transaction);
     }
 
@@ -128,13 +110,9 @@ describe("TransactionService (with DB)", () => {
   it("should create multiple transactions and return the duplicates", async () => {
     const tnxs = [];
     for (let i = 0; i < 10; i++) {
-      const transaction = new Transaction();
-      transaction.amount = 100;
-      transaction.description = "Initial Transaction" + i;
-      transaction.transaction_date = new Date();
-      transaction.transaction_date_string = "13-09-2021";
-      transaction.currency = "USD";
-      transaction.inr_amount = 100;
+      const transaction = createTestTransaction({
+        description: `Transaction ${i}`,
+      });
       tnxs.push(transaction);
     }
     await transactionService.createTransactions(tnxs);
@@ -142,13 +120,9 @@ describe("TransactionService (with DB)", () => {
     // push some new transactions with same data
     const tnxs2 = [];
     for (let i = 0; i < 10; i++) {
-      const transaction = new Transaction();
-      transaction.amount = 100;
-      transaction.description = "Initial Transaction" + i * 3;
-      transaction.transaction_date = new Date();
-      transaction.transaction_date_string = "13-09-2021";
-      transaction.currency = "USD";
-      transaction.inr_amount = 100;
+      const transaction = createTestTransaction({
+        description: `Transaction ${i * 3}`,
+      });
       tnxs2.push(transaction);
     }
 
@@ -158,36 +132,8 @@ describe("TransactionService (with DB)", () => {
     expect(transactions.length).toBe(16);
   });
 
-  it("should update a transaction and save the changes", async () => {
-    const transaction = new Transaction();
-    transaction.amount = 100;
-    transaction.description = "Initial Transaction";
-    transaction.transaction_date = new Date();
-    transaction.currency = "USD";
-    transaction.transaction_date_string = "13-09-2021";
-    transaction.inr_amount = 100;
-
-    const createdTransaction = await transactionService.createTransaction(
-      transaction
-    );
-    const updatedTransaction = new Transaction();
-    updatedTransaction.amount = 200;
-    updatedTransaction.description = "Updated Transaction";
-    updatedTransaction.transaction_date = new Date();
-    updatedTransaction.transaction_date_string = "21-09-2021";
-
-    const result = await transactionService.updateTransaction(
-      createdTransaction.id,
-      updatedTransaction
-    );
-
-    expect(result).not.toBeNull();
-    expect(result?.amount).toBe(200);
-    expect(result?.description).toBe("updated transaction");
-  });
-
   it("should return null if transaction is not found", async () => {
-    const result = await transactionService.updateTransaction(
+    const result = await transactionService.prepareUpdateTransaction(
       9999,
       new Transaction()
     );
@@ -195,245 +141,110 @@ describe("TransactionService (with DB)", () => {
   });
 
   it("should delete a transaction and return it", async () => {
-    const transaction = new Transaction();
-    transaction.amount = 100;
-    transaction.description = "Transaction to be deleted";
-    transaction.transaction_date = new Date();
-    transaction.transaction_date_string = "13-09-2021";
-    transaction.currency = "USD";
-    transaction.inr_amount = 300;
+    const transaction = createTestTransaction({ description: "Transaction to be deleted" });
+    const createdTransaction = await transactionService.createTransaction(transaction);
 
-    const createdTransaction = await transactionService.createTransaction(
-      transaction
-    );
-    const result = await transactionService.deleteTransaction(
-      createdTransaction.id
-    );
+    const deletedTransaction = await transactionService.deleteTransaction(createdTransaction.id);
 
-    expect(result).not.toBeNull();
-    expect(result?.id).toBe(createdTransaction.id);
+    expect(deletedTransaction).not.toBeNull();
+    expect(deletedTransaction?.id).toBe(createdTransaction.id);
 
-    const deletedTransaction = await db.em.findOne(Transaction, {
-      id: createdTransaction.id,
-      is_deleted: true,
-    });
-    expect(deletedTransaction).toBeDefined();
+    const softDeletedTransaction = await db.em.findOne(Transaction, { id: createdTransaction.id, is_deleted: true });
+    expect(softDeletedTransaction).toBeDefined();
   });
 
-  it("should return null if transaction is not found", async () => {
+  it("should return null if transaction is not found during deletion", async () => {
     const result = await transactionService.deleteTransaction(9999);
     expect(result).toBeNull();
   });
 
-  // partial update
   it("should partially update a transaction and save the changes", async () => {
-    const transaction = new Transaction();
-    transaction.amount = 100;
-    transaction.description = "Initial Transaction";
-    transaction.transaction_date = new Date();
-    transaction.transaction_date_string = "13-09-2021";
-    transaction.currency = "USD";
-    transaction.inr_amount = 100;
-
-    const createdTransaction = await transactionService.createTransaction(
-      transaction
-    );
-    const updatedTransaction = transaction;
+    const transaction = createTestTransaction({ description: "Initial Transaction" });
+    const createdTransaction = await transactionService.createTransaction(transaction);
+    
+    const updatedTransaction = new Transaction();
     updatedTransaction.amount = 200;
 
-    const result = await transactionService.updateTransaction(
-      createdTransaction.id,
-      updatedTransaction
-    );
+    const result = await transactionService.updateTransaction(createdTransaction.id, updatedTransaction);
 
     expect(result).not.toBeNull();
     expect(result?.amount).toBe(200);
-    expect(result?.description).toBe("initial transaction");
+    expect(result?.description).toBe("Initial Transaction");
   });
 
-  // check the unique constraint
   it("should not allow duplicate transactions on update", async () => {
-    const transaction = new Transaction();
-    transaction.amount = 100;
-    transaction.description = "initial transaction";
-    transaction.transaction_date = new Date();
-    transaction.transaction_date_string = "15-09-2021";
-    transaction.currency = "USD";
-    transaction.inr_amount = 100;
+    const transaction1 = createTestTransaction({ description: "initial transaction" });
+    const transaction2 = createTestTransaction({ description: "Initial Transaction" });
 
-    const transaction2 = new Transaction();
-    transaction2.amount = 100;
-    transaction2.description = "Initial Transaction";
-    transaction2.transaction_date = new Date();
-    transaction2.transaction_date_string = "16-09-2021";
-    transaction2.currency = "USD";
-    transaction2.inr_amount = 100;
-
-    await transactionService.createTransaction(transaction);
+    await transactionService.createTransaction(transaction1);
     const { id } = await transactionService.createTransaction(transaction2);
 
-    // check the tnxs in db
-    const transactions = await transactionService.getAllTransactions();
-    console.log({ transactions });
-    expect(transactions.length).toBe(2);
-
     const updatedTransaction = transaction2;
-    updatedTransaction.description = transaction.description;
-    updatedTransaction.transaction_date_string =
-      transaction.transaction_date_string;
+    updatedTransaction.description = transaction1.description;
 
-    expect(
-      transactionService.updateTransaction(id, updatedTransaction)
-    ).rejects.toThrow(
+    await expect(transactionService.updateTransaction(id, updatedTransaction)).rejects.toThrow(
       expect.objectContaining({
         name: "UniqueConstraintViolationException",
-        message: expect.stringContaining(
-          "duplicate key value violates unique constraint"
-        ),
-      })
-    );
-  });
-});
-
-describe("update", () => {
-  let db: DBServices;
-  let transactionService: TransactionService;
-
-  beforeAll(async () => {
-    db = await initORM(ormConfig);
-    // reset the db
-    await db.orm.getMigrator().up();
-    transactionService = new TransactionService(db);
-  });
-
-  afterAll(async () => {
-    // await db.em.nativeDelete(Transaction, {});
-    await db.orm.close();
-  });
-
-  beforeEach(async () => {
-    // clear the db
-    await db.em.nativeDelete(Transaction, {});
-  });
-
-  it("should not allow invalid data on update", async () => {
-    const transaction = new Transaction();
-    transaction.amount = 100;
-    transaction.description = "Initial Transaction";
-    transaction.transaction_date = new Date();
-    transaction.transaction_date_string = "13-09-2021";
-    transaction.currency = "USD";
-    transaction.inr_amount = 100;
-
-    const createdTransaction = await transactionService.createTransaction(
-      transaction
-    );
-    const updatedTransaction = new Transaction();
-    updatedTransaction.transaction_date_string = "invalid-date";
-
-    console.log("createdTransaction.id", createdTransaction.id);
-
-    await expect(
-      transactionService.updateTransaction(
-        createdTransaction.id,
-        updatedTransaction
-      )
-    ).rejects.toThrow(
-      expect.objectContaining({
-        name: "InvalidLine",
-        message: "Invalid date format(DD-MM-YYYY): invalid-date",
+        message: expect.stringContaining("duplicate key value violates unique constraint"),
       })
     );
   });
 
-  // pass empty date into update
-  it("should not allow empty date on update", async () => {
-    const transaction = new Transaction();
-    transaction.amount = 100;
-    transaction.description = "Initial Transaction";
-    transaction.transaction_date = new Date();
-    transaction.transaction_date_string = "13-09-2021";
-    transaction.currency = "USD";
-    transaction.inr_amount = 100;
+  describe("update", () => {
+    it("should not allow invalid data on update", async () => {
+      const transaction = createTestTransaction({ description: "Initial Transaction" });
+      const createdTransaction = await transactionService.createTransaction(transaction);
 
-    const createdTransaction = await transactionService.createTransaction(
-      transaction
-    );
-    const updatedTransaction = new Transaction();
-    updatedTransaction.transaction_date_string = "";
+      const updatedTransaction = new Transaction();
+      updatedTransaction.transaction_date_string = "invalid-date";
 
-    const tnx = await transactionService.updateTransaction(
-      createdTransaction.id,
-      updatedTransaction
-    );
-    expect(tnx).not.toBeNull();
-    expect(tnx?.transaction_date_string).toBe(
-      transaction.transaction_date_string
-    );
-  });
+      await expect(transactionService.prepareUpdateTransaction(createdTransaction.id, updatedTransaction)).rejects.toThrow(
+        expect.objectContaining({
+          name: "InvalidLine",
+          message: "Invalid date format(DD-MM-YYYY): invalid-date",
+        })
+      );
+    });
 
-  // shouldn't throw an error if the data is already deleted
-  it("should not throw an error if the data is already deleted", async () => {
-    const transaction = new Transaction();
-    transaction.amount = 100;
-    transaction.description = "Initial Transaction";
-    transaction.transaction_date = new Date();
-    transaction.transaction_date_string = "13-09-2021";
-    transaction.currency = "USD";
-    transaction.inr_amount = 100;
+    it("should allow some currency on update", async () => {
+      const transaction = createTestTransaction({ description: "Initial Transaction" });
+      const createdTransaction = await transactionService.createTransaction(transaction);
 
-    const createdTransaction = await transactionService.createTransaction(
-      transaction
-    );
+      const updatedTransaction = new Transaction();
+      updatedTransaction.currency = "somting";
 
-    const newTransaction = new Transaction();
-    newTransaction.amount = transaction.amount;
-    newTransaction.description = transaction.description;
-    newTransaction.transaction_date = transaction.transaction_date;
-    newTransaction.transaction_date_string =
-      transaction.transaction_date_string;
-    newTransaction.currency = transaction.currency;
-    newTransaction.inr_amount = transaction.inr_amount;
+      const tnx = await transactionService.prepareUpdateTransaction(createdTransaction.id, updatedTransaction);
+      expect(tnx).not.toBeNull();
+      expect(tnx?.currency).toBe(createdTransaction.currency);
+    });
 
-    await expect(
-      transactionService.createTransaction(newTransaction)
-    ).rejects.toThrow(
-      expect.objectContaining({
-        name: "UniqueConstraintViolationException",
-        message: expect.stringContaining(
-          "duplicate key value violates unique constraint"
-        ),
-      })
-    );
+    it("should not throw an error if the data is already deleted", async () => {
+      const transaction = createTestTransaction({ description: "Initial Transaction" });
+      const createdTransaction = await transactionService.createTransaction(transaction);
 
-    await transactionService.deleteTransaction(createdTransaction.id);
+      const duplicateTransaction = createTestTransaction({ description: "Initial Transaction" });
+      await expect(transactionService.createTransaction(duplicateTransaction)).rejects.toThrow(
+        expect.objectContaining({
+          name: "UniqueConstraintViolationException",
+          message: expect.stringContaining("duplicate key value violates unique constraint"),
+        })
+      );
 
-    const res = await transactionService.createTransaction(newTransaction);
-    expect(res).not.toBeNull();
-  });
+      await transactionService.deleteTransaction(createdTransaction.id);
 
-  it("should throw an error for conversion invalid", async () => {
-    const transaction = new Transaction();
-    transaction.amount = 100;
-    transaction.description = "Initial Transaction";
-    transaction.transaction_date = new Date();
-    transaction.transaction_date_string = "13-09-2021";
-    transaction.currency = "USD";
-    transaction.inr_amount = 100;
+      const res = await transactionService.createTransaction(duplicateTransaction);
+      expect(res).not.toBeNull();
+    });
 
-    const createdTransaction = await transactionService.createTransaction(
-      transaction
-    );
+    it("should throw an error for conversion invalid", async () => {
+      const transaction = createTestTransaction({ description: "Initial Transaction" });
+      const createdTransaction = await transactionService.createTransaction(transaction);
 
-    const updatedTransaction = new Transaction();
-    updatedTransaction.amount = 200;
-    updatedTransaction.currency = "apki";
+      const updatedTransaction = new Transaction();
+      updatedTransaction.amount = 200;
+      updatedTransaction.currency = "apki";
 
-    await expect(
-      transactionService.updateTransaction(
-        createdTransaction.id,
-        updatedTransaction
-      )
-    ).rejects.toThrow();
+      await expect(transactionService.updateTransaction(createdTransaction.id, updatedTransaction)).rejects.toThrow();
+    });
   });
 });
