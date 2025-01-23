@@ -163,14 +163,19 @@ export class TransactionController {
         },
         [] as any[]
       );
+      console.log({ duplicatesLineNumbers });
+      console.log({ transactions, len: transactions.length });
       // write to the error file
       const errorRowsArray = [
-        ...duplicatesLineNumbers.map((lineNo) => ({
-          lineNo: lineNo,
-          message: "Duplicate entry already in db",
-          date: transactions[lineNo - 1].transaction_date_string,
-          ...transactions[lineNo - 1],
-        })),
+        ...duplicatesLineNumbers.map((lineNo) => {
+          console.log({ lineNo });
+          return {
+            lineNo: lineNo,
+            message: "Duplicate entry already in db",
+            date: rows[lineNo].transaction_date_string,
+            ...rows[lineNo],
+          };
+        }),
       ];
 
       // write the error rows to a file
