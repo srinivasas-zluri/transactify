@@ -6,7 +6,7 @@ import cors from "cors";
 const PORT = process.env.PORT || 3000;
 
 // handle cors to localhost:5173  using cors lib
-app.use(cors({ origin: "http://localhost:5173" }));
+app.use(cors({ origin: ["http://localhost:5173", "https://transactify-teal.vercel.app/"] }));
 
 app.listen(PORT, async () => {
   await startApp(mikroOrmConfig);
