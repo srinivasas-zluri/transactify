@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import {
-  CurrencyConversionError,
   TransactionParseError,
   TransactionService,
 } from "~/services/transaction.service";
@@ -11,7 +10,6 @@ import { FileCSVWriter } from "~/internal/csv/writer";
 import { UniqueConstraintViolationException } from "@mikro-orm/core";
 import { convertCurrency } from "~/services/conversion.service";
 import { cleanRow, mergeCSVErrors, validateRow } from "~/internal/csv/parse";
-import fs from "fs";
 
 export class TransactionController {
   private transactionService: TransactionService;
@@ -22,32 +20,25 @@ export class TransactionController {
   // Create a single transaction
   async createTransaction(req: Request, res: Response): Promise<void> {
     try {
-      const transactionData = req.body as TransactionData;
-      if (!checkValidHeadersPresent(transactionData)) {
+      // check the headers of the data
+      const transactionData = getValidatedTransactionData(req.body);
+      if (transactionData === null) {
         res.status(400).json({ message: "Invalid transaction data" });
         return;
       }
 
-      const cleanedRow = cleanRow(transactionData);
-      const TEMP_LINE_NO = 0;
-      const errs = mergeCSVErrors(
-        validateRow(cleanedRow, transactionData, TEMP_LINE_NO),
-        TEMP_LINE_NO
-      );
-
+      // check if the data that's sent is valid or not
+      const { cleanedRow, errs } = validateTransactionData(transactionData);
       if (errs !== null) {
         res.status(400).json({ message: errs.message });
         return;
       }
 
-      const splitDate = cleanedRow.date_string!.split("-");
-
-      const { amount, err } = convertCurrency({
-        from: cleanedRow.currency!,
+      // convert the currency
+      const { amount, err } = getConvertedCurrency({
+        date: cleanedRow.date_string,
         amount: cleanedRow.amount!,
-        year: splitDate[2],
-        month: splitDate[1],
-        day: splitDate[0],
+        currency: cleanedRow.currency,
       });
 
       if (err != null) {
@@ -55,6 +46,7 @@ export class TransactionController {
         return;
       }
 
+      // create a new transaction
       const newTnx = new Transaction();
       newTnx.transaction_date = cleanedRow.date!;
       newTnx.transaction_date_string = cleanedRow.date_string!;
@@ -87,96 +79,50 @@ export class TransactionController {
       return;
     }
 
+    // check if the file is a csv file
     const ext = path.extname(req.file.path);
     console.log({ ext });
-    // check if csv file
     if (req.file.mimetype !== "text/csv" || ext.toLowerCase() !== ".csv") {
       res.status(400).json({ message: "Invalid file type" });
       return;
     }
+
     try {
       // take the file path add -errors to it
-      const errorWriterFile = req.file.path.split(".csv")[0] + "-errors.csv";
-
-      // Get the directory of the file
-      const dir = path.dirname(errorWriterFile);
-
+      const errorWriterFile = this.getErrorWriterFilePath(req.file.path);
       const CSVWriter = new FileCSVWriter(errorWriterFile);
+
+      // parse the csv file
       const { rows, parsingErrors, validationErrors } = await parseCSV(
         req.file.path,
         { errorFileWriter: CSVWriter }
       );
-      let conversionErrors = 0;
-      Object.entries(rows).forEach(([lineNo, tnx]) => {
-        const splitDate = tnx.transaction_date_string.split("-");
-        const { amount, err } = convertCurrency({
-          from: tnx.currency,
-          amount: tnx.amount,
-          year: splitDate[2],
-          month: splitDate[1],
-          day: splitDate[0],
-        });
-        if (err != null) {
-          // reommve the line
-          delete rows[Number(lineNo)];
-          conversionErrors++;
-          // write the errors
-          CSVWriter.writeRows([
-            {
-              lineNo: parseInt(lineNo),
-              message: err,
-              date: tnx.transaction_date_string,
-              ...tnx,
-            },
-          ]);
-          return;
-        }
-        tnx.inr_amount = amount;
-      });
 
-      const transactions = [...Object.values(rows)];
-      const { duplicates } = await this.transactionService.createTransactions(
-        transactions
+      // convert the currency
+      const { rowsWithoutErrors, conversionErrors } = this.processCSVRows(
+        rows,
+        CSVWriter
       );
 
+      // create the transactions and check for duplicates
+      const { duplicates } = await this.transactionService.createTransactions(
+        rowsWithoutErrors
+      );
+
+      // check if there are any errors
       const numErrors =
-        parsingErrors.length + Object.keys(validationErrors).length;
-      if (numErrors == 0 && duplicates.length == 0 && conversionErrors == 0) {
+        parsingErrors.length +
+        Object.keys(validationErrors).length +
+        conversionErrors;
+      if (numErrors == 0 && duplicates.length == 0) {
         res.status(201).json({
           message: "All transactions created successfully",
         });
         return;
       }
 
-      // find the line numbers
-      const keySet = new Set(
-        duplicates.map((t) => t.transaction_date_string + t.description)
-      );
-      const duplicatesLineNumbers = Object.entries(rows).reduce(
-        (prev, curr) => {
-          const [lineNoString, tnx] = curr;
-          const lineNo = parseInt(lineNoString);
-          if (keySet.has(tnx.transaction_date_string + tnx.description)) {
-            return [...prev, lineNo];
-          }
-          return prev;
-        },
-        [] as any[]
-      );
-      console.log({ duplicatesLineNumbers });
-      console.log({ transactions, len: transactions.length });
-      // write to the error file
-      const errorRowsArray = [
-        ...duplicatesLineNumbers.map((lineNo) => {
-          console.log({ lineNo });
-          return {
-            lineNo: lineNo,
-            message: "Duplicate entry already in db",
-            date: rows[lineNo].transaction_date_string,
-            ...rows[lineNo],
-          };
-        }),
-      ];
+      // generate error rows for duplicates
+      const errorRowsArray = generateErrorsForFoundDuplicates(rows, duplicates);
 
       // write the error rows to a file
       const error = await CSVWriter.writeRows(errorRowsArray);
@@ -224,21 +170,27 @@ export class TransactionController {
       const { page, limit } = req.query;
       const pageInt = Number(page);
       const limitInt = Number(limit);
+
+      // check if the page and limit are valid
       const isInLimit = pageInt > 0 && limitInt > 0;
-      // const isNotNaN = Number.isNaN(pageInt) || Number.isNaN(limitInt);
       const isParamNaN = isNaN(pageInt) || isNaN(limitInt);
       if (!isInLimit || isParamNaN) {
         res.status(400).json({ message: "Invalid page or limit" });
         return;
       }
+
+      // check if the page and limit are too high
       if (limitInt > 100) {
         res.status(400).json({ message: "Page or limit too high" });
         return;
       }
-      const { transactions, hasNextPage, hasPrevPage } =
+
+      // get the transactions
+      const { transactions, hasNextPage, hasPrevPage, totalTransactions } =
         await this.transactionService.getTransactions(pageInt, limitInt);
       res.status(200).json({
         transactions,
+        totalTransactions,
         nextPage: { page: hasNextPage ? pageInt + 1 : null, limit: limitInt },
         prevPage: { page: hasPrevPage ? pageInt - 1 : null, limit: limitInt },
       });
@@ -253,19 +205,46 @@ export class TransactionController {
   // Update a transaction by ID
   async updateTransaction(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
+      const { id: _id } = req.params;
+      console.log({ _id });
+      console.log({ _id });
+      const id = Number(_id);
+      if (Number.isNaN(id)) {
+        res.status(400).json({ message: "Invalid transaction ID" });
+        return;
+      }
+
+      // get the transaction that needs to be updated
       const transactionData = req.body as Transaction;
-      console.log({ transactionData });
       const updatedTransaction =
-        await this.transactionService.updateTransaction(
-          Number(id),
+        await this.transactionService.prepareUpdateTransaction(
+          id,
           transactionData
         );
       if (!updatedTransaction) {
         res.status(404).json({ message: "Transaction not found" });
         return;
       }
-      res.status(200).json(updatedTransaction);
+
+      // convert the currency
+      const { amount, err } = getConvertedCurrency({
+        date: updatedTransaction.transaction_date_string,
+        amount: updatedTransaction.amount,
+        currency: updatedTransaction.currency,
+      });
+      if (err || amount == null || Number.isNaN(amount)) {
+        res.status(400).json({ message: err });
+        return;
+      }
+      updatedTransaction.inr_amount = amount;
+
+      // update the transaction
+      const tnxUpdated = await this.transactionService.updateTransaction(
+        id,
+        updatedTransaction
+      );
+
+      res.status(200).json(tnxUpdated);
       return;
     } catch (error) {
       console.log("Error updating transaction:", error);
@@ -277,10 +256,6 @@ export class TransactionController {
       }
       if (error instanceof UniqueConstraintViolationException) {
         res.status(409).json({ message: "Transaction already exists" });
-        return;
-      }
-      if (error instanceof CurrencyConversionError) {
-        res.status(400).json({ message: error.message });
         return;
       }
       res.status(500).json({ message: "Failed to update transaction" });
@@ -307,6 +282,47 @@ export class TransactionController {
       return;
     }
   }
+
+  getErrorWriterFilePath(filePath: string): string {
+    const dir = path.dirname(filePath);
+    const base = path.basename(filePath, ".csv");
+    return path.join(dir, `${base}-errors.csv`);
+  }
+
+  // Process rows from CSV, handle conversion errors
+  private processCSVRows(
+    rows: { [lineNo: number]: Transaction },
+    CSVWriter: FileCSVWriter
+  ) {
+    let conversionErrors = 0;
+    const rowsWithoutErrors = Object.entries(rows).reduce(
+      (acc, [lineno, transaction]) => {
+        const lineNo = parseInt(lineno);
+        const { amount, err } = getConvertedCurrency({
+          date: transaction.transaction_date_string,
+          amount: transaction.amount,
+          currency: transaction.currency,
+        });
+        if (err || amount == null) {
+          CSVWriter.writeRows([
+            {
+              ...transaction,
+              lineNo,
+              date: transaction.transaction_date_string,
+              message: err,
+            },
+          ]);
+          conversionErrors++;
+        } else {
+          transaction.inr_amount = amount;
+          acc.push(transaction);
+        }
+        return acc;
+      },
+      [] as Transaction[]
+    );
+    return { rowsWithoutErrors, conversionErrors };
+  }
 }
 
 interface TransactionData {
@@ -316,12 +332,75 @@ interface TransactionData {
   currency: string;
 }
 
-function checkValidHeadersPresent(data: any): boolean {
+function getValidatedTransactionData(data: any): TransactionData | null {
   const requiredFields = ["date", "amount", "description", "currency"];
   for (const field of requiredFields) {
     if (!data[field]) {
-      return false;
+      return null;
     }
   }
-  return true;
+  return data as TransactionData;
+}
+
+function validateTransactionData(data: TransactionData) {
+  const cleanedRow = cleanRow(data);
+  const TEMP_LINE_NO = 0;
+  const errs = mergeCSVErrors(
+    validateRow(cleanedRow, data, TEMP_LINE_NO),
+    TEMP_LINE_NO
+  );
+  return { cleanedRow, errs };
+}
+
+function getConvertedCurrency({
+  date,
+  amount,
+  currency,
+}: {
+  date: string;
+  amount: number;
+  currency: string;
+}) {
+  const splitDate = date.split("-");
+  return convertCurrency({
+    from: currency,
+    amount: amount,
+    year: splitDate[2],
+    month: splitDate[1],
+    day: splitDate[0],
+  });
+}
+
+function generateErrorsForFoundDuplicates(
+  rows: { [lineNo: number]: Transaction },
+  duplicates: Transaction[]
+) {
+  // Create a set of keys for the duplicates
+  const keySet = new Set(
+    duplicates.map((t) => t.transaction_date_string + t.description)
+  );
+
+  // Find the line numbers of the duplicates
+  const duplicatesLineNumbers = Object.entries(rows).reduce((prev, curr) => {
+    const [lineNoString, tnx] = curr;
+    const lineNo = parseInt(lineNoString);
+    if (keySet.has(tnx.transaction_date_string + tnx.description)) {
+      return [...prev, lineNo];
+    }
+    return prev;
+  }, [] as number[]);
+
+  // Create an array of error rows
+  const errorRowsArray = [
+    ...duplicatesLineNumbers.map((lineNo) => {
+      return {
+        lineNo: lineNo,
+        message: "Duplicate entry already in db",
+        date: rows[lineNo].transaction_date_string,
+        ...rows[lineNo],
+      };
+    }),
+  ];
+
+  return errorRowsArray;
 }
