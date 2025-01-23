@@ -102,6 +102,38 @@ describe("check the update request", () => {
     expect(updateResponse.status).toBe(409);
   });
 
+  it("should return 400 if the transaction data is invalid", async () => {
+    const updateResponse = await request(app)
+      .put(`/api/v1/transaction/invalid`)
+      .send({ transaction_date_string: "invalid-date" });
+    expect(updateResponse.status).toBe(400);
+  });
+
+  // return 400 on invalid update currency 
+  it("should return 400 if the currency is invalid", async () => {
+    const file = Buffer.from(`date,amount,description,currency
+      08-01-2024,100,payment,cad
+      09-01-2024,200,purchase,usd
+      `);
+    const response = await request(app)
+      .post("/api/v1/transaction/upload")
+      .attach("file", file, "test-file.csv");
+
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty(
+      "message",
+      "All transactions created successfully"
+    );
+
+    const transactions = await request(app).get("/api/v1/transaction?page=1&limit=10");
+    const transactionId = transactions.body.transactions[0].id;
+
+    const updateResponse = await request(app)
+      .put(`/api/v1/transaction/${transactionId}`)
+      .send({ currency: "invalid" });
+    expect(updateResponse.status).toBe(400);
+  });
+
   it("should return 500 if there is an error", async () => {
     // mock the updateTransaction method to throw an error
     jest

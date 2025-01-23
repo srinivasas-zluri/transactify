@@ -162,7 +162,7 @@ describe("TransactionService (with DB)", () => {
     const transaction = createTestTransaction({ description: "Initial Transaction" });
     const createdTransaction = await transactionService.createTransaction(transaction);
     
-    const updatedTransaction = new Transaction();
+    const updatedTransaction = transaction; 
     updatedTransaction.amount = 200;
 
     const result = await transactionService.updateTransaction(createdTransaction.id, updatedTransaction);
