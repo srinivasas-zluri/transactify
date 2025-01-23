@@ -134,6 +134,7 @@ export class TransactionService {
     originalTransaction.transaction_date_string = tnx.transaction_date_string;
     originalTransaction.description = tnx.description;
     originalTransaction.amount = tnx.amount;
+    originalTransaction.currency = tnx.currency;
 
     return originalTransaction;
   }
