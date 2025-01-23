@@ -219,7 +219,10 @@ export class TransactionController {
       const { page, limit } = req.query;
       const pageInt = Number(page);
       const limitInt = Number(limit);
-      if (pageInt < 1 || limitInt < 1) {
+      const isInLimit = pageInt > 0 && limitInt > 0;
+      // const isNotNaN = Number.isNaN(pageInt) || Number.isNaN(limitInt);
+      const isParamNaN = isNaN(pageInt) || isNaN(limitInt);
+      if (!isInLimit || isParamNaN) {
         res.status(400).json({ message: "Invalid page or limit" });
         return;
       }
@@ -284,7 +287,7 @@ export class TransactionController {
   async deleteTransactions(req: Request, res: Response): Promise<void> {
     try {
       const { ids } = req.body; // expects an array of IDs
-      console.log({ids})
+      console.log({ ids });
       if (!Array.isArray(ids) || ids.length === 0) {
         res.status(400).json({ message: "Invalid or missing 'ids' array" });
         return;

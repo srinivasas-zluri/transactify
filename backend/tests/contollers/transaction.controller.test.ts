@@ -52,6 +52,19 @@ describe("TransactionController", () => {
     };
   });
 
+  // 400 on get with no page and limit 
+  it("should return 400 when no page and limit are provided", async () => {
+    req.query = {};
+
+    await transactionController.getTransactions(req as Request, res as Response);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Invalid page or limit",
+    });
+  });
+
+
   it("should return 400 when invalid transaction data is provided", async () => {
     req.body = {
       date: "01-01-2025",
