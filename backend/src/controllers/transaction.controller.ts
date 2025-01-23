@@ -206,8 +206,6 @@ export class TransactionController {
   async updateTransaction(req: Request, res: Response): Promise<void> {
     try {
       const { id: _id } = req.params;
-      console.log({ _id });
-      console.log({ _id });
       const id = Number(_id);
       if (Number.isNaN(id)) {
         res.status(400).json({ message: "Invalid transaction ID" });
