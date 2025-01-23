@@ -188,7 +188,7 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({ transacti
 
             <DialogFooter>
                 <DialogClose>
-                    <Button type="button" variant="default" className="mt-4">
+                    <Button type="button" variant="default" className="mt-4" onClick={handleSubmit(onSubmit)}>
                         Save
                     </Button>
                 </DialogClose>

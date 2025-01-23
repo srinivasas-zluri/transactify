@@ -77,7 +77,7 @@ export const useTransactions = () => {
   const handleUpdate = async (transaction: Transaction) => {
     const id = transaction.id;
     const prevTransaction = transactions.find((t) => t.id === id);
-    console.log({ id, prevTransaction, transactions });
+    console.log({ id, prevTransaction, transaction });
     if (prevTransaction === undefined) {
       console.error(
         "Transaction not found this shouldn't happen check your code"
@@ -86,10 +86,6 @@ export const useTransactions = () => {
       return;
     }
 
-    setTransactions((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, ...transaction } : t))
-    );
-    console.log(transaction);
     try {
       await axios.put(routes.transactions.update({ id }), { ...transaction });
       toast.success("Transaction updated!");
