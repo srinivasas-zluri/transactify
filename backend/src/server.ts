@@ -6,7 +6,7 @@ import cors from "cors";
 const PORT = process.env.PORT || 3000;
 
 const allowedOrigins = [
-  "https://transactify-teal.vercel.app/",
+  "https://transactify-teal.vercel.app",
   "http://localhost:5173",
 ];
 
