@@ -10,6 +10,9 @@ export async function startApp(dbConfig: Options) {
   const db = await initORM(dbConfig);
   const transactionRouter = createTransactionRouter(db);
   app.set("db", db);
+  app.use("/health", (req, res) => {
+    res.send("OK");
+  });
   app.use("/api/v1/transaction", transactionRouter);
 }
 
