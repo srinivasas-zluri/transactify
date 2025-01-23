@@ -8,7 +8,7 @@ describe('ExpandableDescription', () => {
         render(<ExpandableDescription description={longDescription} />);
 
         // Check if the description is truncated
-        expect(screen.getByText('A'.repeat(100) + '...')).toBeInTheDocument();
+        expect(screen.getByText('A'.repeat(100) + '...')).toBeDefined();
     });
 
     it('should display "Show More" button if description is truncated', () => {
@@ -16,7 +16,7 @@ describe('ExpandableDescription', () => {
         render(<ExpandableDescription description={longDescription} />);
 
         // Check if the "Show More" button is shown
-        expect(screen.getByText('Show More')).toBeInTheDocument();
+        expect(screen.getByText('Show More')).toBeDefined();
     });
 
     it('should expand the description when "Show More" button is clicked', () => {
@@ -27,9 +27,9 @@ describe('ExpandableDescription', () => {
         fireEvent.click(screen.getByText('Show More'));
 
         // Check if the full description is now visible
-        expect(screen.getByText(longDescription)).toBeInTheDocument();
+        expect(screen.getByText(longDescription)).toBeDefined();
         // Check if the "Show Less" button is displayed
-        expect(screen.getByText('Show Less')).toBeInTheDocument();
+        expect(screen.getByText('Show Less')).toBeDefined();
     });
 
     it('should collapse the description back when "Show Less" button is clicked', () => {
@@ -43,9 +43,9 @@ describe('ExpandableDescription', () => {
         fireEvent.click(screen.getByText('Show Less'));
 
         // Check if the description is truncated again
-        expect(screen.getByText('A'.repeat(100) + '...')).toBeInTheDocument();
+        expect(screen.getByText('A'.repeat(100) + '...')).toBeDefined();
         // Check if the "Show More" button is displayed again
-        expect(screen.getByText('Show More')).toBeInTheDocument();
+        expect(screen.getByText('Show More')).toBeDefined();
     });
 
     it('should display the full description if it is less than or equal to 100 characters', () => {
@@ -53,7 +53,7 @@ describe('ExpandableDescription', () => {
         render(<ExpandableDescription description={shortDescription} />);
 
         // Check if the full description is visible
-        expect(screen.getByText(shortDescription)).toBeInTheDocument();
+        expect(screen.getByText(shortDescription)).toBeDefined();
         // Check that the "Show More" button is not displayed
         expect(screen.queryByText('Show More')).toBeNull();
     });
