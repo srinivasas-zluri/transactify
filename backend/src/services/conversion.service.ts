@@ -13,7 +13,7 @@
 
 import fs from "fs";
 import path from "path";
-import * as importedCurrencyData from "./currency_inr_conversion.json";
+import * as importedCurrencyData from "./selected_currencies.json";
 
 type CurrencyData = {
   [date: string]: {
