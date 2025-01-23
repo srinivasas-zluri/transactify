@@ -1,4 +1,5 @@
 import { Transaction } from "@/models/transaction";
+import { Select, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TableCell, TableRow } from "../ui/table";
 import { Button } from "../ui/button";
 import { ExpandableDescription } from "../expandableDescription";
@@ -9,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { validateTransaction } from "../validators/validateTransaction";
 import { DialogClose, DialogTitle } from "@radix-ui/react-dialog";
 import { Checkbox } from "../ui/checkbox";
+import { SelectCurrencyContent } from "../transactionManagement/CurrencySelectContent";
 
 export function ViewTransactionRow({
     transaction,
@@ -20,14 +22,14 @@ export function ViewTransactionRow({
     transaction: Transaction;
     onEditSave: (transaction: Transaction) => void;
     onDelete: () => void;
-    onCheckboxChange: (transactionId: number, isSelected: boolean ) => void;
+    onCheckboxChange: (transactionId: number, isSelected: boolean) => void;
     selected: boolean;
 }) {
     return (
         <TableRow key={transaction.id}>
             {/* add a checkbox */}
             <TableCell className="px-4 py-2">
-                <Checkbox checked={selected} onCheckedChange={ (e) => onCheckboxChange(transaction.id, e as boolean)}/> 
+                <Checkbox checked={selected} onCheckedChange={(e) => onCheckboxChange(transaction.id, e as boolean)} />
             </TableCell>
             <TableCell className="px-4 py-2 min-w-28">
                 {" "}
@@ -96,7 +98,7 @@ interface EditTransactionDialogProps {
 }
 
 const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({ transaction, onEditSave }) => {
-    const { register, handleSubmit, formState: { errors }, setError } = useForm<Transaction>({
+    const { register, handleSubmit, formState: { errors }, setError, setValue } = useForm<Transaction>({
         defaultValues: transaction,
     });
 
@@ -173,12 +175,19 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({ transacti
                 <label htmlFor="currency" className="text-right">
                     Currency
                 </label>
-                <Input
+
+                <Select defaultValue={transaction.currency} onValueChange={(value) => (setValue('currency', value))}>
+                    <SelectTrigger className="col-span-3">
+                        <SelectValue className="w-full" placeholder="Currency" />
+                    </SelectTrigger>
+                    <SelectCurrencyContent />
+                </Select>
+                {/* <Input
                     id="currency"
                     type="text"
                     {...register('currency', { required: 'Currency is required' })}
                     className="col-span-3"
-                />
+                /> */}
                 {errors.currency && (
                     <span className="col-span-4 col-start-2 p-0 text-red-500">
                         {errors.currency.message}
