@@ -51,7 +51,7 @@ describe("DELETE", () => {
       "All transactions created successfully"
     );
 
-    const transactions = await request(app).get("/api/v1/transaction");
+    const transactions = await request(app).get("/api/v1/transaction?page=1&limit=10");
     const transactionId = transactions.body.transactions[0].id;
     const tnx2Id = transactions.body.transactions[1].id;
 
@@ -59,7 +59,7 @@ describe("DELETE", () => {
       .delete(`/api/v1/transaction/`)
       .send({ ids: [transactionId, tnx2Id] });
 
-    const getResponse = await request(app).get("/api/v1/transaction");
+    const getResponse = await request(app).get("/api/v1/transaction?page=1&limit=10");
     expect(getResponse.body.transactions.length).toBe(1);
 
     expect(deleteResponse.status).toBe(200);

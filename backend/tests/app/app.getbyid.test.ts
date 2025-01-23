@@ -50,7 +50,7 @@ describe("get paginated requests", () => {
       "All transactions created successfully"
     );
 
-    const transactions = await request(app).get("/api/v1/transaction");
+    const transactions = await request(app).get("/api/v1/transaction?page=1&limit=10");
     const transactionId = transactions.body.transactions[0].id;
 
     const getResponse = await request(app).get(
