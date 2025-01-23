@@ -14,7 +14,7 @@ import { ViewTransactionRow } from "./ViewTransactionRow";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTrigger } from "../ui/dialog";
 import { PageState } from "@/hooks/useAppState";
-import { AddTransactionDialog } from "../TransactionManagement/AddTransactionDialog";
+import { AddTransactionDialog } from "../transactionManagement/AddTransactionDialog";
 import { useState } from "react";
 import { Checkbox } from "../ui/checkbox";
 

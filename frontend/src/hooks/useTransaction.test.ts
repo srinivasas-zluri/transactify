@@ -141,7 +141,7 @@ describe("useTransactions", () => {
       routes.transactions.create,
       createMockTransaction
     );
-    expect(toast.error).toHaveBeenCalledWith("Invalid data");
+    expect(toast.error).toHaveBeenCalledWith("Invalid data undefined");
   });
 
   it("should handle addTransaction error and show transaction already exists toast", async () => {

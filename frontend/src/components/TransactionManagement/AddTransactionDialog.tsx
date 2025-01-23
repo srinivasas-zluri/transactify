@@ -4,6 +4,8 @@ import { DialogFooter } from "../ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { validateTransaction } from "../validators/validateTransaction";
+import { Select, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SelectCurrencyContent } from "./CurrencySelectContent";
 
 
 interface TransactionErrors {
@@ -102,15 +104,12 @@ export function AddTransactionDialog({
                     <label htmlFor="currency" className="text-right">
                         Currency
                     </label>
-                    <Input
-                        id="currency"
-                        name="currency"
-                        className="col-span-3"
-                        placeholder="USD"
-                        onChange={(e) => {
-                            data.currency = e.target.value;
-                        }}
-                    />
+                    <Select onValueChange={(value) => (data.currency = value)}>
+                        <SelectTrigger className="col-span-3">
+                            <SelectValue className="w-full" placeholder="Currency" />
+                        </SelectTrigger>
+                        <SelectCurrencyContent />
+                    </Select>
                     {errors.currency && (
                         <span className="col-span-4 col-start-2 text-red-500">
                             {errors.currency}
