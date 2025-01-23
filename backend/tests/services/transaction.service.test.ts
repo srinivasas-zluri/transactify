@@ -215,7 +215,7 @@ describe("TransactionService (with DB)", () => {
 
       const tnx = await transactionService.prepareUpdateTransaction(createdTransaction.id, updatedTransaction);
       expect(tnx).not.toBeNull();
-      expect(tnx?.currency).toBe(createdTransaction.currency);
+      expect(tnx?.currency).toBe("SOMTING");
     });
 
     it("should not throw an error if the data is already deleted", async () => {

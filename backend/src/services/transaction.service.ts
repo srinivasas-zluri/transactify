@@ -69,7 +69,7 @@ export class TransactionService {
       {
         limit,
         offset: (page - 1) * limit,
-        orderBy: { transaction_date: "asc" },
+        orderBy: { transaction_date: "desc" },
       }
     );
     return { transactions, hasNextPage, hasPrevPage, totalTransactions };
