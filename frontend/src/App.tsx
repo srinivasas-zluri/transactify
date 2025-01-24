@@ -4,10 +4,10 @@ import "tailwindcss/tailwind.css";
 
 import { PageState, useAppState } from "./hooks/useAppState";
 import { UploadingFile } from "./pages/uploadingFileLoadingPage";
-import { TransactionTable } from "./components/table/TransactionTable";
-import { TransactionManagementLoadingPage } from "./components/transactionManagement/LoadingPage";
-import { UploadFile } from "./components/transactionManagement/UploadFile";
-import { PaginationComponent } from "./components/table/Pagination";
+import { TransactionTable } from "@/components/table/TransactionTable";
+import { TransactionManagementLoadingPage } from "@/components/transactionManagement/LoadingPage";
+import { UploadFile } from "@/components/transactionManagement/UploadFile";
+import { PaginationComponent } from "@/components/table/Pagination";
 import Dashboard from "./pages/dashboard";
 
 const App = () => {
