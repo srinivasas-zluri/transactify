@@ -51,7 +51,7 @@ export function ViewTransactionRow({
                 <div className="flex shrink">
                     <Dialog>
 
-                        <DialogTrigger className="w-full">
+                        <DialogTrigger className="w-full" data-testid="edit-button">
                             <div
                                 className="flex items-center border-2 bg-transparent hover:bg-transparent shadow-none px-4 py-3 border-none h-full text-slate-300 hover:text-yellow-500"
                             >
@@ -74,7 +74,7 @@ export function ViewTransactionRow({
 function DeleteButtonWithPopupDialog({ onDelete }: { onDelete: () => void }) {
     return (
         <Dialog>
-            <DialogTrigger>
+            <DialogTrigger data-testid="delete-button">
                 <Button className="flex items-center border-2 bg-transparent hover:bg-transparent shadow-none px-4 py-4 border-none rounded-lg text-slate-300 hover:text-red-500">
                     <TbTrashXFilled className="scale-150" />
                 </Button>

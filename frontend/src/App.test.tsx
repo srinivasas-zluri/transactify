@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 // import { vi } from 'vitest';
 import App from './App';
 import * as UseAppState from './hooks/useAppState';
@@ -110,6 +110,53 @@ describe('App Component', () => {
     render(<App />);
 
     expect(screen.getByText(/Test Transaction/i)).toBeDefined();
+  });
+
+  // should render the view more button if the description is too long
+  it('Should render the view more button if the description is too long', () => {
+    mockUseAppState.mockReturnValue(defaultAppState && {
+      pageState: UseAppState.PageState.View,
+      transactions: [
+        CreateTransactionDataFn(10),
+      ],
+      prev: { page: 1 },
+      next: { page: 2 },
+    });
+
+    render(<App />);
+
+    expect(screen.getByText(/Show More/i)).toBeDefined();
+  });
+
+  // render Analytics 
+  it('Should render analytics', () => {
+    mockUseAppState.mockReturnValue(defaultAppState && {
+      pageState: UseAppState.PageState.Analytics,
+    });
+
+    render(<App />);
+
+    expect(screen.getByText(/Loading.../i)).toBeDefined();
+  });
+
+  // try clicking the edit button 
+  it('Should click the edit button', () => {
+    mockUseAppState.mockReturnValue(defaultAppState && {
+      pageState: UseAppState.PageState.View,
+      transactions: Array.from({ length: 10 }, (_, i) => CreateTransactionDataFn(i)),
+      prev: { page: 1 },
+      next: { page: 2 },
+    });
+
+    render(<App />);
+
+    const editButton = screen.getAllByTestId('edit-button');
+
+    // act 
+    fireEvent.click(editButton[0]);
+
+    // check for the dialog 
+    expect(screen.getByText(/Edit Transaction/i)).toBeDefined();
   });
 
 });
