@@ -104,11 +104,14 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({ transacti
 
     const onSubmit: SubmitHandler<Transaction> = (data) => {
         const transformData = { ...data, date: data.transaction_date_string };
-        console.log({ transformData })
         const errors = validateTransaction(transformData);
         console.error({ errors })
         if (errors !== null) {
             Object.entries(errors).forEach(([key, value]) => {
+                if (key == "date") {
+                    setError('transaction_date_string', { type: 'manual', message: value });
+                    return;
+                }
                 setError(key as keyof Transaction, { type: 'manual', message: value });
             });
             return;

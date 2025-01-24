@@ -20,19 +20,21 @@ export function AddTransactionDialog({
 }: {
     onSubmit: (data: CreateTransactionData) => void;
 }) {
-    const data: CreateTransactionData = {
+    const [data, setData] = useState<CreateTransactionData>({
         date: "",
         description: "",
         amount: 0,
         currency: "",
-    };
+    });
 
     const [errors, setErrors] = useState<TransactionErrors>({});
 
     function submitDataFn(data: CreateTransactionData) {
+        console.log({ data });
         const errors = validateTransaction(data);
         if (errors) {
             setErrors(errors);
+            console.log({ data })
             return;
         }
 
@@ -52,7 +54,7 @@ export function AddTransactionDialog({
                         className="col-span-3"
                         placeholder="dd-mm-yyyy"
                         onChange={(e) => {
-                            data.date = e.target.value;
+                            setData({ ...data, date: e.target.value });
                         }}
                     />
                     {errors.date && (
@@ -71,7 +73,7 @@ export function AddTransactionDialog({
                         className="col-span-3"
                         placeholder="Add a description"
                         onChange={(e) => {
-                            data.description = e.target.value;
+                            setData({ ...data, description: e.target.value });
                         }}
                     />
                     {errors.description && (
@@ -91,7 +93,8 @@ export function AddTransactionDialog({
                         className="col-span-3"
                         placeholder="300.00"
                         onChange={(e) => {
-                            data.amount = parseFloat(e.target.value);
+                            // data.amount = parseFloat(e.target.value);
+                            setData({ ...data, amount: parseFloat(e.target.value) });
                         }}
                     />
                     {errors.amount && (
@@ -104,7 +107,9 @@ export function AddTransactionDialog({
                     <label htmlFor="currency" className="text-right">
                         Currency
                     </label>
-                    <Select onValueChange={(value) => (data.currency = value)}>
+                    <Select onValueChange={(value) => {
+                        setData({ ...data, currency: value });
+                    }}>
                         <SelectTrigger className="col-span-3">
                             <SelectValue className="w-full" placeholder="Currency" />
                         </SelectTrigger>
