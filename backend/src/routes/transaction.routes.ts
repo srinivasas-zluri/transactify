@@ -27,6 +27,10 @@ export default function createTransactionRouter(db: DBServices) {
     transactionController.createTransaction.bind(transactionController)
   );
   transactionRouter.get(
+    "/analytics",
+    transactionController.getAnalytics.bind(transactionController)
+  );
+  transactionRouter.get(
     "/:id",
     transactionController.getTransactionById.bind(transactionController)
   );

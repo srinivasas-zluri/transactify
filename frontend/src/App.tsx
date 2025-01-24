@@ -8,6 +8,7 @@ import { TransactionTable } from "./components/table/TransactionTable";
 import { TransactionManagementLoadingPage } from "./components/transactionManagement/LoadingPage";
 import { UploadFile } from "./components/transactionManagement/UploadFile";
 import { PaginationComponent } from "./components/table/Pagination";
+import Dashboard from "./pages/dashboard";
 
 const App = () => {
   return (
@@ -32,6 +33,7 @@ const ApplicationPage = () => {
     onEditSaveClicked,
     onDeleteClicked,
     onMultipleDeleteClicked,
+    setPageState
   } = useAppState();
 
   if (pageState === PageState.UploadingFile) {
@@ -40,6 +42,10 @@ const ApplicationPage = () => {
 
   if (pageState === PageState.Loading) {
     return <TransactionManagementLoadingPage />;
+  }
+
+  if (pageState === PageState.Analytics) {
+    return <Dashboard back={() => setPage(PageState.View)} />;
   }
 
   const isDataNull = transactions.length === 0 && prev.page === null && next.page === null;
@@ -57,6 +63,7 @@ const ApplicationPage = () => {
         onEditSaveClicked={onEditSaveClicked}
         onDeleteClicked={onDeleteClicked}
         onCreateTransaction={onCreateTransaction}
+        goToDashboard={() => setPageState(PageState.Analytics)}
         paginationComponent={<PaginationComponent page={page} prev={prev} next={next} setPage={setPage} />}
       />
 

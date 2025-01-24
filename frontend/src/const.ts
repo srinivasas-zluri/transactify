@@ -23,5 +23,6 @@ export const routes = {
     create: mergeRoutes(transactionsURL, "/"),
     delete: mergeRoutes(transactionsURL, "/"),
     update: ({ id }: { id: number }) => mergeRoutes(transactionsURL, `/${id}`),
+    analytics: mergeRoutes(transactionsURL, "/analytics"),
   },
 };

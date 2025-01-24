@@ -164,6 +164,30 @@ export class TransactionController {
     }
   }
 
+  // Endpoint for getting transaction analytics
+  async getAnalytics(req: Request, res: Response): Promise<void> {
+    try {
+      const { start_date, end_date, group_by_currency, granularity } =
+        req.query;
+
+      // Call the service to get analytics
+      const analytics = await this.transactionService.getAnalytics({
+        start_date: start_date as string,
+        end_date: end_date as string,
+        group_by_currency: group_by_currency === "true",
+        granularity: (granularity as "day" | "month" | "year") || "month",
+      });
+
+      // Return the analytics response
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error retrieving analytics:", error);
+      // Handle errors (e.g. BadRequestError, etc.)
+      // res.status(error.status || 500).json({ message: error.message });
+      res.status(500).json({ message: "Failed to retrieve analytics" });
+    }
+  }
+
   // Get paginated transactions
   async getTransactions(req: Request, res: Response): Promise<void> {
     try {

@@ -2,13 +2,15 @@ import { DBServices } from "~/db";
 import { handleRow } from "~/internal/csv/main";
 import { CSVParseError, CSVRow } from "~/internal/csv/types";
 import { Transaction } from "~/models/transaction";
-import { convertCurrency } from "./conversion.service";
+import {TransactionAnalyticsService} from "./analytics.service"
 
 export class TransactionService {
   private db: DBServices;
+  private analyticsService: TransactionAnalyticsService;
 
   constructor(db: DBServices) {
     this.db = db;
+    this.analyticsService = new TransactionAnalyticsService(db.em);
   }
 
   get em() {
@@ -166,6 +168,17 @@ export class TransactionService {
     const deleted = await em.nativeDelete(Transaction, { id: { $in: ids } });
     return deleted;
   }
+
+
+  async getAnalytics(params: {
+    start_date?: string;
+    end_date?: string;
+    group_by_currency?: boolean;
+    granularity?: "day" | "month" | "year";
+  }) { 
+    return this.analyticsService.getAnalytics(params);
+  }
+
 }
 
 function cleanString(value: string | undefined | null) {
