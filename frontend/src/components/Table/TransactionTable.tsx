@@ -11,13 +11,13 @@ import { MdAnalytics } from "react-icons/md";
 import { CreateTransactionData, Transaction } from "@/models/transaction";
 import { Button } from "../ui/button";
 import { TbPlus, TbTrashXFilled } from "react-icons/tb";
-import { ViewTransactionRow } from "./ViewTransactionRow";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTrigger } from "../ui/dialog";
 import { PageState } from "@/hooks/useAppState";
-import { AddTransactionDialog } from "@/components/transactionManagement/AddTransactionDialog";
+import { AddTransactionDialog } from "@/components/TransactionManagement/AddTransactionDialog";
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ViewTransactionRow } from "./ViewTransactionRow";
 
 
 interface TransactionTableProps {

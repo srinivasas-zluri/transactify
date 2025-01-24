@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { validateTransaction } from "../validators/validateTransaction";
 import { DialogClose, DialogTitle } from "@radix-ui/react-dialog";
 import { Checkbox } from "../ui/checkbox";
-import { SelectCurrencyContent } from "../transactionManagement/CurrencySelectContent";
+import { SelectCurrencyContent } from "../TransactionManagement/CurrencySelectContent";
 
 export function ViewTransactionRow({
     transaction,

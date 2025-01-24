@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { TbSettings } from "react-icons/tb";
 import { toast } from "react-toastify";
-import { TransactionManagementLoadingPage } from "@/components/transactionManagement/LoadingPage";
+import { TransactionManagementLoadingPage } from "@/components/TransactionManagement/LoadingPage";
 import { ArrowLeftIcon } from "lucide-react";
 import { routes } from "@/const";
 
