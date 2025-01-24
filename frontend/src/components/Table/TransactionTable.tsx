@@ -7,6 +7,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { MdAnalytics } from "react-icons/md";
 import { CreateTransactionData, Transaction } from "@/models/transaction";
 import { Button } from "../ui/button";
 import { TbPlus, TbTrashXFilled } from "react-icons/tb";
@@ -26,6 +27,7 @@ interface TransactionTableProps {
     onDeleteClicked: (id: number) => void;
     onMultipleDeleteClicked: (ids: number[]) => void;
     onCreateTransaction: (data: CreateTransactionData) => void;
+    goToDashboard: () => void;
     paginationComponent: JSX.Element;
 }
 
@@ -34,6 +36,7 @@ export const TransactionTable = ({
     onEditSaveClicked,
     onDeleteClicked,
     paginationComponent,
+    goToDashboard,
     onCreateTransaction,
     onMultipleDeleteClicked,
 }: TransactionTableProps) => {
@@ -49,9 +52,8 @@ export const TransactionTable = ({
                         disabled={selected.length === 0}
                         onClick={() => onMultipleDeleteClicked(selected)}
                     />
-                    <AddTransactionButton
-                        onCreateTransaction={onCreateTransaction}
-                    />
+                    {/* got to analytics dashboard button */}
+                    <Button onClick={goToDashboard} className="border-2 border-indigo-200 bg-transparent hover:bg-indigo-100 px-8 border-dashed text-indigo-300"><MdAnalytics className="scale-150" />Analytics</Button>
                 </div>
 
                 <div className="flex justify-end w-full sm:w-fit">
@@ -197,24 +199,24 @@ function DeletePopupButton({ disabled, onClick }: { disabled: boolean, onClick: 
     </Dialog>
 }
 
-function AddTransactionButton({ onCreateTransaction }: { onCreateTransaction: (data: CreateTransactionData) => void }) {
-    return <Dialog>
-        <DialogTrigger className="">
-            <Button className="flex justify-center items-center border-4 border-slate-300 bg-background hover:bg-background shadow-none border-dotted w-full hover:text-black-300">
-                <TbPlus className="text-slate-400 scale-150" />
-                <p className="text-md text-secondary-foreground text-slate-400">
-                    Add a new transaction
-                </p>
-            </Button>
-        </DialogTrigger>
-        <DialogContent className="bg-background shadow-xl">
-            <DialogHeader>
-                <DialogTitle>Add a new transaction</DialogTitle>
-                <DialogDescription>
-                    Enter the transaction you want to add
-                </DialogDescription>
-            </DialogHeader>
-            <AddTransactionDialog onSubmit={onCreateTransaction} />
-        </DialogContent>
-    </Dialog>
-}
+// function AddTransactionButton({ onCreateTransaction }: { onCreateTransaction: (data: CreateTransactionData) => void }) {
+//     return <Dialog>
+//         <DialogTrigger className="">
+//             <Button className="flex justify-center items-center border-4 border-slate-300 bg-background hover:bg-background shadow-none border-dotted w-full hover:text-black-300">
+//                 <TbPlus className="text-slate-400 scale-150" />
+//                 <p className="text-md text-secondary-foreground text-slate-400">
+//                     Add a new transaction
+//                 </p>
+//             </Button>
+//         </DialogTrigger>
+//         <DialogContent className="bg-background shadow-xl">
+//             <DialogHeader>
+//                 <DialogTitle>Add a new transaction</DialogTitle>
+//                 <DialogDescription>
+//                     Enter the transaction you want to add
+//                 </DialogDescription>
+//             </DialogHeader>
+//             <AddTransactionDialog onSubmit={onCreateTransaction} />
+//         </DialogContent>
+//     </Dialog>
+// }

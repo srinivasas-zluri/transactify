@@ -6,6 +6,7 @@ import { CreateTransactionData, Transaction } from "@/models/transaction";
 export enum PageState {
   Loading,
   UploadingFile,
+  Analytics,
   View,
   Error,
 }
@@ -88,5 +89,6 @@ export function useAppState() {
     onEditSaveClicked,
     prev,
     next,
+    setPageState,
   };
 }
