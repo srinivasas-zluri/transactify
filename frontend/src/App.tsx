@@ -45,7 +45,7 @@ const ApplicationPage = () => {
   }
 
   if (pageState === PageState.Analytics) {
-    return <Dashboard back={() => setPage(PageState.View)} />;
+    return <Dashboard back={() => setPageState(PageState.View)} />;
   }
 
   const isDataNull = transactions.length === 0 && prev.page === null && next.page === null;
