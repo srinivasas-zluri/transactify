@@ -135,7 +135,7 @@ export const Dashboard = ({ back }: { back: () => void }) => {
 
 
             {/* show the data if analytics is present */}
-            {(analyticsData && analyticsData.length > 0) ? (
+            {(analyticsData) ? (
                 <>
                     <DashBoardSettings
                         dateRange={dateRange}
