@@ -2,7 +2,7 @@ import { DBServices } from "~/db";
 import { handleRow } from "~/internal/csv/main";
 import { CSVParseError, CSVRow } from "~/internal/csv/types";
 import { Transaction } from "~/models/transaction";
-import {TransactionAnalyticsService} from "./analytics.service"
+import { TransactionAnalyticsService } from "./analytics.service";
 
 export class TransactionService {
   private db: DBServices;
@@ -165,20 +165,25 @@ export class TransactionService {
   //   // delete multiple transactions
   async deleteTransactions(ids: number[]) {
     const em = this.em.fork();
-    const deleted = await em.nativeDelete(Transaction, { id: { $in: ids } });
-    return deleted;
+    const transactions = await em.find(Transaction, {
+      id: { $in: ids },
+      is_deleted: false,
+    });
+    transactions.forEach((t) => {
+      t.is_deleted = true;
+    });
+    await em.persistAndFlush(transactions);
+    return ids;
   }
-
 
   async getAnalytics(params: {
     start_date?: string;
     end_date?: string;
     group_by_currency?: boolean;
     granularity?: "day" | "month" | "year";
-  }) { 
+  }) {
     return this.analyticsService.getAnalytics(params);
   }
-
 }
 
 function cleanString(value: string | undefined | null) {
