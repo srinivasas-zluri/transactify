@@ -10,6 +10,7 @@ import { FileCSVWriter } from "~/internal/csv/writer";
 import { UniqueConstraintViolationException } from "@mikro-orm/core";
 import { convertCurrency } from "~/services/conversion.service";
 import { cleanRow, mergeCSVErrors, validateRow } from "~/internal/csv/parse";
+import { BadRequestError } from "~/services/analytics.service";
 
 export class TransactionController {
   private transactionService: TransactionService;
@@ -181,6 +182,10 @@ export class TransactionController {
       // Return the analytics response
       res.json(analytics);
     } catch (error) {
+      if (error instanceof BadRequestError) {
+        res.status(400).json({ message: error.message });
+        return;
+      }
       console.error("Error retrieving analytics:", error);
       // Handle errors (e.g. BadRequestError, etc.)
       // res.status(error.status || 500).json({ message: error.message });
