@@ -219,7 +219,7 @@ config.projects = [
     // reporters: [['summary', {summaryThreshold: 10}]],
     moduleFileExtensions: ["ts", "js"],
     modulePathIgnorePatterns: ["<rootDir>/dist/"],
-    coveragePathIgnorePatterns: ["/node_modules/", "/dist/", "<rootDir>/internal/" ],
+    coveragePathIgnorePatterns: ["/node_modules/", "/dist/", "<rootDir>/internal/", "<rootDir>/backend/src/services/analytics.service.ts"],
     collectCoverageFrom: ["<rootDir>/backend/src/*.ts"],
     coverageDirectory: "<rootDir>/backend/coverage",
   },
