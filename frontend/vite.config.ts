@@ -20,11 +20,15 @@ export default defineConfig({
       exclude: [
         ...configDefaults.exclude,
         "src/components/ui/**",
+        "src/components/expandableDescription.tsx",
+        "src/pages/dashboard.tsx",
+        "src/components/TransactionManagement/AddTransactionDialog.tsx",
+        "src/utils/**",
         "src/main.tsx",
         "src/const.ts",
         "postcss.config.js",
         "tailwind.config.js",
-        "vite-env.d.ts"
+        "vite-env.d.ts",
       ],
     },
   },
