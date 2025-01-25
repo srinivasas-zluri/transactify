@@ -31,6 +31,11 @@ export function validateTransaction(
     errors.date = "Date cannot be in the future";
   }
 
+  // Check if the date is before January 1, 2014
+  if (parsedDate != null && parsedDate < new Date("2014-01-01")) {
+    errors.date = "Date cannot be before 2014-01-01";
+  }
+
   if (data.description.length > 254) {
     errors.description = "Description is too long";
   }
@@ -49,6 +54,22 @@ export function validateTransaction(
 
   if (data.amount === "") {
     errors.amount = "Amount is required";
+  }
+
+  // Validate the amount format
+  const amountString = data.amount.toString();
+  const [whole, decimal] = amountString.split(".");
+
+  // Check if the whole part of the amount is too long
+  if (whole.length > 10) {
+    errors.amount =
+      "Amount cannot have more than 10 digits before the decimal point";
+  }
+
+  // Check if the decimal part of the amount is too long
+  if (decimal && decimal.length > 2) {
+    errors.amount =
+      "Amount cannot have more than 2 digits after the decimal point";
   }
 
   if (Object.keys(errors).length === 0) {
