@@ -73,8 +73,8 @@ describe("GET /api/v1/transaction/analytics", () => {
       {
         currency: null,
         month: "2024-01-01 00:00:00+00",
-        total_amount: "800",
-        total_inr_amount: "800",
+        total_amount: "800.00",
+        total_inr_amount: "800.00",
       },
     ]);
   });
@@ -150,8 +150,8 @@ describe("GET /api/v1/transaction/analytics", () => {
       {
         currency: null,
         month: "2024-01-01 00:00:00+00",
-        total_amount: "800",
-        total_inr_amount: "800",
+        total_amount: "800.00",
+        total_inr_amount: "800.00",
       },
     ]);
   });
@@ -192,14 +192,14 @@ describe("GET /api/v1/transaction/analytics", () => {
     expect(response.body).toEqual([
       {
         month: "2024-01-01 00:00:00+00",
-        total_amount: "200",
-        total_inr_amount: "200",
+        total_amount: "200.00",
+        total_inr_amount: "200.00",
         currency: "EUR",
       },
       {
         month: "2024-01-01 00:00:00+00",
-        total_amount: "900",
-        total_inr_amount: "900",
+        total_amount: "900.00",
+        total_inr_amount: "900.00",
         currency: "USD",
       },
     ]);

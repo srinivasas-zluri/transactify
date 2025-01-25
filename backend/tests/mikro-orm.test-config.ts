@@ -5,7 +5,7 @@ import { User } from "~/models/user";
 const config: Options = {
   driver: PostgreSqlDriver,
   migrations: {
-    path: "./migrations",
+    path: "./backend/migrations",
   },
   entities: [User, Transaction],
   dbName: "testing",

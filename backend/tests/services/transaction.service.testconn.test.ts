@@ -12,9 +12,6 @@ describe("DB Connection check", () => {
     const migrationNeeded = await migrator.checkMigrationNeeded();
     console.log({ migrationNeeded });
 
-    const migrationres = await migrator.createMigration();
-    console.log({ migrationres });
-
     await db.orm.getMigrator().up();
     console.log("Migrations run successfully");
     console.log(db.orm.config.get("dbName"));
