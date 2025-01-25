@@ -51,7 +51,7 @@ export const useTransactions = () => {
       }
       const { status, response } = error;
       if (status === 400) {
-        toast.error("Invalid data "+ response?.data?.message);
+        toast.error("Invalid data " + response?.data?.message);
       } else if (status === 409) {
         toast.error("Transaction already exists");
       } else {
@@ -105,7 +105,10 @@ export const useTransactions = () => {
       }
 
       const { status } = error;
-      if (status === 409) {
+      if (status === 400) {
+        const { message } = error.response?.data || "";
+        toast.error("Invalid data: " + message);
+      } else if (status === 409) {
         toast.error("Transaction already exists with the same data");
       } else {
         toast.error("Failed to update transaction");
