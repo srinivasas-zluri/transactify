@@ -7,7 +7,7 @@ describe("DB Connection check", () => {
 
   beforeAll(async () => {
     db = await initORM(ormConfig);
-    const migrator = db.orm.getMigrator();
+    const migrator = db.orm.getMigrator()
 
     const migrationNeeded = await migrator.checkMigrationNeeded();
     console.log({ migrationNeeded });

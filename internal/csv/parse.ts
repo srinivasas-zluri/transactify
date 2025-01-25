@@ -36,10 +36,18 @@ export function validateRow(
     });
   }
 
-  if (date && date > new Date()) { 
+  if (date && date > new Date()) {
     errors.push({
       type: "InvalidLine",
       message: "Date cannot be in the future",
+      lineNo,
+    });
+  }
+
+  if (date && date < new Date("2000-01-01")) {
+    errors.push({
+      type: "InvalidLine",
+      message: "Date cannot be before 2014-01-01",
       lineNo,
     });
   }
@@ -65,7 +73,7 @@ export function validateRow(
     });
   }
 
-  if ( isValidAmount && decimal && decimal.length > 2) {
+  if (isValidAmount && decimal && decimal.length > 2) {
     errors.push({
       type: "InvalidLine",
       message: "Amount cannot be more than 2 digits after the decimal point",
@@ -150,6 +158,10 @@ function parseDate(date: string): Date | null {
     return null; // Invalid format
   }
 
+  if (!isValidStrictDate(date)) {
+    return null;
+  }
+
   // Split the date by either '-' or '/'
   const separator = date.includes("-") ? "-" : "/";
   const [day, month, year] = date.split(separator);
@@ -165,7 +177,7 @@ function parseAmount(amount: string): number | null {
 
   // valid number regex
   // const validNumberRegex = /^[+-]?\d+(\.\d+)?$/;
-  // explain the regex 
+  // explain the regex
   // ^[+-]? - optional + or - at the start
   // (0|[1-9]\d*)? - optional 0 or a number that doesn't start with 0
   // (\.\d+)? - optional decimal point followed by one or more digits
@@ -180,4 +192,35 @@ function parseAmount(amount: string): number | null {
 
 function cleanSpaces(x: string): string {
   return x.trim().replace(/\s/g, "");
+}
+
+function isValidStrictDate(date: string): boolean {
+  // check if it's a valid date
+  // ex: 31-02-2025 is invalid
+  const dateParts = date.split(/[-\/]/);
+  const _day = parseInt(dateParts[0], 10);
+  const _month = parseInt(dateParts[1], 10);
+  const _year = parseInt(dateParts[2], 10);
+  if (_day < 1 || _day > 31) {
+    return false;
+  }
+  if (_month < 1 || _month > 12) {
+    return false;
+  }
+
+  if (_month === 2 && _day > 29) {
+    return false;
+  }
+  if ([4, 6, 9, 11].includes(_month) && _day > 30) {
+    return false;
+  }
+  // check for leap year
+  if (
+    _month === 2 &&
+    _day === 29 &&
+    !((_year % 4 === 0 && _year % 100 !== 0) || _year % 400 === 0)
+  ) {
+    return false;
+  }
+  return true;
 }
