@@ -10,6 +10,14 @@ export const useFileUpload = () => {
   const handleFileUpload = async (file: File) => {
     if (!file) return;
 
+    // check the file size 
+    const KB = 1024;
+    const MB = KB * 1024;
+    if (file.size > 1 * MB) {
+      toast.error("File size too large, please upload a smaller file within 1MB");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("file", file);
 
