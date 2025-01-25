@@ -44,7 +44,7 @@ export function validateRow(
     });
   }
 
-  if (date && date < new Date("2000-01-01")) {
+  if (date && date < new Date("2014-01-01")) {
     errors.push({
       type: "InvalidLine",
       message: "Date cannot be before 2014-01-01",
