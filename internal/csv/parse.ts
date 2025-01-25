@@ -53,6 +53,26 @@ export function validateRow(
     });
   }
 
+  // check if the amount of digits before and after the decimal point is correct
+  const amountString = originalRow.amount.toString();
+  const isValidAmount = amount !== null;
+  const [whole, decimal] = amountString.split(".");
+  if (isValidAmount && whole.length > 10) {
+    errors.push({
+      type: "InvalidLine",
+      message: "Amount cannot be more than 10 digits before the decimal point",
+      lineNo,
+    });
+  }
+
+  if ( isValidAmount && decimal && decimal.length > 2) {
+    errors.push({
+      type: "InvalidLine",
+      message: "Amount cannot be more than 2 digits after the decimal point",
+      lineNo,
+    });
+  }
+
   if (row.description === "") {
     errors.push({
       type: "InvalidLine",
@@ -144,7 +164,12 @@ function parseAmount(amount: string): number | null {
   }
 
   // valid number regex
-  const validNumberRegex = /^[+-]?\d+(\.\d+)?$/;
+  // const validNumberRegex = /^[+-]?\d+(\.\d+)?$/;
+  // explain the regex 
+  // ^[+-]? - optional + or - at the start
+  // (0|[1-9]\d*)? - optional 0 or a number that doesn't start with 0
+  // (\.\d+)? - optional decimal point followed by one or more digits
+  const validNumberRegex = /^[+-]?(0|[1-9]\d*)?(\.\d+)?(?<=\d)$/;
   if (!validNumberRegex.test(amount)) {
     return null;
   }
