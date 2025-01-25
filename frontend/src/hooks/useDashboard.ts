@@ -98,7 +98,7 @@ export function useAnalyticsDashboard({ toast }: { toast: Toast }) {
     if (granularity === "month") {
       labels.forEach((label, index) => {
         const date = new Date(label);
-        labels[index] = date.toLocaleString("default", { month: "long" });
+        labels[index] = date.toLocaleString("default", { month: "short", year: "numeric" });
       });
     } else if (granularity === "day") {
       labels.forEach((label, index) => {

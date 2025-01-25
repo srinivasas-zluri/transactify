@@ -207,7 +207,7 @@ function ChartDashboardQuickInsights({
                 <Card className="bg-white shadow-md">
                     <CardHeader>
                         <h2 className="font-semibold text-gray-800 text-xl">
-                            Transaction Count
+                            Grouped Transactions
                         </h2>
                     </CardHeader>
                     <CardContent>
