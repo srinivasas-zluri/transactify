@@ -51,13 +51,11 @@ export const useFileUpload = () => {
         console.error(error);
         return;
       }
-      const { status } = error;
-      if (status === 503) {
-        toast.warn(
-          "File is being processed in the background, might take more than 10mins, free tier what can we say T_T. Kudos to you! You found a bug in the code."
-        );
-        toast.warn("Check back in a few minutes");
-      }
+      console.log("here");
+      toast.warning(
+        "File is being processed in the background, might take more than 10mins, free tier what can we say T_T. Kudos to you! You found a debatable bug in the code."
+      );
+      toast.warning("Check back in a few minutes");
     }
   };
 
