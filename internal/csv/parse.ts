@@ -208,19 +208,10 @@ function isValidStrictDate(date: string): boolean {
     return false;
   }
 
-  if (_month === 2 && _day > 29) {
+  const numDays = new Date(_year, _month, 0).getDate();
+  if (_day > numDays) {
     return false;
   }
-  if ([4, 6, 9, 11].includes(_month) && _day > 30) {
-    return false;
-  }
-  // check for leap year
-  if (
-    _month === 2 &&
-    _day === 29 &&
-    !((_year % 4 === 0 && _year % 100 !== 0) || _year % 400 === 0)
-  ) {
-    return false;
-  }
+
   return true;
 }
