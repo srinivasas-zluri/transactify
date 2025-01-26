@@ -89,6 +89,37 @@ export function validateRow(
     });
   }
 
+  // validate against special characters like zero-width space and other invisible characters
+  const specialCharsRegex = /[\u200B-\u200D\uFEFF]/;
+  if (specialCharsRegex.test(row.description)) {
+    errors.push({
+      type: "InvalidLine",
+      message: "Description cannot contain special characters",
+      lineNo,
+    });
+  }
+  const specialChars = [
+    "\u00A0", // non-breaking space
+    "\u200B", // zero-width space
+    "\u200C", // zero-width non-joiner
+    "\u2013", // en dash
+    "\u2014", // em dash
+    "\u201C", // left double quotation mark
+    "\u201D", // right double quotation mark
+    "\u2212", // minus sign
+    "\u00E4", // latin small letter a with diaeresis
+    "\uFFFD", // replacement character
+    "\u2217", // asterisk operator
+  ];
+
+  if (specialChars.some((char) => row.description.includes(char))) {
+    errors.push({
+      type: "InvalidLine",
+      message: "Description cannot contain special characters",
+      lineNo,
+    });
+  }
+
   if (row.description.length > 253) {
     errors.push({
       type: "InvalidLine",
