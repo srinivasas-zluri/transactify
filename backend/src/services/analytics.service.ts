@@ -29,6 +29,15 @@ export class TransactionAnalyticsService {
       );
     }
 
+    // check if both the dates are valid and parsable dates
+    if (start_date && isNaN(Date.parse(start_date))) {
+      throw new BadRequestError("Invalid start_date");
+    }
+
+    if (end_date && isNaN(Date.parse(end_date))) {
+      throw new BadRequestError("Invalid end_date");
+    }
+
     // Fetch the min and max dates from the database if not provided
     const minMaxDate = await this.em.execute(
       "SELECT MIN(t.transaction_date) AS min_date, MAX(t.transaction_date) AS max_date FROM transaction t"
