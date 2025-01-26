@@ -149,6 +149,11 @@ export class TransactionController {
   async getTransactionById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
+      const num = Number(id);
+      if (Number.isNaN(num)) {
+        res.status(400).json({ message: "Invalid transaction ID" });
+        return;
+      }
       const transaction = await this.transactionService.getTransactionById(
         Number(id)
       );
