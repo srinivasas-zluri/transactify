@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import { routes } from "@/const";
 import { triggerDownloadBlob } from "@/utils/downloadBlob";
@@ -10,11 +10,13 @@ export const useFileUpload = () => {
   const handleFileUpload = async (file: File) => {
     if (!file) return;
 
-    // check the file size 
+    // check the file size
     const KB = 1024;
     const MB = KB * 1024;
     if (file.size > 1 * MB) {
-      toast.error("File size too large, please upload a smaller file within 1MB");
+      toast.error(
+        "File size too large, please upload a smaller file within 1MB"
+      );
       return;
     }
 
@@ -44,8 +46,18 @@ export const useFileUpload = () => {
         triggerDownloadBlob(res.data, "errors.csv");
       }
     } catch (error) {
-      toast.error("File upload failed");
-      console.error(error);
+      if (!(error instanceof AxiosError)) {
+        toast.error("File upload failed");
+        console.error(error);
+        return;
+      }
+      const { status } = error;
+      if (status === 503) {
+        toast.warn(
+          "File is being processed in the background, might take more than 10mins, free tier what can we say T_T. Kudos to you! You found a bug in the code."
+        );
+        toast.warn("Check back in a few minutes");
+      }
     }
   };
 
