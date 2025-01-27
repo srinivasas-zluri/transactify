@@ -20,3 +20,6 @@
 -[daily forex rates](https://www.kaggle.com/datasets/asaniczka/forex-exchange-rate-since-2004-updated-daily)
 -[my impl of getting inr exchange rates](https://colab.research.google.com/drive/1eWqdt1xKwFyyhYlco9Ip31JgxbCbPOAz?usp=sharing)
 -[connecting to postgres db from ec2](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_GettingStarted.CreatingConnecting.PostgreSQL.html#CHAP_GettingStarted.Connecting.PostgreSQL)
+-[install caddy](https://docs.vultr.com/getting-started-with-the-caddy-web-server-on-a-vultr-cloud-server?ref=9141994&utm_source=performance-max-apac&utm_medium=paidmedia&obility_id=16876059738&&utm_campaign=APAC_-_India_-_Performance_Max_-_1001&utm_term=&utm_content=&ref=9141994&gad_source=1&gclid=Cj0KCQiA19e8BhCVARIsALpFMgFaxsyd50NAdWvCVUN0EIm1WwSJe7XvDxX_kfrK9Y2Pyu4My5sUBQ0aAjEGEALw_wcB#security)
+-[ec2 without custom domain](https://bansalanuj.com/https-aws-ec2-without-custom-domain)
+-[nip.io](https://nip.io/)
