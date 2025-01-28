@@ -127,7 +127,7 @@ function DashBoardSettings({
         <div>
             <div className="flex items-center mb-6">
                 <TbSettings className="mr-2 text-2xl" />
-                <h2 className="mb-2 font-semibold text-2xl text-gray-800">Settings </h2>
+                <h2 className="font-semibold text-2xl text-gray-800">Settings </h2>
             </div>
             <div className="flex flex-wrap gap-4 mb-6">
                 {/* <div className="flex items-center space-x-2">
