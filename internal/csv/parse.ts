@@ -91,7 +91,8 @@ export function validateRow(
 
   // validate against special characters like zero-width space and other invisible characters
   const specialCharsRegex = /[\u200B-\u200D\uFEFF]/;
-  if (specialCharsRegex.test(row.description)) {
+  const isSpecialChar = specialCharsRegex.test(row.description);
+  if (isSpecialChar) {
     errors.push({
       type: "InvalidLine",
       message: "Description cannot contain special characters",
@@ -112,7 +113,10 @@ export function validateRow(
     "\u2217", // asterisk operator
   ];
 
-  if (specialChars.some((char) => row.description.includes(char))) {
+  if (
+    !isSpecialChar &&
+    specialChars.some((char) => row.description.includes(char))
+  ) {
     errors.push({
       type: "InvalidLine",
       message: "Description cannot contain special characters",
